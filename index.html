@@ -223,6 +223,19 @@
         <button class="secondary" onclick="bumpTier()">Upgrade verification (demo)</button>
       </div>
       <button class="secondary" onclick="showView('safety')">Restricted items &amp; disputes</button>
+
+      <div class="card">
+        <h3 style="font-size:14px;">Admin access</h3>
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:-4px;">Required to resolve disputes. This is a placeholder gate for solo testing only — the PIN lives in the page source, so it is <b>not real security</b>. A production build needs server-side admin auth before this can be trusted with real money.</p>
+        <div id="adminLocked">
+          <input id="adminPin" type="password" placeholder="Admin PIN">
+          <button class="secondary" onclick="unlockAdmin()">Unlock admin mode</button>
+        </div>
+        <div id="adminUnlockedBox" style="display:none;">
+          <p style="font-size:13px;color:var(--green-dark);font-weight:600;">Admin mode is active on this device.</p>
+          <button class="secondary" onclick="lockAdmin()">Turn off admin mode</button>
+        </div>
+      </div>
     </div>
 
     <!-- SAFETY -->
@@ -266,6 +279,35 @@ function toast(msg){
 }
 
 const LS = { get:(k)=>localStorage.getItem('runwise_'+k), set:(k,v)=>localStorage.setItem('runwise_'+k, v) };
+const ADMIN_PIN = '2024RW'; // placeholder gate only — visible in page source, not real security
+let IS_ADMIN = false;
+
+function renderAdminUI(){
+  const lockedBox = document.getElementById('adminLocked');
+  const unlockedBox = document.getElementById('adminUnlockedBox');
+  if(!lockedBox) return;
+  lockedBox.style.display = IS_ADMIN ? 'none' : 'block';
+  unlockedBox.style.display = IS_ADMIN ? 'block' : 'none';
+}
+
+function unlockAdmin(){
+  const pin = document.getElementById('adminPin').value;
+  if(pin === ADMIN_PIN){
+    IS_ADMIN = true;
+    LS.set('admin', '1');
+    toast('Admin mode unlocked on this device');
+    renderAdminUI(); renderMatchDetail();
+  } else {
+    toast('Incorrect PIN');
+  }
+}
+
+function lockAdmin(){
+  IS_ADMIN = false;
+  LS.set('admin', '0');
+  toast('Admin mode turned off');
+  renderAdminUI(); renderMatchDetail();
+}
 
 async function loadAll(){
   const meRaw = LS.get('me');
@@ -288,6 +330,8 @@ async function loadAll(){
     await saveAll();
   }
   document.getElementById('profileName').value = ME.name;
+  IS_ADMIN = LS.get('admin') === '1';
+  renderAdminUI();
   renderAll();
 }
 
@@ -476,6 +520,7 @@ async function reportProblem(matchId){
 }
 
 async function resolveDispute(matchId, outcome){
+  if(!IS_ADMIN){ toast('Admin mode required to resolve a dispute'); return; }
   const m = DATA.matches.find(x=>x.id===matchId);
   const noteEl = document.getElementById('disputeNote');
   const note = noteEl ? noteEl.value.trim() : '';
@@ -604,14 +649,15 @@ function renderMatchDetail(){
         `<label>Rate ${iAmSender? trip.runnerName : req.senderName}</label><div style="display:flex;gap:6px;justify-content:center;margin-top:6px;">${[1,2,3,4,5].map(s=>`<button class="small secondary" style="width:40px;" onclick="submitRating('${m.id}','${iAmSender?'runner':'sender'}',${s})">${s}★</button>`).join('')}</div>`;
     }
   } else if(m.status==='disputed'){
-    actionHtml = `
-      <p style="font-size:12px;color:var(--ink-soft);margin:0 0 6px;font-weight:600;">Resolve this dispute (admin review — not for either party to decide alone in production)</p>
+    actionHtml = IS_ADMIN ? `
+      <p style="font-size:12px;color:var(--ink-soft);margin:0 0 6px;font-weight:600;">Resolve this dispute — admin mode</p>
       <label>Resolution note</label>
       <textarea id="disputeNote" placeholder="What was decided, and why"></textarea>
       <div class="row2" style="margin-top:10px;">
         <button class="secondary" style="margin-top:0;" onclick="resolveDispute('${m.id}','release')">Release to runner</button>
         <button class="secondary" style="margin-top:0;" onclick="resolveDispute('${m.id}','refund')">Refund sender</button>
-      </div>`;
+      </div>` :
+      `<p style="text-align:center;color:var(--ink-soft);font-size:13px;">This dispute is being reviewed. Neither side can release or refund the held payment until it's resolved.</p>`;
   }
   if(m.status!=='delivered' && m.status!=='disputed' && m.status!=='refunded'){
     actionHtml += `<button class="danger" onclick="reportProblem('${m.id}')">Report a problem</button>`;

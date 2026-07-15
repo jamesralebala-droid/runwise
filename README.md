@@ -24,9 +24,11 @@ Open `index.html` directly in a browser, or serve the repo with any static host 
 - **In-app chat** per match.
 - **Ratings** — 1–5 stars after delivery, running average shown on profile.
 - **Wallet** — balance + transaction history (simulated).
-- **Disputes** — either party can flag a delivery, which freezes the escrowed funds. A resolution panel
-  (release to runner / refund sender, with a note kept on record) lets someone review and close it out.
-  In production this review step needs to be restricted to an actual admin/reviewer role, not either party.
+- **Disputes** — either party can flag a delivery, which freezes the escrowed funds. Resolving a
+  dispute (release to runner / refund sender, with a note kept on record) now requires unlocking
+  **admin mode** in Profile with a PIN. This is a client-side placeholder gate for solo testing —
+  the PIN lives in the page source (`ADMIN_PIN` in `index.html`), so it is **not real security**.
+  It stops accidental self-resolution during testing, not a determined bad actor.
 
 ## Known limitations — read before assuming something's "done"
 
@@ -40,8 +42,9 @@ Open `index.html` directly in a browser, or serve the repo with any static host 
 - **No real auth.** "Login" is just a name prompt stored locally. No password, no verification.
 - **Verification tiers are cosmetic.** The "upgrade verification" button in Profile just increments a
   number — there's no real ID upload/OCR/check behind it yet.
-- **Dispute resolution has no access control.** Anyone looking at a disputed match can resolve it from
-  either side right now. Needs a real admin-only gate before this is trustworthy.
+- **Dispute resolution has a placeholder gate, not real access control.** Admin mode is unlocked by
+  a PIN that's visible in the page source — fine for solo testing, not a real permission system.
+  Needs a real server-side admin role before this is trustworthy with real money.
 
 ## Locked product decisions (do not re-litigate these without a reason)
 
@@ -64,6 +67,6 @@ README.md    — this file
    simulated to real, and enables actual multi-user matching).
 2. Wire a real payment provider for escrow release/refund.
 3. Add real ID verification for the tier system.
-4. Restrict dispute resolution to an admin role.
+4. Replace the placeholder admin PIN with real server-side admin auth.
 5. Cross-border rules currently only cover a small hardcoded city list (`COUNTRY_MAP` in `index.html`)
    — expand as needed.
