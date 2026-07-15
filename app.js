@@ -1,5 +1,5 @@
 const $=s=>document.querySelector(s), money=n=>'P'+Number(n).toLocaleString('en-BW');
-const API = 'http://localhost:5000/api';
+const API = 'http://localhost:5001/api';
 const countries={Botswana:['Gaborone','Francistown','Maun','Kasane','Palapye','Serowe','Mahalapye','Lobatse','Nata'],'South Africa':['Johannesburg','Pretoria','Polokwane','Rustenburg','Cape Town','Durban'],'Zimbabwe':['Harare','Bulawayo','Victoria Falls','Plumtree','Gweru'],'Zambia':['Lusaka','Livingstone','Kazungula','Kitwe','Ndola']};
 
 const state={
