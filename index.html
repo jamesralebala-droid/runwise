@@ -1,5 +1,71 @@
-<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>RunWise</title><link rel='stylesheet' href='styles.css'></head><body>
-<div id='toast' class='toast'></div><aside class='sidebar'><div class='brand'><img src='assets/runwise-logo.svg'><div><strong>RunWise</strong><span>Your Cart. Our Run.</span></div></div><nav id='nav'></nav><button id='modeBtn' class='primary mode'></button></aside>
-<main><header><div><small id='portalName'></small><h1 id='pageTitle'></h1></div><div class='actions'><button id='notify'>🔔</button><button id='primaryAction' class='primary'></button></div></header><section id='content'></section></main>
-<div id='modal' class='modal hidden'><div class='dialog'><div class='dialog-head'><div><small id='modalKicker'>RUNWISE</small><h2 id='modalTitle'></h2></div><button id='close'>✕</button></div><div id='modalBody'></div></div></div>
-<script src='app.js'></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RunWise — Your Cart. Our Run.</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+
+<!-- AUTH SCREEN -->
+<div id="authScreen" class="auth-wrap">
+  <p class="tag">Botswana • South Africa • Zimbabwe • Zambia</p>
+  <h1>RunWise</h1>
+  <div class="auth-tabs">
+    <button id="tabLogin" class="active">Log in</button>
+    <button id="tabSignup">Sign up</button>
+  </div>
+
+  <form id="loginForm">
+    <div class="field"><label>Email</label><input type="email" name="email" required></div>
+    <div class="field"><label>Password</label><input type="password" name="password" required></div>
+    <button class="primary" style="width:100%">Log in</button>
+    <div class="error-msg" id="loginError"></div>
+  </form>
+
+  <form id="signupForm" class="hidden">
+    <div class="field"><label>Full name</label><input type="text" name="full_name" required></div>
+    <div class="field"><label>Email</label><input type="email" name="email" required></div>
+    <div class="field"><label>Password (min 6 characters)</label><input type="password" name="password" required minlength="6"></div>
+    <div class="field">
+      <label>I want to sign up as</label>
+      <div class="role-pick">
+        <button type="button" data-role="customer" class="active">Customer</button>
+        <button type="button" data-role="runner">Runner</button>
+      </div>
+      <input type="hidden" name="role" value="customer">
+    </div>
+    <button class="primary" style="width:100%">Create account</button>
+    <div class="error-msg" id="signupError"></div>
+  </form>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="runwise-logo.svg" alt="RunWise">
+      <div><strong>RunWise</strong><span>Your Cart. Our Run.</span></div>
+    </div>
+    <nav id="nav"></nav>
+    <button id="modeBtn" class="mode"></button>
+    <button id="signOutBtn" class="signout">Sign out</button>
+  </aside>
+  <main>
+    <header class="topbar">
+      <div><small id="portalName"></small><h1 id="pageTitle"></h1></div>
+      <div class="actions">
+        <button id="primaryAction" class="primary"></button>
+      </div>
+    </header>
+    <section id="content"></section>
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
