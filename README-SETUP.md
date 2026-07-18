@@ -98,6 +98,20 @@ served over http/https, not `file://`, for redirects to work correctly —
 
 ## What's real now vs. what's still a stub
 
+## Security migration required
+
+After the original `schema.sql`, `functions.sql`, and `storage.sql` have been
+installed, run this migration once in the Supabase SQL Editor:
+
+```
+migrations/20260718_001_security_and_core_flow.sql
+```
+
+It prevents role self-promotion and self-approval, protects trusted order and
+wallet state from direct browser writes, requires verified runners and approved
+vehicles for new trips, and adds the server-side customer Accept/Decline match
+flow. The updated frontend expects this migration to be installed.
+
 **Now real, persisted, and RLS-protected:**
 - Sign up / log in / log out (Supabase Auth), with `customer` / `runner` role chosen at signup
 - Role switching (customer ⇄ runner) updates a real `profiles` row
@@ -177,3 +191,5 @@ and roles" → "trips, requests, matching, booking" → "Order Room and
 communication" → "escrow, wallets, demo payments" → "journey, proof, Delivery
 PIN" come before Admin, disputes, ratings, and KYC uploads. This package
 covers everything through Delivery PIN and automatic escrow split.
+
+
