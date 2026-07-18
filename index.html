@@ -24,45 +24,67 @@
   <form id="loginForm">
     <div class="field"><label>Email</label><input type="email" name="email" required></div>
     <div class="field"><label>Password</label><input type="password" name="password" required></div>
-    <button class="primary" type="submit" style="width:100%">Log in</button>
-    <div id="loginError" class="error-msg"></div>
+    <button class="primary" style="width:100%">Log in</button>
+    <div class="error-msg" id="loginError"></div>
   </form>
 
   <form id="signupForm" class="hidden">
-    <div class="field"><label>Full name</label><input name="full_name" required></div>
+    <div class="field"><label>Full name</label><input type="text" name="full_name" required></div>
     <div class="field"><label>Email</label><input type="email" name="email" required></div>
-    <div class="field"><label>Password (min 6 characters)</label><input type="password" name="password" minlength="6" required></div>
-    <div class="field"><label>I want to sign up as</label><div class="role-pick"><button type="button" data-role="customer" class="active">Customer</button><button type="button" data-role="runner">Runner</button></div></div>
-    <div class="legal-check"><label><input type="checkbox" name="accept_terms" required> I have read and agree to the <a href="#legal/terms" target="_blank" class="legal-link">RunWise Terms and Conditions</a>.</label></div>
-    <div class="legal-check"><label><input type="checkbox" name="accept_privacy" required> I have read and acknowledge the <a href="#legal/privacy" target="_blank" class="legal-link">RunWise Privacy Policy</a>.</label></div>
-    <button class="primary" type="submit" style="width:100%">Create account</button>
-    <div id="signupError" class="error-msg"></div>
+    <div class="field"><label>Password (min 6 characters)</label><input type="password" name="password" required minlength="6"></div>
+    <div class="field">
+      <label>I want to sign up as</label>
+      <div class="role-pick">
+        <button type="button" data-role="customer" class="active">Customer</button>
+        <button type="button" data-role="runner">Runner</button>
+      </div>
+      <input type="hidden" name="role" value="customer">
+    </div>
+    <div class="field legal-check">
+      <label><input type="checkbox" name="accept_terms" required><span>I have read and agree to the <a href="#legal/terms" target="_blank" class="legal-link">RunWise Terms and Conditions</a>.</span></label>
+    </div>
+    <div class="field legal-check">
+      <label><input type="checkbox" name="accept_privacy" required><span>I have read and acknowledge the <a href="#legal/privacy" target="_blank" class="legal-link">RunWise Privacy Policy</a>.</span></label>
+    </div>
+    <button class="primary" style="width:100%">Create account</button>
+    <div class="error-msg" id="signupError"></div>
   </form>
 </div>
 
-<!-- APP -->
+<!-- LEGAL DOCUMENT VIEWER — works without login -->
+<div id="legalScreen" class="hidden">
+  <div class="legal-shell">
+    <div class="legal-topbar">
+      <button id="legalBack" class="secondary">← Back</button>
+      <button id="legalPrint" class="secondary">Print / Save as PDF</button>
+    </div>
+    <div class="legal-body">
+      <div class="legal-toc" id="legalToc"></div>
+      <div class="legal-doc" id="legalDoc"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
 <div id="app" class="hidden">
   <aside class="sidebar">
-    <div class="brand"><img src="runwise-logo.svg" alt="RunWise"><div><strong>RunWise</strong><span>Your Cart. Our Run.</span></div></div>
+    <div class="brand">
+      <img src="runwise-logo.svg" alt="RunWise">
+      <div><strong>RunWise</strong><span>Your Cart. Our Run.</span></div>
+    </div>
     <nav id="nav"></nav>
     <button id="modeBtn" class="mode"></button>
     <button id="signOutBtn" class="signout">Sign out</button>
   </aside>
   <main>
     <header class="topbar">
-      <div><small id="eyebrow">RUNWISE MARKETPLACE</small><h1 id="pageTitle">Home</h1></div>
-      <div class="actions" id="topActions"></div>
+      <div><small id="portalName"></small><h1 id="pageTitle"></h1></div>
+      <div class="actions">
+        <button id="primaryAction" class="primary"></button>
+      </div>
     </header>
     <section id="content"></section>
   </main>
-</div>
-
-<!-- LEGAL SCREEN -->
-<div id="legalScreen" class="hidden">
-  <div class="legal-shell">
-    <div class="legal-topbar"><button id="legalBackBtn" class="secondary" type="button">← Back</button><button id="legalPrintBtn" class="secondary" type="button">Print / Save PDF</button></div>
-    <div id="legalBody" class="legal-body"></div>
-  </div>
 </div>
 
 <!-- POST REQUEST MODAL -->
@@ -91,20 +113,36 @@
       </fieldset>
 
       <div class="route-fields">
-        <label>Pickup city<input name="from_city" list="runwiseCities" autocomplete="address-level2" placeholder="e.g. Gaborone" required></label>
+        <label>Pickup city
+          <input name="from_city" list="runwiseCities" autocomplete="address-level2" placeholder="e.g. Gaborone" required>
+        </label>
         <div class="route-arrow" aria-hidden="true">→</div>
-        <label>Delivery city<input name="to_city" list="runwiseCities" autocomplete="address-level2" placeholder="e.g. Serowe" required></label>
+        <label>Delivery city
+          <input name="to_city" list="runwiseCities" autocomplete="address-level2" placeholder="e.g. Serowe" required>
+        </label>
       </div>
 
       <div class="grid2 request-details">
-        <label>Estimated item value (BWP)<input type="number" name="estimated_value" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 300" required><small>Enter 0 if the item is already paid for.</small></label>
-        <label>What must the runner know?<textarea name="details" maxlength="500" rows="4" placeholder="Items, size, quantity, collection instructions or deadline"></textarea><small><span id="requestDetailsCount">0</span>/500 characters</small></label>
+        <label>Estimated item value (BWP)
+          <input type="number" name="estimated_value" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 300" required>
+          <small>Enter 0 if the item is already paid for.</small>
+        </label>
+        <label>What must the runner know?
+          <textarea name="details" maxlength="500" rows="4" placeholder="Items, size, quantity, collection instructions or deadline"></textarea>
+          <small><span id="requestDetailsCount">0</span>/500 characters</small>
+        </label>
       </div>
 
       <div class="grid2 request-details">
-        <label>Pickup landmark (optional)<input name="from_landmark" placeholder="e.g. next to the clinic"></label>
-        <label>Drop-off landmark (optional)<input name="to_landmark" placeholder="e.g. blue gate"></label>
-        <label class="full">Written directions (optional)<textarea name="written_directions" rows="2" placeholder="Helpful directions if the location is difficult to map"></textarea></label>
+        <label>Pickup landmark (optional)
+          <input name="from_landmark" placeholder="e.g. next to the clinic">
+        </label>
+        <label>Drop-off landmark (optional)
+          <input name="to_landmark" placeholder="e.g. blue gate">
+        </label>
+        <label class="full">Written directions (optional)
+          <textarea name="written_directions" rows="2" placeholder="Helpful directions if the location is difficult to map"></textarea>
+        </label>
       </div>
 
       <div class="declaration-box request-declarations">
@@ -120,7 +158,10 @@
       </div>
 
       <div id="requestError" class="form-error" role="alert"></div>
-      <div class="modal-actions"><button class="secondary" type="button" data-close-request>Cancel</button><button id="submitRequestBtn" class="primary" type="submit">Post Request</button></div>
+      <div class="modal-actions">
+        <button class="secondary" type="button" data-close-request>Cancel</button>
+        <button id="submitRequestBtn" class="primary" type="submit">Post Request</button>
+      </div>
     </form>
   </div>
 </div>
