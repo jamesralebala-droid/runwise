@@ -81,6 +81,33 @@ renderLegalDoc = async function renderLegalDocV11(type) {
   }
 };
 
+// Retry transient Safari/network login failures automatically instead of making
+// the user submit the same login twice.
+$('#loginForm').onsubmit = async e => {
+  e.preventDefault();
+  $('#loginError').textContent = '';
+  const button = e.submitter;
+  const f = new FormData(e.target);
+  setBusy(button, true, 'Logging in…');
+  try {
+    let result = null;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        result = await sb.auth.signInWithPassword({ email: f.get('email'), password: f.get('password') });
+      } catch (error) {
+        result = { error };
+      }
+      if (!result?.error) break;
+      if (!isTransient(result.error) || attempt === 2) throw result.error;
+      await wait(500 * (attempt + 1));
+    }
+  } catch (error) {
+    $('#loginError').textContent = friendlyError(error, 'Could not log in.');
+  } finally {
+    setBusy(button, false);
+  }
+};
+
 // Fix signup busy-state handling while preserving the existing flow.
 $('#signupForm').onsubmit = async e => {
   e.preventDefault();
