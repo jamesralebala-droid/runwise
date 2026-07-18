@@ -1,0 +1,41 @@
+/* RunWise signup legal checkbox layout fix */
+#signupForm .legal-check {
+  display: block !important;
+  margin-bottom: 12px;
+}
+
+#signupForm .legal-check label {
+  display: grid !important;
+  grid-template-columns: 18px minmax(0, 1fr);
+  column-gap: 9px;
+  align-items: start;
+  width: 100%;
+  margin: 0;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+#signupForm .legal-check input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  margin: 2px 0 0 !important;
+  padding: 0 !important;
+  accent-color: var(--green);
+}
+
+#signupForm .legal-link {
+  display: inline;
+  color: var(--green);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .auth-wrap {
+    width: calc(100% - 24px);
+    margin: 20px auto;
+    padding: 24px 20px;
+  }
+}
