@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123F34">
 <title>RunWise — Your Cart. Our Run.</title>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=2">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
-<div id="toast" class="toast"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <!-- AUTH SCREEN -->
 <div id="authScreen" class="auth-wrap">
@@ -87,7 +88,95 @@
   </main>
 </div>
 
+<!-- POST REQUEST MODAL -->
+<div id="requestModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="requestModalTitle">
+  <button class="modal-backdrop" type="button" aria-label="Close request form" data-close-request></button>
+  <div class="modal-panel">
+    <div class="modal-head">
+      <div>
+        <small>NEW RUNWISE REQUEST</small>
+        <h2 id="requestModalTitle">What should a runner carry?</h2>
+        <p>Give runners enough detail to understand the job and match your route.</p>
+      </div>
+      <button class="icon-btn" type="button" aria-label="Close" data-close-request>×</button>
+    </div>
+
+    <form id="requestForm">
+      <fieldset class="request-types">
+        <legend>Choose a request type</legend>
+        <label><input type="radio" name="type" value="shopping" required><span><b>🛍️ Shopping</b><small>Buy items for me</small></span></label>
+        <label><input type="radio" name="type" value="parcel"><span><b>📦 Parcel</b><small>Carry a package</small></span></label>
+        <label><input type="radio" name="type" value="documents"><span><b>📄 Documents</b><small>Deliver paperwork</small></span></label>
+        <label><input type="radio" name="type" value="medicine"><span><b>💊 Medicine</b><small>Collect medicine</small></span></label>
+        <label><input type="radio" name="type" value="gift"><span><b>🎁 Gift</b><small>Send a gift</small></span></label>
+        <label><input type="radio" name="type" value="business_stock"><span><b>🏪 Business stock</b><small>Move shop supplies</small></span></label>
+        <label><input type="radio" name="type" value="large_cargo"><span><b>🚚 Large cargo</b><small>Carry a bulky load</small></span></label>
+      </fieldset>
+
+      <div class="route-fields">
+        <label>Pickup city
+          <input name="from_city" list="runwiseCities" autocomplete="address-level2" placeholder="e.g. Gaborone" required>
+        </label>
+        <div class="route-arrow" aria-hidden="true">→</div>
+        <label>Delivery city
+          <input name="to_city" list="runwiseCities" autocomplete="address-level2" placeholder="e.g. Serowe" required>
+        </label>
+      </div>
+
+      <div class="grid2 request-details">
+        <label>Estimated item value (BWP)
+          <input type="number" name="estimated_value" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 300" required>
+          <small>Enter 0 if the item is already paid for.</small>
+        </label>
+        <label>What must the runner know?
+          <textarea name="details" maxlength="500" rows="4" placeholder="Items, size, quantity, collection instructions or deadline"></textarea>
+          <small><span id="requestDetailsCount">0</span>/500 characters</small>
+        </label>
+      </div>
+
+      <div class="grid2 request-details">
+        <label>Pickup landmark (optional)
+          <input name="from_landmark" placeholder="e.g. next to the clinic">
+        </label>
+        <label>Drop-off landmark (optional)
+          <input name="to_landmark" placeholder="e.g. blue gate">
+        </label>
+        <label class="full">Written directions (optional)
+          <textarea name="written_directions" rows="2" placeholder="Helpful directions if the location is difficult to map"></textarea>
+        </label>
+      </div>
+
+      <div class="declaration-box request-declarations">
+        <div class="legal-check"><label><input type="checkbox" name="d1" required> I have accurately described the item, quantity, and value.</label></div>
+        <div class="legal-check"><label><input type="checkbox" name="d2" required> I own the item, or have legal authority to send it.</label></div>
+        <div class="legal-check"><label><input type="checkbox" name="d3" required> The item is not prohibited or unlawfully restricted. See the <a href="#legal/prohibited_items" target="_blank" class="legal-link">Prohibited and Restricted Items Policy</a>.</label></div>
+        <div class="legal-check"><label><input type="checkbox" name="d4" required> The item is packaged safely and appropriately.</label></div>
+        <div class="legal-check"><label><input type="checkbox" name="cross_border"> This is a cross-border request.</label></div>
+        <div id="crossBorderChecks" class="hidden">
+          <div class="legal-check"><label><input type="checkbox" name="cb1"> I understand that customs duties, taxes, inspections, delays, seizure, and documentation requirements may apply. See the <a href="#legal/cross_border" target="_blank" class="legal-link">Cross-Border Delivery Policy</a>.</label></div>
+          <div class="legal-check"><label><input type="checkbox" name="cb2"> I accept responsibility for truthful customs information and lawful import and export of the item.</label></div>
+        </div>
+      </div>
+
+      <div id="requestError" class="form-error" role="alert"></div>
+      <div class="modal-actions">
+        <button class="secondary" type="button" data-close-request>Cancel</button>
+        <button id="submitRequestBtn" class="primary" type="submit">Post Request</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<datalist id="runwiseCities">
+  <option value="Gaborone"><option value="Francistown"><option value="Maun"><option value="Serowe">
+  <option value="Mahalapye"><option value="Palapye"><option value="Lobatse"><option value="Kanye">
+  <option value="Molepolole"><option value="Kasane"><option value="Tlokweng"><option value="Ramotswa">
+  <option value="Johannesburg"><option value="Pretoria"><option value="Polokwane"><option value="Cape Town">
+  <option value="Harare"><option value="Bulawayo"><option value="Lusaka"><option value="Livingstone">
+</datalist>
+
 <script src="config.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>
+
