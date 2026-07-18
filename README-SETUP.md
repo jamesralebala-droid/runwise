@@ -4,6 +4,11 @@ This replaces the localStorage-only prototype with real auth, a real Postgres
 database, row-level security, and server-side financial logic — the
 foundation the Master Continuation Prompt requires before anything else.
 
+**Once setup is done, see `TESTING-CHECKLIST.md`** for a step-by-step manual
+walkthrough of the entire flow — signup through KYC, trip/request matching,
+escrow, delivery, ratings, disputes, and admin controls — before you rely on
+any of this.
+
 ## 1. Clean up the repo first
 
 The repo currently has **three copies** of the app (root `index.html`/`app.js`,
@@ -21,11 +26,34 @@ git rm index.html app.js styles.css
 1. Go to https://supabase.com → New Project.
 2. Once it's provisioned, open **SQL Editor** and run, in order:
    - `supabase/schema.sql`
-   - `supabase/functions.sql`
+   - `supabase/functions.sql` (includes escrow, disputes, ratings, and
+     withdrawals — safe to re-run if you already applied an earlier version)
    - `supabase/storage.sql` (creates the private `runwise-uploads` bucket used
      for KYC documents and vehicle photos)
+   - `supabase/settings_and_privacy.sql` (platform settings, RunScore
+     automation, proximity phone reveal, **and a privacy fix** — see below)
+   - `supabase/legal.sql` (versioned legal documents, an immutable acceptance
+     ledger, and admin-configurable compliance flags)
+   - `supabase/legal_seed.sql` (the actual RunWise Legal Pack v1.0 content —
+     10 documents, run this right after `legal.sql`)
+   - `supabase/verify_install.sql` — not required, but run this last and
+     check the output. It confirms every table/function/bucket from the
+     files above actually got created, and specifically checks that
+     the privacy-fix policy drop took effect. Doesn't change anything.
 3. Open **Project Settings → API** and copy your **Project URL** and
    **anon public key**.
+
+### Important: privacy fix included in this update
+
+The original `schema.sql` had a `profiles_select_public_basics` policy with
+`using (true)` on the **entire** profiles table, meaning any signed-in user
+could query someone else's phone number directly through the anon key, not
+just the name/rating fields the UI actually shows — Row Level Security can
+only restrict which *rows* you see, not which *columns*. `settings_and_privacy.sql`
+drops that policy and adds a `public_profiles` table that only ever holds
+safe-to-share fields (name, rating, RunScore tier), kept in sync via a
+trigger. If you already had users sign up before applying this file, it
+backfills `public_profiles` for them automatically.
 
 ## 3. Seed a treasury wallet (one-time)
 
@@ -90,18 +118,57 @@ served over http/https, not `file://`, for redirects to work correctly —
   role-switch button) — dashboard of pending counts, runner verification
   review with signed-URL document viewing and approve/reject, vehicle
   approval queue, and every decision logged to `admin_audit_log`
+- Ratings — after escrow is released or a dispute is refunded, both parties
+  see a "Rate" panel in the Order Room (stars + tagged strengths + comment);
+  a trigger keeps `profiles.rating_sum` / `rating_count` in sync automatically
+- Disputes — either party can raise one from the Order Room while an order is
+  active; this immediately flips escrow to `disputed` and freezes further
+  action (no fund/confirm-delivery buttons) until an admin resolves it.
+  Admin resolution supports: release funds to runner, full refund to customer
+  (runner forfeits their fee), partial refund (admin sets how much of the
+  runner's fee still gets paid out), runner penalty (RunScore −15), and
+  account restriction/suspension flags — all logged to `admin_audit_log`.
+  Note: refunds happen on whatever real payment gateway you eventually wire
+  up to `fund_escrow()` — RunWise's own wallet ledger only ever tracks money
+  *owed to* runners and the platform, never customer funds in custody.
 
 **Schema is ready for these, but there's no UI yet — next priorities per the
 Master Prompt's own ordering:**
-- Ratings UI (table exists, no submission screen yet)
-- Dispute flow UI (table + escrow "frozen"/"disputed" statuses exist, no
-  screen to raise or resolve one yet)
-- Real payment gateway integration (Orange Money / MyZaka / card) — currently
-  simulated via `fund_escrow()`
-- Proximity-based temporary phone number reveal (needs live location, which
-  needs a decision on a maps/geolocation provider)
-- Fee/threshold configuration screen for admins (RunScore levels, shopping
-  limits — currently hardcoded in `functions.sql`)
+- Real payment gateway integration (Orange Money / MyZaka / card) — see
+  below, this is deliberately left as scaffolding, not a working integration
+
+### Also now real as of this update
+
+- **Suspension/restriction enforcement** — `is_active_account()` is checked
+  directly in the RLS policies on `trips` and `requests`, so a restricted or
+  suspended account genuinely cannot insert new listings, even via a raw API
+  call with their own token — this isn't just a hidden button. A suspended
+  user is also force-signed-out on next load with a dedicated blocked
+  screen; a restricted user sees a banner and can still manage existing
+  orders, chat, and get paid out on work already underway.
+- **Admin Platform Settings screen** — fee percentages (runner/platform/
+  protection), max shopping value, RunScore tier thresholds, and the
+  proximity phone-reveal distance are all editable from the admin portal
+  instead of hardcoded. `accept_match()` reads live from this table.
+- **RunScore tiers are automatic** — a trigger recalculates bronze/silver/
+  gold/platinum whenever `run_score` changes, using the admin's thresholds.
+- **Proximity-based phone reveal** — in the Order Room, both parties can
+  share their location (browser geolocation) and check the distance between
+  them. The actual phone number is only ever disclosed by a server-side
+  function that independently computes the distance (Haversine) between
+  both parties' most recently shared positions — a client can't just claim
+  "we're close" to get the number.
+- **Payment gateway scaffolding** — `supabase/functions/payment-webhook/`
+  is a real Edge Function *shape*, deliberately left with two TODOs
+  (signature verification, payload field names) because I don't have and
+  can't fabricate real Orange Money/MyZaka/card credentials or their actual
+  webhook formats. It calls a new `fund_escrow_serverside()` SQL function
+  that's locked down to the service role only — no authenticated user can
+  call it directly, unlike the current demo `fund_escrow()`. When you have
+  real gateway credentials: fill in the two TODOs, point the gateway's
+  webhook at this function's URL, and change the frontend's "Fund Escrow"
+  button to redirect to the gateway's checkout instead of calling
+  `fund_escrow()` directly.
 
 ## Why this order
 
