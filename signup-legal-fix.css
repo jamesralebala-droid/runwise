@@ -7,30 +7,37 @@
 
 #signupForm .legal-check label,
 #requestForm .legal-check label {
-  display: grid !important;
-  grid-template-columns: 18px minmax(0, 1fr);
-  column-gap: 9px;
-  align-items: start;
+  display: block !important;
+  position: relative;
   width: 100%;
   margin: 0;
+  padding-left: 28px;
   font-weight: 400;
   font-size: 13px;
   line-height: 1.45;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 #signupForm .legal-check input[type="checkbox"],
 #requestForm .legal-check input[type="checkbox"] {
+  position: absolute;
+  left: 0;
+  top: 2px;
   width: 16px !important;
   height: 16px !important;
-  margin: 2px 0 0 !important;
+  margin: 0 !important;
   padding: 0 !important;
   accent-color: var(--green);
 }
 
 #signupForm .legal-link,
 #requestForm .legal-link {
-  display: inline;
+  display: inline !important;
+  width: auto !important;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
   color: var(--green);
   text-decoration: underline;
   font-weight: 600;
