@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#123F34">
 <title>RunWise — Your Cart. Our Run.</title>
 <link rel="stylesheet" href="styles.css?v=2">
-<link rel="stylesheet" href="signup-legal-fix.css?v=1">
+<link rel="stylesheet" href="signup-legal-fix.css?v=2">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
@@ -24,69 +24,45 @@
   <form id="loginForm">
     <div class="field"><label>Email</label><input type="email" name="email" required></div>
     <div class="field"><label>Password</label><input type="password" name="password" required></div>
-    <button class="primary" style="width:100%">Log in</button>
-    <div class="error-msg" id="loginError"></div>
+    <button class="primary" type="submit" style="width:100%">Log in</button>
+    <div id="loginError" class="error-msg"></div>
   </form>
 
   <form id="signupForm" class="hidden">
-    <div class="field"><label>Full name</label><input type="text" name="full_name" required></div>
+    <div class="field"><label>Full name</label><input name="full_name" required></div>
     <div class="field"><label>Email</label><input type="email" name="email" required></div>
-    <div class="field"><label>Password (min 6 characters)</label><input type="password" name="password" required minlength="6"></div>
-    <div class="field">
-      <label>I want to sign up as</label>
-      <div class="role-pick">
-        <button type="button" data-role="customer" class="active">Customer</button>
-        <button type="button" data-role="runner">Runner</button>
-      </div>
-      <input type="hidden" name="role" value="customer">
-    </div>
-    <div class="field legal-check">
-      <label><input type="checkbox" name="accept_terms" required>
-        <span>I have read and agree to the <a href="#legal/terms" target="_blank" class="legal-link">RunWise Terms and Conditions</a>.</span></label>
-    </div>
-    <div class="field legal-check">
-      <label><input type="checkbox" name="accept_privacy" required>
-        <span>I have read and acknowledge the <a href="#legal/privacy" target="_blank" class="legal-link">RunWise Privacy Policy</a>.</span></label>
-    </div>
-    <button class="primary" style="width:100%">Create account</button>
-    <div class="error-msg" id="signupError"></div>
+    <div class="field"><label>Password (min 6 characters)</label><input type="password" name="password" minlength="6" required></div>
+    <div class="field"><label>I want to sign up as</label><div class="role-pick"><button type="button" data-role="customer" class="active">Customer</button><button type="button" data-role="runner">Runner</button></div></div>
+    <div class="legal-check"><label><input type="checkbox" name="accept_terms" required> I have read and agree to the <a href="#legal/terms" target="_blank" class="legal-link">RunWise Terms and Conditions</a>.</label></div>
+    <div class="legal-check"><label><input type="checkbox" name="accept_privacy" required> I have read and acknowledge the <a href="#legal/privacy" target="_blank" class="legal-link">RunWise Privacy Policy</a>.</label></div>
+    <button class="primary" type="submit" style="width:100%">Create account</button>
+    <div id="signupError" class="error-msg"></div>
   </form>
 </div>
 
-<!-- LEGAL DOCUMENT VIEWER — works without login -->
-<div id="legalScreen" class="hidden">
-  <div class="legal-shell">
-    <div class="legal-topbar">
-      <button id="legalBack" class="secondary">← Back</button>
-      <button id="legalPrint" class="secondary">Print / Save as PDF</button>
-    </div>
-    <div class="legal-body">
-      <div class="legal-toc" id="legalToc"></div>
-      <div class="legal-doc" id="legalDoc"></div>
-    </div>
-  </div>
-</div>
-
-<!-- MAIN APP -->
+<!-- APP -->
 <div id="app" class="hidden">
   <aside class="sidebar">
-    <div class="brand">
-      <img src="runwise-logo.svg" alt="RunWise">
-      <div><strong>RunWise</strong><span>Your Cart. Our Run.</span></div>
-    </div>
+    <div class="brand"><img src="runwise-logo.svg" alt="RunWise"><div><strong>RunWise</strong><span>Your Cart. Our Run.</span></div></div>
     <nav id="nav"></nav>
     <button id="modeBtn" class="mode"></button>
     <button id="signOutBtn" class="signout">Sign out</button>
   </aside>
   <main>
     <header class="topbar">
-      <div><small id="portalName"></small><h1 id="pageTitle"></h1></div>
-      <div class="actions">
-        <button id="primaryAction" class="primary"></button>
-      </div>
+      <div><small id="eyebrow">RUNWISE MARKETPLACE</small><h1 id="pageTitle">Home</h1></div>
+      <div class="actions" id="topActions"></div>
     </header>
     <section id="content"></section>
   </main>
+</div>
+
+<!-- LEGAL SCREEN -->
+<div id="legalScreen" class="hidden">
+  <div class="legal-shell">
+    <div class="legal-topbar"><button id="legalBackBtn" class="secondary" type="button">← Back</button><button id="legalPrintBtn" class="secondary" type="button">Print / Save PDF</button></div>
+    <div id="legalBody" class="legal-body"></div>
+  </div>
 </div>
 
 <!-- POST REQUEST MODAL -->
@@ -115,55 +91,36 @@
       </fieldset>
 
       <div class="route-fields">
-        <label>Pickup city
-          <input name="from_city" list="runwiseCities" autocomplete="address-level2" placeholder="e.g. Gaborone" required>
-        </label>
+        <label>Pickup city<input name="from_city" list="runwiseCities" autocomplete="address-level2" placeholder="e.g. Gaborone" required></label>
         <div class="route-arrow" aria-hidden="true">→</div>
-        <label>Delivery city
-          <input name="to_city" list="runwiseCities" autocomplete="address-level2" placeholder="e.g. Serowe" required>
-        </label>
+        <label>Delivery city<input name="to_city" list="runwiseCities" autocomplete="address-level2" placeholder="e.g. Serowe" required></label>
       </div>
 
       <div class="grid2 request-details">
-        <label>Estimated item value (BWP)
-          <input type="number" name="estimated_value" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 300" required>
-          <small>Enter 0 if the item is already paid for.</small>
-        </label>
-        <label>What must the runner know?
-          <textarea name="details" maxlength="500" rows="4" placeholder="Items, size, quantity, collection instructions or deadline"></textarea>
-          <small><span id="requestDetailsCount">0</span>/500 characters</small>
-        </label>
+        <label>Estimated item value (BWP)<input type="number" name="estimated_value" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 300" required><small>Enter 0 if the item is already paid for.</small></label>
+        <label>What must the runner know?<textarea name="details" maxlength="500" rows="4" placeholder="Items, size, quantity, collection instructions or deadline"></textarea><small><span id="requestDetailsCount">0</span>/500 characters</small></label>
       </div>
 
       <div class="grid2 request-details">
-        <label>Pickup landmark (optional)
-          <input name="from_landmark" placeholder="e.g. next to the clinic">
-        </label>
-        <label>Drop-off landmark (optional)
-          <input name="to_landmark" placeholder="e.g. blue gate">
-        </label>
-        <label class="full">Written directions (optional)
-          <textarea name="written_directions" rows="2" placeholder="Helpful directions if the location is difficult to map"></textarea>
-        </label>
+        <label>Pickup landmark (optional)<input name="from_landmark" placeholder="e.g. next to the clinic"></label>
+        <label>Drop-off landmark (optional)<input name="to_landmark" placeholder="e.g. blue gate"></label>
+        <label class="full">Written directions (optional)<textarea name="written_directions" rows="2" placeholder="Helpful directions if the location is difficult to map"></textarea></label>
       </div>
 
       <div class="declaration-box request-declarations">
-        <div class="legal-check"><label><input type="checkbox" name="d1" required> I have accurately described the item, quantity, and value.</label></div>
-        <div class="legal-check"><label><input type="checkbox" name="d2" required> I own the item, or have legal authority to send it.</label></div>
-        <div class="legal-check"><label><input type="checkbox" name="d3" required> The item is not prohibited or unlawfully restricted. See the <a href="#legal/prohibited_items" target="_blank" class="legal-link">Prohibited and Restricted Items Policy</a>.</label></div>
-        <div class="legal-check"><label><input type="checkbox" name="d4" required> The item is packaged safely and appropriately.</label></div>
-        <div class="legal-check"><label><input type="checkbox" name="cross_border"> This is a cross-border request.</label></div>
+        <div class="legal-check"><label><input type="checkbox" name="d1" required><span>I have accurately described the item, quantity, and value.</span></label></div>
+        <div class="legal-check"><label><input type="checkbox" name="d2" required><span>I own the item, or have legal authority to send it.</span></label></div>
+        <div class="legal-check"><label><input type="checkbox" name="d3" required><span>The item is not prohibited or unlawfully restricted. See the <a href="#legal/prohibited_items" target="_blank" class="legal-link">Prohibited and Restricted Items Policy</a>.</span></label></div>
+        <div class="legal-check"><label><input type="checkbox" name="d4" required><span>The item is packaged safely and appropriately.</span></label></div>
+        <div class="legal-check"><label><input type="checkbox" name="cross_border"><span>This is a cross-border request.</span></label></div>
         <div id="crossBorderChecks" class="hidden">
-          <div class="legal-check"><label><input type="checkbox" name="cb1"> I understand that customs duties, taxes, inspections, delays, seizure, and documentation requirements may apply. See the <a href="#legal/cross_border" target="_blank" class="legal-link">Cross-Border Delivery Policy</a>.</label></div>
-          <div class="legal-check"><label><input type="checkbox" name="cb2"> I accept responsibility for truthful customs information and lawful import and export of the item.</label></div>
+          <div class="legal-check"><label><input type="checkbox" name="cb1"><span>I understand that customs duties, taxes, inspections, delays, seizure, and documentation requirements may apply. See the <a href="#legal/cross_border" target="_blank" class="legal-link">Cross-Border Delivery Policy</a>.</span></label></div>
+          <div class="legal-check"><label><input type="checkbox" name="cb2"><span>I accept responsibility for truthful customs information and lawful import and export of the item.</span></label></div>
         </div>
       </div>
 
       <div id="requestError" class="form-error" role="alert"></div>
-      <div class="modal-actions">
-        <button class="secondary" type="button" data-close-request>Cancel</button>
-        <button id="submitRequestBtn" class="primary" type="submit">Post Request</button>
-      </div>
+      <div class="modal-actions"><button class="secondary" type="button" data-close-request>Cancel</button><button id="submitRequestBtn" class="primary" type="submit">Post Request</button></div>
     </form>
   </div>
 </div>
