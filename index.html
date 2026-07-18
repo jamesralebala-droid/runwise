@@ -38,9 +38,31 @@
       </div>
       <input type="hidden" name="role" value="customer">
     </div>
+    <div class="field legal-check">
+      <label><input type="checkbox" name="accept_terms" required>
+        I have read and agree to the <a href="#legal/terms" target="_blank" class="legal-link">RunWise Terms and Conditions</a>.</label>
+    </div>
+    <div class="field legal-check">
+      <label><input type="checkbox" name="accept_privacy" required>
+        I have read and acknowledge the <a href="#legal/privacy" target="_blank" class="legal-link">RunWise Privacy Policy</a>.</label>
+    </div>
     <button class="primary" style="width:100%">Create account</button>
     <div class="error-msg" id="signupError"></div>
   </form>
+</div>
+
+<!-- LEGAL DOCUMENT VIEWER — works without login -->
+<div id="legalScreen" class="hidden">
+  <div class="legal-shell">
+    <div class="legal-topbar">
+      <button id="legalBack" class="secondary">← Back</button>
+      <button id="legalPrint" class="secondary">Print / Save as PDF</button>
+    </div>
+    <div class="legal-body">
+      <div class="legal-toc" id="legalToc"></div>
+      <div class="legal-doc" id="legalDoc"></div>
+    </div>
+  </div>
 </div>
 
 <!-- MAIN APP -->
