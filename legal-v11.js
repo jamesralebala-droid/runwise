@@ -117,3 +117,7 @@ $('#signupForm').onsubmit = async e => {
     setBusy(button, false);
   }
 };
+
+// app.js performs its first route check before this patch loads. Re-run legal
+// routes once so direct #legal/... links use the v1.1-aware handlers above.
+if (location.hash.startsWith('#legal')) checkLegalRoute();
