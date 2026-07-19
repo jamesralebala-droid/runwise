@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "RunWise",
+    "slug": "runwise",
+    "version": "0.1.2",
+    "orientation": "portrait",
+    "scheme": "runwise",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "bw.co.runwise.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#123F34"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    "ios": {
+      "bundleIdentifier": "bw.co.runwise.app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "RunWise uses your location only during an active order to support a safe handover."
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-document-picker",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "RunWise uses your location only during an active order to support a safe handover."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "fe16765d-89dc-4302-aa26-2b029652e3f9"
+      }
+    },
+    "owner": "basimane"
+  }
+}
