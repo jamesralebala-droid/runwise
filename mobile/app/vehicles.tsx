@@ -31,7 +31,7 @@ export default function VehiclesScreen() {
     try {
       const paths: string[] = [];
       for (const photo of photos) paths.push(await uploadAsset(profile.id, 'vehicles', photo));
-      const { error } = await supabase.from('vehicles').insert({ id: newId(), user_id: profile.id, make_model: makeModel.trim(), plate_number: plate.trim().toUpperCase(), photo_urls: paths, approved: false });
+      const { error } = await supabase.from('vehicles').insert({ id: newId(), user_id: profile.id, make_model: makeModel.trim(), plate_number: plate.trim().toUpperCase(), photo_urls: paths, approved: false, review_status: 'pending' });
       if (error) throw error;
       setMakeModel(''); setPlate(''); setPhotos([]);
       Alert.alert('Vehicle submitted', 'An administrator will review it before it can be used for trips.');
@@ -43,7 +43,14 @@ export default function VehiclesScreen() {
   return (
     <Screen>
       <Text style={styles.title}>Your vehicles</Text>
-      {vehicles.length ? vehicles.map((vehicle) => <Card key={vehicle.id}><View style={styles.row}><Text style={styles.vehicle}>{vehicle.make_model}</Text><Pill text={vehicle.approved ? 'approved' : 'pending approval'} tone={vehicle.approved ? 'success' : 'warning'} /></View><Text style={styles.muted}>Plate: {vehicle.plate_number || 'Not provided'} • {vehicle.photo_urls.length} photo(s)</Text></Card>) : <EmptyState icon="🚙" title="No vehicles" message="Add the vehicle you will use for RunWise journeys." />}
+      {vehicles.length ? vehicles.map((vehicle) => {
+        const status = vehicle.review_status || (vehicle.approved ? 'approved' : 'pending');
+        return <Card key={vehicle.id}>
+          <View style={styles.row}><Text style={styles.vehicle}>{vehicle.make_model}</Text><Pill text={status === 'pending' ? 'pending approval' : status} tone={status === 'approved' ? 'success' : status === 'rejected' ? 'danger' : 'warning'} /></View>
+          <Text style={styles.muted}>Plate: {vehicle.plate_number || 'Not provided'} • {vehicle.photo_urls.length} photo(s)</Text>
+          {status === 'rejected' && <View style={styles.feedback}><Text style={styles.feedbackTitle}>Why it was rejected</Text><Text style={styles.feedbackText}>{vehicle.rejection_reason || 'Please correct the vehicle details or photos and submit a new vehicle.'}</Text></View>}
+        </Card>;
+      }) : <EmptyState icon="🚙" title="No vehicles" message="Add the vehicle you will use for RunWise journeys." />}
       <Card>
         <Text style={styles.title}>Add a vehicle</Text>
         <Field label="Make and model" value={makeModel} onChangeText={setMakeModel} placeholder="Toyota Hilux" />
@@ -55,4 +62,4 @@ export default function VehiclesScreen() {
   );
 }
 
-const styles = StyleSheet.create({ title: { color: colors.green, fontWeight: '900', fontSize: 20 }, vehicle: { color: colors.green, fontWeight: '900', fontSize: 18, flex: 1 }, row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }, muted: { color: colors.muted, fontSize: 16, lineHeight: 23 } });
+const styles = StyleSheet.create({ title: { color: colors.green, fontWeight: '900', fontSize: 20 }, vehicle: { color: colors.green, fontWeight: '900', fontSize: 18, flex: 1 }, row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }, muted: { color: colors.muted, fontSize: 16, lineHeight: 23 }, feedback: { marginTop: 12, padding: 12, borderRadius: 10, backgroundColor: '#FDEDE9', borderLeftWidth: 4, borderLeftColor: colors.danger }, feedbackTitle: { color: colors.danger, fontSize: 16, fontWeight: '900' }, feedbackText: { color: colors.charcoal, fontSize: 16, lineHeight: 23, marginTop: 4 } });
