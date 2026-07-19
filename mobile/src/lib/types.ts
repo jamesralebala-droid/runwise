@@ -104,5 +104,7 @@ export type Vehicle = {
   plate_number: string | null;
   photo_urls: string[];
   approved: boolean;
+  review_status?: 'pending' | 'approved' | 'rejected';
+  rejection_reason?: string | null;
   created_at: string;
 };
