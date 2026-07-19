@@ -10,6 +10,7 @@ In Supabase, open **SQL Editor → New query** and run these files in timestamp 
 1. `supabase/migrations/20260719132500_add_propose_match.sql`
 2. `supabase/migrations/20260719152000_admin_operations.sql`
 3. `supabase/migrations/20260719152500_privacy_and_role_hardening.sql`
+4. `supabase/migrations/20260719153500_activate_first_admin.sql`
 
 The admin migrations add secure review functions, rejection reasons, audit logging,
 account restriction/suspension controls, and privacy protections. They also pin the
@@ -17,9 +18,9 @@ search path on security-definer functions to address the Security Advisor warnin
 
 ## 2. Create the first admin login
 
-First create a normal RunWise account with the email that will be used for administration.
-Confirm the email, then run this once in the Supabase SQL Editor, replacing the example
-email:
+Create and confirm a normal RunWise login for `jamesralebala@gmail.com`, then run
+`supabase/migrations/20260719153500_activate_first_admin.sql` in the Supabase SQL Editor.
+The migration performs the following owner-approved activation:
 
 ```sql
 update public.profiles as profile
@@ -27,12 +28,12 @@ set role = 'admin',
     active_role = 'admin'
 from auth.users as account
 where profile.id = account.id
-  and lower(account.email) = lower('admin@example.com');
+  and lower(account.email) = lower('jamesralebala@gmail.com');
 
 select account.email, profile.full_name, profile.role, profile.active_role
 from auth.users as account
 join public.profiles as profile on profile.id = account.id
-where lower(account.email) = lower('admin@example.com');
+where lower(account.email) = lower('jamesralebala@gmail.com');
 ```
 
 The second query must return exactly one row with both roles set to `admin`.
