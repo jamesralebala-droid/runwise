@@ -113,14 +113,14 @@ const menus = {
   runner:   [['runner', '⌂ Runner Home'], ['verification', '🪪 Verification'], ['vehicle', '🚙 My Vehicles'],
              ['announce', '✈ Announce Trip'], ['mytrips', '🚗 My Trips'],
              ['matches', '⚡ Smart Matches'], ['orders', '📍 My Orders'], ['earnings', '◈ Earnings']],
-  admin:    [['admin', '⌂ Admin Home'], ['adminRunners', '🪪 Runner Approvals'], ['adminVehicles', '🚙 Vehicle Approvals'], ['adminDisputes', '⚖ Disputes'], ['adminSettings', '⚙ Platform Settings'], ['adminLegal', '📜 Legal Documents']],
+  admin:    [['admin', '⌂ Admin Home'], ['adminRunners', '🪪 Runner Approvals'], ['adminVehicles', '🚙 Vehicle Approvals'], ['adminDisputes', '⚖ Dispute Cases'], ['adminOperations', '▦ Operations'], ['adminAudit', '🧾 Audit Log'], ['adminSettings', '⚙ Platform Settings'], ['adminLegal', '📜 Legal Documents']],
 };
 const titles = {
   home: 'Home', trips: 'Trip Marketplace', requests: 'My Requests', customerMatches: 'Match Offers', orders: 'My Orders', wallet: 'Wallet',
   runner: 'Runner Home', announce: 'Announce Trip', mytrips: 'My Trips', matches: 'Smart Matches', earnings: 'Earnings',
   verification: 'Runner Verification', vehicle: 'My Vehicles',
-  admin: 'Admin Home', adminRunners: 'Runner Approvals', adminVehicles: 'Vehicle Approvals', adminDisputes: 'Disputes',
-  adminSettings: 'Platform Settings', adminLegal: 'Legal Documents', newRequest: 'Post a Request',
+  admin: 'Admin Home', adminRunners: 'Runner Approvals', adminVehicles: 'Vehicle Approvals', adminDisputes: 'Dispute Cases',
+  adminOperations: 'Operations', adminAudit: 'Audit Log', adminSettings: 'Platform Settings', adminLegal: 'Legal Documents', newRequest: 'Post a Request',
 };
 const REQUEST_TYPES = ['shopping', 'parcel', 'documents', 'medicine', 'gift', 'business_stock', 'large_cargo'];
 const MILESTONE_LABELS = {
@@ -407,7 +407,7 @@ async function fetchPendingVerifications() {
   return cachedRead('pending-verifications', () => sb.from('runner_verifications').select('*, profiles:user_id(full_name)').eq('status', 'pending').order('created_at', { ascending: true }));
 }
 async function fetchPendingVehicles() {
-  return cachedRead('pending-vehicles', () => sb.from('vehicles').select('*, profiles:user_id(full_name)').eq('approved', false).order('created_at', { ascending: true }));
+  return cachedRead('pending-vehicles', () => sb.from('vehicles').select('*, profiles:user_id(full_name)').eq('review_status', 'pending').order('created_at', { ascending: true }));
 }
 async function signedUrl(path) {
   if (!path) return null;
@@ -433,6 +433,79 @@ async function fetchOpenDisputes() {
   const { data, error } = await sb.from('disputes').select('*, order_rooms(*, escrow_transactions(*))').eq('status', 'open').order('created_at', { ascending: true });
   if (error) { toast(error.message); return []; }
   return data;
+}
+async function fetchAdminCounts() {
+  const queries = [
+    sb.from('profiles').select('id', { count: 'exact', head: true }),
+    sb.from('order_rooms').select('id', { count: 'exact', head: true }),
+    sb.from('disputes').select('id', { count: 'exact', head: true }).eq('status', 'open'),
+  ];
+  const [users, orders, disputes] = await Promise.all(queries);
+  return { users: users.count || 0, orders: orders.count || 0, disputes: disputes.count || 0 };
+}
+async function fetchAdminDisputes() {
+  const { data, error } = await sb.from('disputes')
+    .select('*, order_rooms(*, escrow_transactions(*))')
+    .order('created_at', { ascending: false })
+    .limit(100);
+  if (error) throw error;
+  return data || [];
+}
+async function fetchAdminUsers() {
+  const { data, error } = await sb.from('profiles')
+    .select('id, full_name, phone, role, active_role, run_score, run_score_level, rating_sum, rating_count, suspended, restricted, created_at')
+    .order('created_at', { ascending: false })
+    .limit(250);
+  if (error) throw error;
+  return data || [];
+}
+async function fetchAdminOrders() {
+  const { data: rooms, error } = await sb.from('order_rooms')
+    .select('*, escrow_transactions(*)')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (error) throw error;
+  const ids = [...new Set((rooms || []).flatMap(r => [r.customer_id, r.runner_id]).filter(Boolean))];
+  const { data: profiles, error: profileError } = ids.length
+    ? await sb.from('profiles').select('id, full_name, phone').in('id', ids)
+    : { data: [], error: null };
+  if (profileError) throw profileError;
+  const byId = Object.fromEntries((profiles || []).map(p => [p.id, p]));
+  return (rooms || []).map(r => ({ ...r, customer: byId[r.customer_id], runner: byId[r.runner_id] }));
+}
+async function fetchAdminTransactions() {
+  const { data: transactions, error } = await sb.from('wallet_transactions')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(250);
+  if (error) throw error;
+  const walletIds = [...new Set((transactions || []).map(t => t.wallet_id).filter(Boolean))];
+  const { data: wallets, error: walletError } = walletIds.length
+    ? await sb.from('wallets').select('id, user_id, owner_type').in('id', walletIds)
+    : { data: [], error: null };
+  if (walletError) throw walletError;
+  const userIds = [...new Set((wallets || []).map(w => w.user_id).filter(Boolean))];
+  const { data: profiles, error: profileError } = userIds.length
+    ? await sb.from('profiles').select('id, full_name').in('id', userIds)
+    : { data: [], error: null };
+  if (profileError) throw profileError;
+  const profileById = Object.fromEntries((profiles || []).map(p => [p.id, p]));
+  const walletById = Object.fromEntries((wallets || []).map(w => [w.id, { ...w, profile: profileById[w.user_id] }]));
+  return (transactions || []).map(t => ({ ...t, wallet: walletById[t.wallet_id] }));
+}
+async function fetchAdminAudit(limit = 250) {
+  const { data: entries, error } = await sb.from('admin_audit_log')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  const adminIds = [...new Set((entries || []).map(e => e.admin_id).filter(Boolean))];
+  const { data: admins, error: adminError } = adminIds.length
+    ? await sb.from('profiles').select('id, full_name').in('id', adminIds)
+    : { data: [], error: null };
+  if (adminError) throw adminError;
+  const byId = Object.fromEntries((admins || []).map(p => [p.id, p]));
+  return (entries || []).map(e => ({ ...e, admin: byId[e.admin_id] }));
 }
 async function fetchSettings() {
   const { data, error } = await sb.from('platform_settings').select('*').eq('id', 1).single();
@@ -597,6 +670,8 @@ async function renderPage() {
       if (state.page === 'adminRunners') html = await adminRunnersView();
       else if (state.page === 'adminVehicles') html = await adminVehiclesView();
       else if (state.page === 'adminDisputes') html = await adminDisputesView();
+      else if (state.page === 'adminOperations') html = await adminOperationsView();
+      else if (state.page === 'adminAudit') html = await adminAuditView();
       else if (state.page === 'adminSettings') html = await adminSettingsView();
       else if (state.page === 'adminLegal') html = await adminLegalView();
       else html = await adminHomeView();
@@ -758,9 +833,9 @@ async function myTripsView() {
 }
 async function verificationView() {
   const v = await fetchMyVerification();
-  const statusBadge = v ? `<span class="badge ${v.status==='approved'?'success':v.status==='rejected'?'danger':'warning'}">${v.status}</span>` : '<span class="badge neutral">Not submitted</span>';
+  const statusBadge = v ? `<span class="badge ${v.status==='approved'?'success':v.status==='rejected'?'danger':'warning'}">${escapeHtml(titleCase(v.status))}</span>` : '<span class="badge neutral">Not submitted</span>';
   return `<div class="card"><h3>Verification status ${statusBadge}</h3>
-    ${v && v.status === 'rejected' ? '<p>Your last submission was rejected. You can submit again below.</p>' : ''}
+    ${v && v.status === 'rejected' ? `<div class="review-feedback"><b>Why it was rejected</b><p>${escapeHtml(v.rejection_reason || 'The documents could not be approved. Please submit clearer or corrected information.')}</p></div>` : ''}
     ${!v || v.status === 'rejected' ? `
     <form id="kycForm" class="grid2">
       <label>ID or passport photo<input type="file" name="id_document" accept="image/*" required></label>
@@ -775,7 +850,13 @@ async function verificationView() {
 async function vehicleView() {
   const vehicles = await fetchMyVehicles();
   return `<div class="section"><h3>Your vehicles</h3></div>
-    <div class="grid g2">${vehicles.length ? vehicles.map(v => `<div class="card"><h3>${v.make_model}</h3><p>Plate: ${v.plate_number||'—'}</p><span class="badge ${v.approved?'success':'warning'}">${v.approved?'Approved':'Pending approval'}</span></div>`).join('') : '<div class="empty">No vehicles added yet.</div>'}</div>
+    <div class="grid g2">${vehicles.length ? vehicles.map(v => {
+      const status = v.review_status || (v.approved ? 'approved' : 'pending');
+      return `<div class="card"><h3>${escapeHtml(v.make_model)}</h3><p>Plate: ${escapeHtml(v.plate_number || '—')}</p>
+        <span class="badge ${status==='approved'?'success':status==='rejected'?'danger':'warning'}">${escapeHtml(titleCase(status))}</span>
+        ${status === 'rejected' ? `<div class="review-feedback"><b>Why it was rejected</b><p>${escapeHtml(v.rejection_reason || 'Please correct the vehicle details or photos and submit a new vehicle.')}</p></div>` : ''}
+      </div>`;
+    }).join('') : '<div class="empty">No vehicles added yet.</div>'}</div>
     <div class="card"><h3>Add a vehicle</h3>
     <form id="vehicleForm" class="grid2">
       <label>Make & model<input name="make_model" required placeholder="Toyota Hilux"></label>
@@ -817,62 +898,205 @@ async function earningsView() {
 // VIEWS: ADMIN
 // ---------------------------------------------------------------------------
 async function adminHomeView() {
-  const [pendingRunners, pendingVehicles] = await Promise.all([fetchPendingVerifications(), fetchPendingVehicles()]);
-  return `<div class="hero"><small>ADMIN MODE</small><h2>Platform overview</h2>
-    <p>Approvals waiting on you right now.</p></div>
-    <div class="grid g2">
-      <div class="card stat"><span>Pending runner verifications</span><strong>${pendingRunners.length}</strong></div>
-      <div class="card stat"><span>Pending vehicle approvals</span><strong>${pendingVehicles.length}</strong></div>
+  const [pendingRunners, pendingVehicles, counts] = await Promise.all([
+    fetchPendingVerifications(), fetchPendingVehicles(), fetchAdminCounts(),
+  ]);
+  return `<div class="hero"><small>ADMIN MODE</small><h2>RunWise operations centre</h2>
+    <p>Review safety checks, support active orders, resolve disputes, and keep a permanent record of every admin decision.</p></div>
+    <div class="grid g3">
+      <div class="card stat"><span>Pending runner checks</span><strong>${pendingRunners.length}</strong></div>
+      <div class="card stat"><span>Pending vehicle checks</span><strong>${pendingVehicles.length}</strong></div>
+      <div class="card stat"><span>Open disputes</span><strong>${counts.disputes}</strong></div>
+      <div class="card stat"><span>Registered users</span><strong>${counts.users}</strong></div>
+      <div class="card stat"><span>Order rooms</span><strong>${counts.orders}</strong></div>
+    </div>
+    <div class="card admin-notice"><h3>Admin safety checklist</h3>
+      <p>Open documents and vehicle photos before approving. For disputes, review the order timeline, messages, uploads and escrow record before selecting an outcome. Add a clear internal reason to every rejection or account restriction.</p>
     </div>`;
 }
 
 async function adminRunnersView() {
   const pending = await fetchPendingVerifications();
-  if (!pending.length) return '<div class="empty">No runner verifications waiting for review.</div>';
+  if (!pending.length) return '<div class="empty card">No runner verifications waiting for review.</div>';
   const cardsHtml = await Promise.all(pending.map(async v => {
     const [idUrl, selfieUrl] = await Promise.all([signedUrl(v.id_document_url), signedUrl(v.selfie_url)]);
-    return `<div class="card">
-      <h3>${v.profiles?.full_name || 'Runner'}</h3>
-      <p>Next of kin: ${v.next_of_kin_name} — ${v.next_of_kin_phone}</p>
-      <div class="grid g2">
-        ${idUrl ? `<div><small>ID document</small><br><a href="${idUrl}" target="_blank">View</a></div>` : ''}
-        ${selfieUrl ? `<div><small>Selfie</small><br><a href="${selfieUrl}" target="_blank">View</a></div>` : ''}
+    return `<div class="card admin-review-card">
+      <div class="review-card-head"><div><small>Submitted ${new Date(v.created_at).toLocaleString()}</small><h3>${escapeHtml(v.profiles?.full_name || 'Runner')}</h3></div><span class="badge warning">pending</span></div>
+      <p><b>Next of kin:</b> ${escapeHtml(v.next_of_kin_name || '—')} · ${escapeHtml(v.next_of_kin_phone || '—')}</p>
+      <div class="evidence-grid">
+        ${idUrl ? `<a class="evidence-link" href="${idUrl}" target="_blank" rel="noopener">Open ID document</a>` : '<span class="evidence-missing">ID document missing</span>'}
+        ${selfieUrl ? `<a class="evidence-link" href="${selfieUrl}" target="_blank" rel="noopener">Open selfie</a>` : '<span class="evidence-missing">Selfie missing</span>'}
       </div>
-      <button class="primary approveRunner" data-id="${v.id}" data-user="${v.user_id}">Approve</button>
-      <button class="secondary rejectRunner" data-id="${v.id}">Reject</button>
+      <label>Internal review note / rejection reason
+        <textarea class="reviewReason" data-kind="runner" data-id="${escapeHtml(v.id)}" rows="2" placeholder="Required when rejecting"></textarea>
+      </label>
+      <div class="review-actions">
+        <button class="secondary reviewRunner" data-id="${escapeHtml(v.id)}" data-decision="rejected">Reject</button>
+        <button class="primary reviewRunner" data-id="${escapeHtml(v.id)}" data-decision="approved">Approve runner</button>
+      </div>
     </div>`;
   }));
-  return `<div class="grid g2">${cardsHtml.join('')}</div>`;
+  return `<div class="section"><h3>Identity checks</h3><p class="muted">Private documents use short-lived signed links and are visible only during this review.</p></div><div class="grid g2">${cardsHtml.join('')}</div>`;
 }
 
 async function adminVehiclesView() {
   const pending = await fetchPendingVehicles();
-  if (!pending.length) return '<div class="empty">No vehicles waiting for approval.</div>';
-  return `<div class="grid g2">${pending.map(v => `<div class="card">
-    <h3>${v.make_model}</h3>
-    <p>Owner: ${v.profiles?.full_name || 'Runner'} • Plate: ${v.plate_number||'—'}</p>
-    <p>${(v.photo_urls||[]).length} photo(s) uploaded</p>
-    <button class="primary approveVehicle" data-id="${v.id}">Approve</button>
-  </div>`).join('')}</div>`;
+  if (!pending.length) return '<div class="empty card">No vehicles waiting for approval.</div>';
+  const cards = await Promise.all(pending.map(async v => {
+    const photoUrls = await Promise.all((v.photo_urls || []).map(signedUrl));
+    return `<div class="card admin-review-card">
+      <div class="review-card-head"><div><small>Submitted ${new Date(v.created_at).toLocaleString()}</small><h3>${escapeHtml(v.make_model)}</h3></div><span class="badge warning">pending</span></div>
+      <p><b>Owner:</b> ${escapeHtml(v.profiles?.full_name || 'Runner')} · <b>Plate:</b> ${escapeHtml(v.plate_number || '—')}</p>
+      <div class="vehicle-photo-grid">${photoUrls.filter(Boolean).map((url, index) => `<a href="${url}" target="_blank" rel="noopener"><img src="${url}" alt="Vehicle photo ${index + 1}"></a>`).join('') || '<span class="evidence-missing">No vehicle photos uploaded</span>'}</div>
+      <label>Internal review note / rejection reason
+        <textarea class="reviewReason" data-kind="vehicle" data-id="${escapeHtml(v.id)}" rows="2" placeholder="Required when rejecting"></textarea>
+      </label>
+      <div class="review-actions">
+        <button class="secondary reviewVehicle" data-id="${escapeHtml(v.id)}" data-decision="rejected">Reject</button>
+        <button class="primary reviewVehicle" data-id="${escapeHtml(v.id)}" data-decision="approved">Approve vehicle</button>
+      </div>
+    </div>`;
+  }));
+  return `<div class="section"><h3>Vehicle checks</h3><p class="muted">Open every photo and compare the make, model and plate before deciding.</p></div><div class="grid g2">${cards.join('')}</div>`;
 }
 
 async function adminDisputesView() {
-  const disputes = await fetchOpenDisputes();
-  if (!disputes.length) return '<div class="empty">No open disputes.</div>';
-  return `<div class="grid g2">${disputes.map(d => {
-    const esc = d.order_rooms?.escrow_transactions;
-    return `<div class="card">
-      <h3>${d.reason}</h3>
-      <p>Order ${d.order_room_id.slice(0,8)} • Escrow: <span class="badge danger">${esc?.status}</span> • Total: ${money(esc?.total)}</p>
-      <p><small>Raised ${new Date(d.created_at).toLocaleString()}</small></p>
-      <label>Resolution
-        <select class="disputeOutcome" data-id="${d.id}">${DISPUTE_OUTCOMES.map(([v,l]) => `<option value="${v}">${l}</option>`).join('')}</select>
-      </label>
-      <input type="number" class="partialAmount hidden" data-id="${d.id}" placeholder="Runner amount for partial refund">
-      <textarea class="disputeNote" data-id="${d.id}" placeholder="Resolution note"></textarea>
-      <button class="primary resolveDispute" data-id="${d.id}">Resolve</button>
-    </div>`;
-  }).join('')}</div>`;
+  const disputes = await fetchAdminDisputes();
+  if (!disputes.length) return '<div class="empty card">No disputes have been raised.</div>';
+  return `<div class="section"><h3>Dispute case queue</h3><p class="muted">Open a case file to review the participants, route, messages, journey timeline, proof uploads and escrow before resolving.</p></div>
+    <div class="admin-filter"><input class="adminFilter" data-target="disputeList" placeholder="Search reason, order ID or status"></div>
+    <div id="disputeList" class="grid g2">${disputes.map(d => {
+      const esc = d.order_rooms?.escrow_transactions;
+      const isOpen = d.status === 'open';
+      return `<div class="card admin-searchable" data-search="${escapeHtml([d.reason, d.order_room_id, d.status, esc?.status].join(' ').toLowerCase())}">
+        <div class="review-card-head"><div><small>Case ${escapeHtml(d.id.slice(0, 8))}</small><h3>${escapeHtml(d.reason)}</h3></div><span class="badge ${isOpen ? 'danger' : 'success'}">${escapeHtml(d.status)}</span></div>
+        <p>Order <code>${escapeHtml(d.order_room_id.slice(0, 8))}</code> · Escrow <b>${escapeHtml(esc?.status || '—')}</b> · Total <b>${money(esc?.total)}</b></p>
+        <p><small>Raised ${new Date(d.created_at).toLocaleString()}</small></p>
+        <button class="secondary openAdminCase" data-id="${escapeHtml(d.id)}" data-room="${escapeHtml(d.order_room_id)}">Open case file</button>
+        <div id="adminCase-${escapeHtml(d.id)}" class="admin-case-host"></div>
+        ${isOpen ? `<div class="dispute-resolution">
+          <label>Resolution<select class="disputeOutcome" data-id="${escapeHtml(d.id)}">${DISPUTE_OUTCOMES.map(([v,l]) => `<option value="${v}">${l}</option>`).join('')}</select></label>
+          <input type="number" class="partialAmount hidden" data-id="${escapeHtml(d.id)}" min="0" step="0.01" placeholder="Runner amount for partial refund">
+          <label>Decision note<textarea class="disputeNote" data-id="${escapeHtml(d.id)}" rows="3" placeholder="Explain the evidence reviewed and why this outcome is fair"></textarea></label>
+          <button class="primary resolveDispute" data-id="${escapeHtml(d.id)}">Resolve dispute</button>
+        </div>` : `<p><b>Resolution:</b> ${escapeHtml(d.resolution || 'Resolved')}</p>`}
+      </div>`;
+    }).join('')}</div>`;
+}
+
+async function adminOperationsView() {
+  const [users, orders, transactions] = await Promise.all([
+    fetchAdminUsers(), fetchAdminOrders(), fetchAdminTransactions(),
+  ]);
+  return `<div class="hero"><small>ADMIN OPERATIONS</small><h2>Find the record you need</h2><p>Search users, orders and financial ledger entries. Account restrictions require a reason and are written to the audit log.</p></div>
+    <div class="section"><h3>Users</h3></div>
+    <div class="admin-filter"><input class="adminFilter" data-target="adminUsers" placeholder="Search name, phone, role or user ID"></div>
+    <div id="adminUsers" class="admin-table-wrap"><table class="admin-table"><thead><tr><th>User</th><th>Role</th><th>RunScore</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead><tbody>
+      ${users.map(u => `<tr class="admin-searchable" data-search="${escapeHtml([u.full_name,u.phone,u.role,u.id,u.run_score_level].join(' ').toLowerCase())}">
+        <td><b>${escapeHtml(u.full_name)}</b><small>${escapeHtml(u.phone || 'No phone')}<br>${escapeHtml(u.id.slice(0, 8))}</small></td>
+        <td>${escapeHtml(titleCase(u.role))}</td><td>${escapeHtml(u.run_score)} · ${escapeHtml(titleCase(u.run_score_level))}</td>
+        <td>${u.suspended ? '<span class="badge danger">suspended</span>' : u.restricted ? '<span class="badge warning">restricted</span>' : '<span class="badge success">active</span>'}</td>
+        <td>${new Date(u.created_at).toLocaleDateString()}</td>
+        <td><div class="table-actions">
+          <button class="secondary adminAccountAction" data-id="${escapeHtml(u.id)}" data-restricted="${!!u.restricted}" data-suspended="${!!u.suspended}" data-action="restrict">${u.restricted ? 'Remove restriction' : 'Restrict'}</button>
+          <button class="secondary adminAccountAction" data-id="${escapeHtml(u.id)}" data-restricted="${!!u.restricted}" data-suspended="${!!u.suspended}" data-action="suspend">${u.suspended ? 'Restore account' : 'Suspend'}</button>
+        </div></td>
+      </tr>`).join('')}
+    </tbody></table></div>
+    <div class="section"><h3>Orders</h3></div>
+    <div class="admin-filter"><input class="adminFilter" data-target="adminOrders" placeholder="Search order ID, customer, runner or status"></div>
+    <div id="adminOrders" class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Order</th><th>Customer</th><th>Runner</th><th>Escrow</th><th>Total</th><th>Created</th></tr></thead><tbody>
+      ${orders.map(o => { const esc = o.escrow_transactions; return `<tr class="admin-searchable" data-search="${escapeHtml([o.id,o.customer?.full_name,o.runner?.full_name,esc?.status].join(' ').toLowerCase())}">
+        <td><code>${escapeHtml(o.id.slice(0, 8))}</code></td><td>${escapeHtml(o.customer?.full_name || o.customer_id.slice(0, 8))}</td><td>${escapeHtml(o.runner?.full_name || o.runner_id.slice(0, 8))}</td>
+        <td><span class="badge ${esc?.status === 'disputed' ? 'danger' : 'neutral'}">${escapeHtml(esc?.status || '—')}</span></td><td>${money(esc?.total)}</td><td>${new Date(o.created_at).toLocaleString()}</td>
+      </tr>`; }).join('')}
+    </tbody></table></div>
+    <div class="section"><h3>Wallet transactions</h3></div>
+    <div class="admin-filter"><input class="adminFilter" data-target="adminTransactions" placeholder="Search user, transaction type, reference or ID"></div>
+    <div id="adminTransactions" class="admin-table-wrap"><table class="admin-table"><thead><tr><th>When</th><th>User / wallet</th><th>Type</th><th>Reference</th><th>Amount</th></tr></thead><tbody>
+      ${transactions.map(t => `<tr class="admin-searchable" data-search="${escapeHtml([t.id,t.wallet?.profile?.full_name,t.wallet_id,t.type,t.reference].join(' ').toLowerCase())}">
+        <td>${new Date(t.created_at).toLocaleString()}</td><td>${escapeHtml(t.wallet?.profile?.full_name || t.wallet?.owner_type || t.wallet_id.slice(0,8))}</td><td>${escapeHtml(titleCase(t.type))}</td>
+        <td><code>${escapeHtml(t.reference || '—')}</code></td><td class="${t.amount < 0 ? 'amount-negative' : 'amount-positive'}">${t.amount < 0 ? '−' : '+'}${money(Math.abs(t.amount))}</td>
+      </tr>`).join('')}
+    </tbody></table></div>`;
+}
+
+async function adminAuditView() {
+  const entries = await fetchAdminAudit();
+  return `<div class="section"><h3>Permanent admin audit log</h3><p class="muted">Every approval, rejection, dispute outcome and account restriction should appear here. Entries are read-only from this screen.</p></div>
+    <div class="admin-filter"><input class="adminFilter" data-target="adminAudit" placeholder="Search action, admin, target or notes"></div>
+    <div id="adminAudit" class="admin-table-wrap"><table class="admin-table"><thead><tr><th>When</th><th>Administrator</th><th>Action</th><th>Target</th><th>Notes</th></tr></thead><tbody>
+      ${entries.map(e => `<tr class="admin-searchable" data-search="${escapeHtml([e.admin?.full_name,e.action,e.target_table,e.target_id,e.notes].join(' ').toLowerCase())}">
+        <td>${new Date(e.created_at).toLocaleString()}</td><td>${escapeHtml(e.admin?.full_name || e.admin_id.slice(0, 8))}</td><td><b>${escapeHtml(titleCase(e.action))}</b></td>
+        <td>${escapeHtml(e.target_table || '—')}<br><code>${escapeHtml(e.target_id ? e.target_id.slice(0, 8) : '—')}</code></td><td>${escapeHtml(e.notes || '—')}</td>
+      </tr>`).join('')}
+    </tbody></table></div>`;
+}
+
+async function openAdminCase(disputeId, roomId, button) {
+  const host = document.getElementById(`adminCase-${disputeId}`);
+  if (!host) return;
+  if (host.dataset.loaded === 'true') {
+    host.classList.toggle('hidden');
+    button.textContent = host.classList.contains('hidden') ? 'Open case file' : 'Hide case file';
+    return;
+  }
+  setBusy(button, true, 'Loading case…');
+  const [roomResult, messagesResult, milestonesResult, proofResult] = await Promise.all([
+    sb.from('order_rooms').select('*, escrow_transactions(*)').eq('id', roomId).single(),
+    sb.from('order_messages').select('*').eq('order_room_id', roomId).order('created_at', { ascending: true }),
+    sb.from('journey_milestones').select('*').eq('order_room_id', roomId).order('created_at', { ascending: true }),
+    sb.from('proof_uploads').select('*').eq('order_room_id', roomId).order('created_at', { ascending: true }),
+  ]);
+  const error = roomResult.error || messagesResult.error || milestonesResult.error || proofResult.error;
+  if (error) {
+    host.innerHTML = `<div class="load-error"><b>Case file did not load.</b><span>${escapeHtml(friendlyError(error))}</span></div>`;
+    setBusy(button, false);
+    return;
+  }
+  const room = roomResult.data;
+  const ids = [...new Set([room.customer_id, room.runner_id, ...(messagesResult.data || []).map(m => m.sender_id)].filter(Boolean))];
+  const [profilesResult, matchResult] = await Promise.all([
+    sb.from('profiles').select('id, full_name, phone, run_score, run_score_level, restricted, suspended').in('id', ids),
+    sb.from('matches').select('*, trips:trip_id(from_city, to_city, depart_date, depart_time), requests:request_id(type, from_city, to_city, estimated_value, details)').eq('id', room.match_id).maybeSingle(),
+  ]);
+  if (profilesResult.error || matchResult.error) {
+    host.innerHTML = `<div class="load-error"><b>Case details did not load.</b><span>${escapeHtml(friendlyError(profilesResult.error || matchResult.error))}</span></div>`;
+    setBusy(button, false);
+    return;
+  }
+  const people = Object.fromEntries((profilesResult.data || []).map(p => [p.id, p]));
+  const proof = await Promise.all((proofResult.data || []).map(async p => ({ ...p, signed_url: await signedUrl(p.file_url) })));
+  const match = matchResult.data || {};
+  const request = match.requests || {};
+  const trip = match.trips || {};
+  const customer = people[room.customer_id] || {};
+  const runner = people[room.runner_id] || {};
+  const esc = room.escrow_transactions || {};
+  host.innerHTML = `<div class="admin-case-file">
+    <div class="case-summary">
+      <div><small>Route</small><b>${escapeHtml(request.from_city || trip.from_city || '—')} → ${escapeHtml(request.to_city || trip.to_city || '—')}</b><span>${escapeHtml(trip.depart_date || 'Date not set')} ${escapeHtml(trip.depart_time || '')}</span></div>
+      <div><small>Request</small><b>${escapeHtml(titleCase(request.type || '—'))}</b><span>${money(request.estimated_value)} · ${escapeHtml(request.details || 'No details')}</span></div>
+      <div><small>Escrow</small><b>${escapeHtml(esc.status || '—')}</b><span>Total ${money(esc.total)} · Runner fee ${money(esc.runner_fee)}</span></div>
+    </div>
+    <div class="grid g2">
+      <div class="case-person"><small>Customer</small><b>${escapeHtml(customer.full_name || room.customer_id)}</b><span>${escapeHtml(customer.phone || 'No phone')} · RunScore ${escapeHtml(customer.run_score ?? '—')}</span><span>${customer.suspended ? 'Suspended' : customer.restricted ? 'Restricted' : 'Active'}</span></div>
+      <div class="case-person"><small>Runner</small><b>${escapeHtml(runner.full_name || room.runner_id)}</b><span>${escapeHtml(runner.phone || 'No phone')} · RunScore ${escapeHtml(runner.run_score ?? '—')}</span><span>${runner.suspended ? 'Suspended' : runner.restricted ? 'Restricted' : 'Active'}</span></div>
+    </div>
+    <details open><summary>Journey timeline (${(milestonesResult.data || []).length})</summary>
+      <div class="case-feed">${(milestonesResult.data || []).map(m => `<p><small>${new Date(m.created_at).toLocaleString()}</small><b>${escapeHtml(MILESTONE_LABELS[m.milestone] || titleCase(m.milestone))}</b><span>${escapeHtml(m.note || '')}</span></p>`).join('') || '<p class="muted">No milestones recorded.</p>'}</div>
+    </details>
+    <details><summary>Order messages (${(messagesResult.data || []).length})</summary>
+      <div class="case-feed">${(messagesResult.data || []).map(m => `<p><small>${new Date(m.created_at).toLocaleString()} · ${escapeHtml(people[m.sender_id]?.full_name || m.sender_id.slice(0,8))}</small><span>${escapeHtml(m.message)}</span></p>`).join('') || '<p class="muted">No messages recorded.</p>'}</div>
+    </details>
+    <details><summary>Proof uploads (${proof.length})</summary>
+      <div class="proof-grid">${proof.map(p => `<div><b>${escapeHtml(titleCase(p.stage))}</b><span>${escapeHtml(p.note || '')}${p.amount != null ? ' · ' + money(p.amount) : ''}</span>${p.signed_url ? `<a href="${p.signed_url}" target="_blank" rel="noopener">Open private upload</a>` : '<span>File unavailable</span>'}</div>`).join('') || '<p class="muted">No proof uploads recorded.</p>'}</div>
+    </details>
+  </div>`;
+  host.dataset.loaded = 'true';
+  host.classList.remove('hidden');
+  button.textContent = 'Hide case file';
+  setBusy(button, false);
 }
 
 async function adminSettingsView() {
@@ -1371,7 +1595,7 @@ function bindPage() {
       for (const file of files) paths.push(await uploadToStorage(file, 'vehicles'));
       const { error } = await idempotentWrite('vehicles', {
         id: newId(), user_id: state.profile.id, make_model: f.get('make_model'), plate_number: f.get('plate_number'),
-        photo_urls: paths, approved: false,
+        photo_urls: paths, approved: false, review_status: 'pending',
       });
       if (error) throw error;
       clearCache('vehicles:', 'pending-vehicles');
@@ -1380,26 +1604,53 @@ function bindPage() {
     } catch (err) { toast(friendlyError(err)); setBusy(button, false); }
   };
 
-  document.querySelectorAll('.approveRunner').forEach(b => b.onclick = async () => {
-    const { error } = await sb.from('runner_verifications').update({ status: 'approved', reviewed_by: state.profile.id, reviewed_at: new Date().toISOString() }).eq('id', b.dataset.id);
-    if (error) return toast(friendlyError(error));
-    await sb.from('admin_audit_log').insert({ admin_id: state.profile.id, action: 'approve_runner_verification', target_table: 'runner_verifications', target_id: b.dataset.id });
+  document.querySelectorAll('.reviewRunner').forEach(b => b.onclick = async () => {
+    const reason = document.querySelector(`.reviewReason[data-kind="runner"][data-id="${b.dataset.id}"]`)?.value?.trim() || null;
+    if (b.dataset.decision === 'rejected' && !reason) return toast('Add a clear rejection reason first.');
+    setBusy(b, true, b.dataset.decision === 'approved' ? 'Approving…' : 'Rejecting…');
+    const { error } = await sb.rpc('admin_review_runner', {
+      p_verification_id: b.dataset.id, p_decision: b.dataset.decision, p_reason: reason,
+    });
+    if (error) { setBusy(b, false); return toast(friendlyError(error)); }
     clearCache('pending-verifications', 'verification:');
-    toast('Runner approved.'); renderPage();
+    toast(b.dataset.decision === 'approved' ? 'Runner approved.' : 'Runner rejected with a reason.');
+    renderPage();
   });
-  document.querySelectorAll('.rejectRunner').forEach(b => b.onclick = async () => {
-    const { error } = await sb.from('runner_verifications').update({ status: 'rejected', reviewed_by: state.profile.id, reviewed_at: new Date().toISOString() }).eq('id', b.dataset.id);
-    if (error) return toast(friendlyError(error));
-    await sb.from('admin_audit_log').insert({ admin_id: state.profile.id, action: 'reject_runner_verification', target_table: 'runner_verifications', target_id: b.dataset.id });
-    clearCache('pending-verifications', 'verification:');
-    toast('Runner rejected.'); renderPage();
-  });
-  document.querySelectorAll('.approveVehicle').forEach(b => b.onclick = async () => {
-    const { error } = await sb.from('vehicles').update({ approved: true }).eq('id', b.dataset.id);
-    if (error) return toast(friendlyError(error));
-    await sb.from('admin_audit_log').insert({ admin_id: state.profile.id, action: 'approve_vehicle', target_table: 'vehicles', target_id: b.dataset.id });
+  document.querySelectorAll('.reviewVehicle').forEach(b => b.onclick = async () => {
+    const reason = document.querySelector(`.reviewReason[data-kind="vehicle"][data-id="${b.dataset.id}"]`)?.value?.trim() || null;
+    if (b.dataset.decision === 'rejected' && !reason) return toast('Add a clear rejection reason first.');
+    setBusy(b, true, b.dataset.decision === 'approved' ? 'Approving…' : 'Rejecting…');
+    const { error } = await sb.rpc('admin_review_vehicle', {
+      p_vehicle_id: b.dataset.id, p_decision: b.dataset.decision, p_reason: reason,
+    });
+    if (error) { setBusy(b, false); return toast(friendlyError(error)); }
     clearCache('pending-vehicles', 'vehicles:');
-    toast('Vehicle approved.'); renderPage();
+    toast(b.dataset.decision === 'approved' ? 'Vehicle approved.' : 'Vehicle rejected with a reason.');
+    renderPage();
+  });
+  document.querySelectorAll('.openAdminCase').forEach(b => b.onclick = () => openAdminCase(b.dataset.id, b.dataset.room, b));
+  document.querySelectorAll('.adminFilter').forEach(input => input.oninput = () => {
+    const target = document.getElementById(input.dataset.target);
+    if (!target) return;
+    const query = input.value.trim().toLowerCase();
+    target.querySelectorAll('.admin-searchable').forEach(row => {
+      row.classList.toggle('hidden', query && !String(row.dataset.search || '').includes(query));
+    });
+  });
+  document.querySelectorAll('.adminAccountAction').forEach(b => b.onclick = async () => {
+    const currentlyRestricted = b.dataset.restricted === 'true';
+    const currentlySuspended = b.dataset.suspended === 'true';
+    const nextRestricted = b.dataset.action === 'restrict' ? !currentlyRestricted : currentlyRestricted;
+    const nextSuspended = b.dataset.action === 'suspend' ? !currentlySuspended : currentlySuspended;
+    const reason = window.prompt('Enter the internal reason for this account change. This will be saved in the audit log:');
+    if (!reason || !reason.trim()) return;
+    setBusy(b, true, 'Saving…');
+    const { error } = await sb.rpc('admin_set_account_status', {
+      p_user_id: b.dataset.id, p_restricted: nextRestricted, p_suspended: nextSuspended, p_note: reason.trim(),
+    });
+    if (error) { setBusy(b, false); return toast(friendlyError(error)); }
+    toast('Account status updated and logged.');
+    renderPage();
   });
 
   document.querySelectorAll('.disputeOutcome').forEach(sel => sel.onchange = () => {
@@ -1429,6 +1680,7 @@ function bindPage() {
     payload.updated_by = state.profile.id;
     const { error } = await sb.from('platform_settings').update(payload).eq('id', 1);
     if (error) return toast(error.message);
+    await sb.rpc('admin_log_event', { p_action: 'update_platform_settings', p_target_table: 'platform_settings', p_notes: 'Updated fees, thresholds or proximity settings' });
     toast('Settings saved.'); renderPage();
   };
 
@@ -1446,6 +1698,7 @@ function bindPage() {
         created_by: state.profile.id,
       });
       if (error) return toast(error.message);
+      await sb.rpc('admin_log_event', { p_action: 'publish_legal_document', p_target_table: 'legal_documents', p_notes: b.dataset.type + ' v' + f.get('version') });
       toast('New version published. The previous version has been archived.');
       renderPage();
     };
@@ -1461,6 +1714,7 @@ function bindPage() {
       created_by: state.profile.id,
     });
     if (error) return toast(error.message);
+    await sb.rpc('admin_log_event', { p_action: 'add_compliance_flag', p_target_table: 'legal_compliance_flags', p_notes: f.get('flag_type') });
     toast('Compliance flag added.'); renderPage();
   };
   document.querySelectorAll('.toggleFlag').forEach(b => b.onclick = async () => {
