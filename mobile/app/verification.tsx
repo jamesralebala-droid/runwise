@@ -59,4 +59,4 @@ export default function VerificationScreen() {
   );
 }
 
-const styles = StyleSheet.create({ row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }, title: { color: colors.green, fontWeight: '900', fontSize: 18 }, muted: { color: colors.muted, lineHeight: 20 }, privacy: { color: colors.muted, lineHeight: 19, fontSize: 12 } });
+const styles = StyleSheet.create({ row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }, title: { color: colors.green, fontWeight: '900', fontSize: 19 }, muted: { color: colors.muted, fontSize: 16, lineHeight: 24 }, privacy: { color: colors.muted, lineHeight: 21, fontSize: 14 } });
