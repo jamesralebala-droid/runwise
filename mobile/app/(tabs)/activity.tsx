@@ -44,9 +44,9 @@ function TripItem({ trip }: { trip: Trip }) {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
   icon: { fontSize: 27 },
-  route: { color: colors.green, fontWeight: '900', fontSize: 19 },
-  muted: { color: colors.muted, lineHeight: 20 },
-  details: { color: colors.charcoal, lineHeight: 20 },
-  date: { color: colors.muted, fontSize: 12 },
+  route: { color: colors.green, fontWeight: '900', fontSize: 23, lineHeight: 29 },
+  muted: { color: colors.muted, fontSize: 16, lineHeight: 24 },
+  details: { color: colors.charcoal, fontSize: 16, lineHeight: 24 },
+  date: { color: colors.charcoal, fontSize: 15, fontWeight: '700' },
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
 });
