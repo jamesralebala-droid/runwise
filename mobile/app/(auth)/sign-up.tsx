@@ -68,8 +68,8 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   headingWrap: { marginVertical: 10 },
   heading: { color: colors.green, fontSize: 28, lineHeight: 34, fontWeight: '900' },
-  copy: { color: colors.muted, marginTop: 6, lineHeight: 20 },
-  label: { color: colors.charcoal, fontWeight: '700', fontSize: 13 },
+  copy: { color: colors.muted, fontSize: 16, marginTop: 6, lineHeight: 24 },
+  label: { color: colors.charcoal, fontWeight: '700', fontSize: 15 },
   roles: { flexDirection: 'row', gap: 10 },
   role: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, padding: 14, alignItems: 'center', gap: 5 },
   roleActive: { borderColor: colors.green, backgroundColor: colors.greenSoft },
@@ -80,8 +80,8 @@ const styles = StyleSheet.create({
   checkbox: { width: 24, height: 24, borderRadius: 6, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   checkboxActive: { backgroundColor: colors.green, borderColor: colors.green },
   checkmark: { color: colors.white, fontWeight: '900' },
-  checkCopy: { flex: 1, color: colors.muted, fontSize: 13, lineHeight: 19 },
-  error: { color: colors.danger, fontSize: 13, fontWeight: '600' },
+  checkCopy: { flex: 1, color: colors.muted, fontSize: 15, lineHeight: 22 },
+  error: { color: colors.danger, fontSize: 14, lineHeight: 20, fontWeight: '600' },
   switch: { color: colors.muted, textAlign: 'center' },
   link: { color: colors.green, fontWeight: '800' },
 });
