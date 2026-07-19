@@ -128,16 +128,16 @@ function TripCard({ trip }: { trip: Trip }) {
 
 const styles = StyleSheet.create({
   segment: { flexDirection: 'row', backgroundColor: '#E9E4D9', padding: 4, borderRadius: radius.sm },
-  segmentItem: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
+  segmentItem: { flex: 1, minHeight: 48, paddingVertical: 12, alignItems: 'center', justifyContent: 'center', borderRadius: 8 },
   segmentActive: { backgroundColor: colors.white },
-  segmentText: { color: colors.muted, fontWeight: '700' },
+  segmentText: { color: colors.muted, fontWeight: '700', fontSize: 15 },
   segmentTextActive: { color: colors.green, fontWeight: '900' },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
   icon: { fontSize: 27 },
-  route: { color: colors.green, fontWeight: '900', fontSize: 19 },
-  muted: { color: colors.muted, lineHeight: 20 },
-  details: { color: colors.charcoal, lineHeight: 21, backgroundColor: colors.ivory, padding: 12, borderRadius: radius.sm },
-  date: { color: colors.muted, fontSize: 12 },
+  route: { color: colors.green, fontWeight: '900', fontSize: 23, lineHeight: 29 },
+  muted: { color: colors.muted, fontSize: 16, lineHeight: 24 },
+  details: { color: colors.charcoal, fontSize: 16, lineHeight: 24, backgroundColor: colors.ivory, padding: 12, borderRadius: radius.sm },
+  date: { color: colors.charcoal, fontSize: 15, fontWeight: '700' },
   actions: { flexDirection: 'row', gap: 8 },
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
 });
