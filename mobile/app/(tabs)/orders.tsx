@@ -40,6 +40,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   orderNumber: { color: colors.green, fontWeight: '900', fontSize: 16 },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  muted: { color: colors.muted },
+  muted: { color: colors.muted, fontSize: 16, lineHeight: 23 },
   total: { color: colors.green, fontWeight: '900', fontSize: 22 },
 });
