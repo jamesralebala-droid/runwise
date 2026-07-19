@@ -1,0 +1,8 @@
+{
+  "name": "runwise-admin-web",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build": "node scripts/build-admin.cjs"
+  }
+}
