@@ -1,4 +1,4 @@
--- RUNWISE ONE-TIME ADMIN INSTALL
+-- RUNWISE ONE-TIME ADMIN INSTALL (corrected for table- or view-backed public_profiles)
 -- Generated for the owner-approved first admin: jamesralebala@gmail.com
 -- Run this entire file once in Supabase SQL Editor.
 
@@ -445,23 +445,45 @@ create policy "profiles_update_own_or_admin" on public.profiles
 revoke update on public.profiles from authenticated;
 grant update (full_name, phone, active_role) on public.profiles to authenticated;
 
--- Public marketplace cards use this deliberately limited view. It contains no
--- phone number, restriction flags, exact location or identity documents.
-create or replace view public.public_profiles
-with (security_barrier = true)
-as
-select
-  id,
-  full_name,
-  run_score,
-  run_score_level,
-  rating_sum,
-  rating_count,
-  created_at
-from public.profiles;
+-- The live project may already have public_profiles as either a table or a
+-- view. Preserve its relation type and expose only the columns marketplace
+-- cards actually need. Phone numbers and account flags remain inaccessible.
+do $
+declare
+  v_kind "char";
+begin
+  select c.relkind
+  into v_kind
+  from pg_catalog.pg_class c
+  join pg_catalog.pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public'
+    and c.relname = 'public_profiles';
+
+  if v_kind is null then
+    execute $view$
+      create view public.public_profiles
+      with (security_barrier = true)
+      as
+      select id, full_name, rating_sum, rating_count
+      from public.profiles
+    $view$;
+  elsif v_kind = 'v' then
+    execute $view$
+      create or replace view public.public_profiles
+      with (security_barrier = true)
+      as
+      select id, full_name, rating_sum, rating_count
+      from public.profiles
+    $view$;
+  end if;
+end
+$;
 
 revoke all on public.public_profiles from public;
-grant select on public.public_profiles to authenticated;
+revoke all on public.public_profiles from anon;
+revoke all on public.public_profiles from authenticated;
+grant select (id, full_name, rating_sum, rating_count)
+  on public.public_profiles to authenticated;
 
 -- Never trust a requested role from signup metadata if it asks for admin.
 create or replace function public.handle_new_user()
