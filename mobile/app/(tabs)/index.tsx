@@ -60,16 +60,16 @@ function TripPreview({ trip }: { trip: Trip }) {
 
 const styles = StyleSheet.create({
   hero: { backgroundColor: colors.green, borderRadius: radius.lg, padding: 22, gap: 10 },
-  heroEyebrow: { color: colors.gold, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 },
+  heroEyebrow: { color: colors.gold, fontSize: 13, fontWeight: '900', letterSpacing: 1.2 },
   heroTitle: { color: colors.white, fontSize: 27, fontWeight: '900' },
-  heroCopy: { color: '#DCE9E4', lineHeight: 21, marginBottom: 6 },
+  heroCopy: { color: '#DCE9E4', fontSize: 16, lineHeight: 24, marginBottom: 6 },
   sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
   sectionTitle: { color: colors.green, fontWeight: '900', fontSize: 18 },
   seeAll: { color: colors.gold, fontWeight: '800' },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
-  date: { color: colors.muted, fontSize: 12 },
-  route: { color: colors.green, fontWeight: '900', fontSize: 19 },
-  muted: { color: colors.muted, lineHeight: 20 },
+  date: { color: colors.charcoal, fontSize: 15, fontWeight: '700' },
+  route: { color: colors.green, fontWeight: '900', fontSize: 23, lineHeight: 29 },
+  muted: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   restricted: { backgroundColor: colors.dangerSoft, borderColor: colors.danger },
   restrictedTitle: { color: colors.danger, fontWeight: '900' },
 });
