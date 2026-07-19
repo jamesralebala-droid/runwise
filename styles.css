@@ -225,3 +225,63 @@ body.modal-open{overflow:hidden}
 }
 
 
+
+
+/* --- Admin operations centre --- */
+.admin-notice{margin-top:16px;border-left:4px solid var(--gold)}
+.admin-notice p{margin-bottom:0;color:#59665f;line-height:1.55}
+.admin-review-card{display:flex;flex-direction:column;gap:12px}
+.review-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.review-card-head h3{margin:3px 0 0}
+.review-card-head small{color:#728078}
+.evidence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.evidence-link,.evidence-missing{display:flex;align-items:center;justify-content:center;min-height:52px;border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;font-weight:700}
+.evidence-link{background:#edf5f1;color:var(--green);text-decoration:none}
+.evidence-link:hover{border-color:var(--green)}
+.evidence-missing{background:#faf5ee;color:#8a695d}
+.vehicle-photo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.vehicle-photo-grid a{display:block;aspect-ratio:4/3;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--ivory)}
+.vehicle-photo-grid img{display:block;width:100%;height:100%;object-fit:cover}
+.review-actions,.table-actions{display:flex;gap:8px;flex-wrap:wrap}
+.review-actions{justify-content:flex-end;padding-top:4px}
+.review-feedback{margin-top:12px;padding:12px;border:1px solid #e7c4bd;border-left:4px solid var(--danger);border-radius:9px;background:var(--danger-bg)}
+.review-feedback p{margin:5px 0 0;color:#6b605d}
+.admin-filter{display:flex;margin:10px 0 14px}
+.admin-filter input{max-width:560px;background:#fff}
+.admin-table-wrap{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.admin-table{width:100%;border-collapse:collapse;min-width:800px}
+.admin-table th,.admin-table td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+.admin-table th{position:sticky;top:0;background:#f5f1e8;color:var(--green);font-size:12px;text-transform:uppercase;letter-spacing:.05em;z-index:1}
+.admin-table td{font-size:13px}
+.admin-table td small{display:block;margin-top:4px;color:#728078;line-height:1.45}
+.admin-table tbody tr:last-child td{border-bottom:0}
+.admin-table tbody tr:hover{background:#fcfaf6}
+.admin-table code{font-size:12px}
+.amount-positive{color:var(--success);font-weight:800}
+.amount-negative{color:var(--danger);font-weight:800}
+.admin-case-host{margin-top:14px}
+.admin-case-file{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:14px}
+.case-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.case-summary>div,.case-person{display:flex;flex-direction:column;gap:4px;background:var(--ivory);border:1px solid var(--line);border-radius:10px;padding:11px}
+.case-summary small,.case-person small{color:#728078;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.case-summary span,.case-person span{font-size:12px;color:#59665f;line-height:1.4}
+.admin-case-file details{border:1px solid var(--line);border-radius:10px;background:#fff}
+.admin-case-file summary{cursor:pointer;padding:11px 12px;color:var(--green);font-weight:800}
+.case-feed,.proof-grid{border-top:1px solid var(--line);padding:0 12px}
+.case-feed p{display:flex;flex-direction:column;gap:3px;margin:0;padding:10px 0;border-bottom:1px solid var(--line)}
+.case-feed p:last-child{border-bottom:0}
+.case-feed small{color:#728078}
+.case-feed span{white-space:pre-wrap}
+.proof-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding-top:11px;padding-bottom:11px}
+.proof-grid>div{display:flex;flex-direction:column;gap:4px;background:var(--ivory);border-radius:9px;padding:10px}
+.proof-grid a{color:var(--green);font-weight:700}
+.dispute-resolution{display:flex;flex-direction:column;gap:10px;margin-top:13px;padding-top:13px;border-top:1px solid var(--line)}
+.dispute-resolution .primary{align-self:flex-end}
+@media (max-width:900px){
+  .case-summary{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .evidence-grid,.vehicle-photo-grid,.proof-grid{grid-template-columns:1fr}
+  .review-actions button{flex:1}
+  .admin-table th,.admin-table td{padding:11px 12px}
+}
