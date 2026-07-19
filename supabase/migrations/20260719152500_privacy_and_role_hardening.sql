@@ -24,40 +24,8 @@ create policy "profiles_update_own_or_admin" on public.profiles
 revoke update on public.profiles from authenticated;
 grant update (full_name, phone, active_role) on public.profiles to authenticated;
 
--- The live project may already have public_profiles as either a table or a
--- view. Preserve its relation type and expose only the columns marketplace
--- cards actually need. Phone numbers and account flags remain inaccessible.
-do $
-declare
-  v_kind "char";
-begin
-  select c.relkind
-  into v_kind
-  from pg_catalog.pg_class c
-  join pg_catalog.pg_namespace n on n.oid = c.relnamespace
-  where n.nspname = 'public'
-    and c.relname = 'public_profiles';
-
-  if v_kind is null then
-    execute $view$
-      create view public.public_profiles
-      with (security_barrier = true)
-      as
-      select id, full_name, rating_sum, rating_count
-      from public.profiles
-    $view$;
-  elsif v_kind = 'v' then
-    execute $view$
-      create or replace view public.public_profiles
-      with (security_barrier = true)
-      as
-      select id, full_name, rating_sum, rating_count
-      from public.profiles
-    $view$;
-  end if;
-end
-$;
-
+-- This RunWise project already uses public.public_profiles as a table.
+-- Keep that table and expose only the four marketplace-card columns.
 revoke all on public.public_profiles from public;
 revoke all on public.public_profiles from anon;
 revoke all on public.public_profiles from authenticated;
