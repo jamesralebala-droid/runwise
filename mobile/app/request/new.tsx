@@ -67,14 +67,14 @@ function CheckRow({ checked, onPress, text }: { checked: boolean; onPress: () =>
 const styles = StyleSheet.create({
   intro: { color: colors.green, fontWeight: '900', fontSize: 22 },
   types: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  type: { width: '31%', minHeight: 86, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, padding: 9, backgroundColor: colors.white, justifyContent: 'center', alignItems: 'center', gap: 4 },
+  type: { width: '31%', minHeight: 100, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, padding: 10, backgroundColor: colors.white, justifyContent: 'center', alignItems: 'center', gap: 6 },
   typeActive: { borderColor: colors.green, backgroundColor: colors.greenSoft },
   typeIcon: { fontSize: 24 },
-  typeText: { color: colors.muted, fontSize: 11, textAlign: 'center', fontWeight: '700' },
+  typeText: { color: colors.muted, fontSize: 14, textAlign: 'center', fontWeight: '700' },
   typeTextActive: { color: colors.green },
   checkRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, padding: 13 },
   checkbox: { width: 24, height: 24, borderWidth: 1, borderColor: colors.border, borderRadius: 6, alignItems: 'center', justifyContent: 'center' },
   checkboxActive: { backgroundColor: colors.green, borderColor: colors.green },
   check: { color: colors.white, fontWeight: '900' },
-  checkText: { flex: 1, color: colors.charcoal, lineHeight: 20 },
+  checkText: { flex: 1, color: colors.charcoal, fontSize: 16, lineHeight: 23 },
 });
