@@ -55,4 +55,4 @@ export default function VehiclesScreen() {
   );
 }
 
-const styles = StyleSheet.create({ title: { color: colors.green, fontWeight: '900', fontSize: 20 }, vehicle: { color: colors.green, fontWeight: '900', fontSize: 17, flex: 1 }, row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }, muted: { color: colors.muted } });
+const styles = StyleSheet.create({ title: { color: colors.green, fontWeight: '900', fontSize: 20 }, vehicle: { color: colors.green, fontWeight: '900', fontSize: 18, flex: 1 }, row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }, muted: { color: colors.muted, fontSize: 16, lineHeight: 23 } });
