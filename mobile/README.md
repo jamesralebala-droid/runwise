@@ -20,7 +20,7 @@ Admin and business operations intentionally remain in the web dashboard. Real Or
 ## Local setup
 
 1. Copy `.env.example` to `.env`.
-2. Add the same Supabase project URL and anonymous key used by the RunWise web app.
+2. Add the same Supabase project URL and publishable key used by the RunWise web app.
 3. Install packages with `npm install`.
 4. Run `npm start`, then open the project in Expo Go or an Android emulator.
 
