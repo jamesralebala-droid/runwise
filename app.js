@@ -362,7 +362,7 @@ async function fetchOpenTrips() {
     if (error) return { data: null, error };
     const runnerIds = [...new Set((trips || []).map(t => t.runner_id))];
     if (!runnerIds.length) return { data: trips || [], error: null };
-    const profilesResult = await sb.from('public_profiles').select('*').in('id', runnerIds);
+    const profilesResult = await sb.from('public_profiles').select('id, full_name, rating_sum, rating_count').in('id', runnerIds);
     if (profilesResult.error) return { data: null, error: profilesResult.error };
     const byId = Object.fromEntries((profilesResult.data || []).map(p => [p.id, p]));
     trips.forEach(t => { t.profiles = byId[t.runner_id]; });
