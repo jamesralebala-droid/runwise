@@ -1,0 +1,2 @@
+- [RunWise architecture](runwise-arch.md) — Supabase-only backend; no Express API for the mobile or admin apps; only the scaffold api-server exists as a stub.
+- [RunWise package quirks](runwise-packages.md) — expo-crypto and expo-document-picker version constraints for expo ~54.

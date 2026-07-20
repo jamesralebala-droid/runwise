@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/runwise-admin/"
+title = "RunWise Admin"
+version = "1.0.0"
+id = "artifacts/runwise-admin"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/runwise-admin/" ]
+localPort = 19194
+
+[services.development]
+run = "pnpm --filter @workspace/runwise-admin run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/runwise-admin", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/runwise-admin/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19194"
+BASE_PATH = "/runwise-admin/"
