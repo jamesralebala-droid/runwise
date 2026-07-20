@@ -102,12 +102,12 @@ export default function Orders() {
                     {o.escrow_transactions ? (
                       <div className="space-y-1">
                         <div className="text-sm font-mono font-bold text-foreground">
-                          ${o.escrow_transactions.total.toFixed(2)}
+                          P{o.escrow_transactions.total.toFixed(2)}
                         </div>
                         <div className="text-[10px] text-muted-foreground flex flex-col items-end gap-0.5">
-                          <span>Item: ${o.escrow_transactions.item_value.toFixed(2)}</span>
-                          <span>Fee: ${o.escrow_transactions.runner_fee.toFixed(2)}</span>
-                          <span className="text-primary font-medium">Platform: ${o.escrow_transactions.platform_fee.toFixed(2)}</span>
+                          <span>Item: P{o.escrow_transactions.item_value.toFixed(2)}</span>
+                          <span>Fee: P{o.escrow_transactions.runner_fee.toFixed(2)}</span>
+                          <span className="text-primary font-medium">Platform: P{o.escrow_transactions.platform_fee.toFixed(2)}</span>
                         </div>
                       </div>
                     ) : (

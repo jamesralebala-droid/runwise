@@ -6,7 +6,7 @@ import {
   Scale, 
   PackageSearch, 
   Users, 
-  DollarSign,
+  Coins,
   Loader2,
   ArrowUpRight
 } from 'lucide-react';
@@ -71,8 +71,8 @@ export default function Dashboard() {
     },
     {
       title: 'Platform Revenue',
-      value: `$${stats.platformRevenue.toFixed(2)}`,
-      icon: DollarSign,
+      value: `P${stats.platformRevenue.toFixed(2)}`,
+      icon: Coins,
       href: '/wallets',
       color: 'text-secondary-foreground',
       bg: 'bg-secondary',

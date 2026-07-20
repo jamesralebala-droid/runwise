@@ -55,13 +55,13 @@ export default function Wallets() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right font-mono font-bold text-foreground">
-                      ${Number(w.available_balance).toFixed(2)}
+                      P{Number(w.available_balance).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 text-right font-mono text-muted-foreground">
-                      ${Number(w.pending_balance).toFixed(2)}
+                      P{Number(w.pending_balance).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 text-right font-mono text-destructive">
-                      ${Number(w.frozen_balance).toFixed(2)}
+                      P{Number(w.frozen_balance).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <ChevronDown className={cn(
