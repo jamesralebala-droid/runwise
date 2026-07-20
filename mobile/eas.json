@@ -1,0 +1,22 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://lugbyiwtmxvhmhtwcrle.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_KG7TwPctMeDCLnRVcTdjIQ_ol3yPVvX"
+      },
+      "android": {
+        "buildType": "apk",
+        "image": "latest"
+      }
+    },
+    "production": {
+      "autoIncrement": true
+    }
+  }
+}
