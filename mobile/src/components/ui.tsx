@@ -17,7 +17,13 @@ import { colors, radius, shadow } from '@/lib/theme';
 export function Screen({ children, scroll = true, style }: PropsWithChildren<{ scroll?: boolean; style?: StyleProp<ViewStyle> }>) {
   const content = <View style={[styles.screenContent, style]}>{children}</View>;
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    // Insetting both top and bottom (not just top) keeps content clear of the
+    // status bar/notch AND the home indicator / Android gesture bar. The old
+    // top-only version relied on a fixed 44px guess for bottom padding, which
+    // isn't enough on some real devices and left content sitting under the
+    // home indicator or gesture bar — easy to miss in a simulator/preview
+    // that doesn't render those the same way a physical phone does.
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       {scroll ? <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">{content}</ScrollView> : content}
     </SafeAreaView>
   );
@@ -122,7 +128,7 @@ export function ErrorState({ message, retry }: { message: string; retry?: () => 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.ivory },
   scroll: { flexGrow: 1 },
-  screenContent: { flex: 1, padding: 18, paddingBottom: 44, gap: 16 },
+  screenContent: { flex: 1, padding: 18, paddingBottom: 20, gap: 16 },
   header: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 4 },
   headerCopy: { flex: 1 },
   eyebrow: { color: colors.gold, fontWeight: '800', fontSize: 13, letterSpacing: 1.1, marginBottom: 4 },
