@@ -227,13 +227,114 @@ $('#signupForm').onsubmit = async e => {
   setBusy(button, false);
 };
 
+// ---------------------------------------------------------------------------
+// FORGOT PASSWORD / PASSWORD RESET
+// ---------------------------------------------------------------------------
+
+// Show the reset form, hide the login form
+$('#forgotBtn').onclick = () => {
+  $('#loginForm').classList.add('hidden');
+  $('#signupForm').classList.add('hidden');
+  $('#resetForm').classList.remove('hidden');
+  $('#recoveryForm').classList.add('hidden');
+  $('#loginError').textContent = '';
+  $('#resetError').textContent = '';
+  $('#resetSuccess').classList.add('hidden');
+  $('#resetEmail').value = '';
+  $('#resetEmail').focus();
+};
+
+// Back to login from reset form
+$('#backToLoginBtn').onclick = () => {
+  $('#resetForm').classList.add('hidden');
+  $('#recoveryForm').classList.add('hidden');
+  $('#loginForm').classList.remove('hidden');
+  $('#resetError').textContent = '';
+  $('#resetSuccess').classList.add('hidden');
+};
+
+// Send password reset email
+$('#sendResetBtn').onclick = async () => {
+  const email = $('#resetEmail').value.trim();
+  if (!email) {
+    $('#resetError').textContent = 'Please enter your email address.';
+    return;
+  }
+  $('#resetError').textContent = '';
+  $('#resetSuccess').classList.add('hidden');
+  setBusy($('#sendResetBtn'), true, 'Sending…');
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname,
+  });
+  setBusy($('#sendResetBtn'), false);
+  if (error) {
+    $('#resetError').textContent = friendlyError(error, 'Could not send reset email. Please try again.');
+    return;
+  }
+  $('#resetSuccess').classList.remove('hidden');
+  $('#resetSuccess').textContent = 'If an account exists with that email, a password reset link has been sent.';
+  $('#resetEmail').value = '';
+};
+
+// Submit new password from recovery form
+$('#recoverySubmitBtn').onclick = async () => {
+  const pw = $('#recoveryPassword').value;
+  const confirm = $('#recoveryConfirm').value;
+  $('#recoveryError').textContent = '';
+  if (!pw || pw.length < 6) {
+    $('#recoveryError').textContent = 'Password must be at least 6 characters.';
+    return;
+  }
+  if (pw !== confirm) {
+    $('#recoveryError').textContent = 'Passwords do not match.';
+    return;
+  }
+  setBusy($('#recoverySubmitBtn'), true, 'Updating…');
+  const { error } = await sb.auth.updateUser({ password: pw });
+  setBusy($('#recoverySubmitBtn'), false);
+  if (error) {
+    $('#recoveryError').textContent = friendlyError(error, 'Could not update password. The link may have expired.');
+    return;
+  }
+  $('#recoveryError').textContent = '';
+  $('#recoverySuccess').classList.remove('hidden');
+  $('#recoverySuccess').textContent = 'Your password has been updated successfully. You can now log in with your new password.';
+  $('#recoveryPassword').value = '';
+  $('#recoveryConfirm').value = '';
+  // After 3 seconds, redirect to login
+  setTimeout(() => {
+    $('#recoveryForm').classList.add('hidden');
+    $('#recoverySuccess').classList.add('hidden');
+    $('#loginForm').classList.remove('hidden');
+    sb.auth.signOut();
+  }, 3000);
+};
+
 $('#signOutBtn').onclick = async () => { clearCache(); await sb.auth.signOut(); };
 
 // ---------------------------------------------------------------------------
 // SESSION HANDLING
 // ---------------------------------------------------------------------------
-sb.auth.onAuthStateChange((_event, session) => {
+sb.auth.onAuthStateChange((event, session) => {
   state.session = session;
+  if (event === 'PASSWORD_RECOVERY') {
+    setTimeout(() => {
+      if (session) {
+        $('#authScreen').classList.remove('hidden');
+        $('#app').classList.add('hidden');
+        $('#loginForm').classList.add('hidden');
+        $('#signupForm').classList.add('hidden');
+        $('#resetForm').classList.add('hidden');
+        $('#recoveryForm').classList.remove('hidden');
+        $('#recoveryError').textContent = '';
+        $('#recoverySuccess').classList.add('hidden');
+        $('#recoveryPassword').value = '';
+        $('#recoveryConfirm').value = '';
+        $('#recoveryPassword').focus();
+      }
+    }, 0);
+    return;
+  }
   setTimeout(() => { if (session) boot(session); else showAuth(); }, 0);
 });
 
@@ -245,6 +346,13 @@ async function showAuth() {
   $('#app').classList.add('hidden');
   const s = document.getElementById('suspendedScreen');
   if (s) s.classList.add('hidden');
+  // Reset auth forms
+  $('#loginForm').classList.remove('hidden');
+  $('#signupForm').classList.add('hidden');
+  $('#resetForm').classList.add('hidden');
+  $('#recoveryForm').classList.add('hidden');
+  $('#tabLogin').classList.add('active');
+  $('#tabSignup').classList.remove('active');
 }
 
 // ---------------------------------------------------------------------------
