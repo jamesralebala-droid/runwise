@@ -425,7 +425,13 @@ async function boot(session = state.session) {
   }
   state.profile = profile;
 
+  // Initialize authenticated notification system
+  if (window.RunWiseNotificationSystem) {
+    RunWiseNotificationSystem.initAuthenticated();
+  }
+
   if (profile.suspended) {
+
     $('#authScreen').classList.add('hidden');
     $('#app').classList.add('hidden');
     showSuspendedScreen();
@@ -1535,15 +1541,71 @@ function bindOrderRoom(roomId, isCustomer) {
 
     if (pm) pm.onclick = async () => {
     const m = $('#milestoneSelect').value;
-    const { error } = await sb.rpc('add_milestone', { p_order_room_id: roomId, p_milestone: m });
-    if (error) toast(error.message); else { toast('Milestone posted'); openOrderRoom(roomId); }
+    const { data: mData, error } = await sb.rpc('add_milestone', { p_order_room_id: roomId, p_milestone: m });
+    if (error) toast(error.message); else {
+      toast('Milestone posted');
+      if (window.RunWiseNotificationSystem) {
+        if (['journey_started', 'border_reached', 'destination_reached'].includes(m)) {
+          RunWiseNotificationSystem.sounds.journeyStarted();
+        } else if (['heading_to_pickup', 'out_for_delivery'].includes(m)) {
+          RunWiseNotificationSystem.sounds.approaching();
+        } else if (m === 'collected' || m === 'shopping_complete') {
+          RunWiseNotificationSystem.sounds.confirmed();
+        }
+      }
+      // Notify the other participant
+      try {
+        const roomData = await sb.from('order_rooms').select('runner_id, customer_id').eq('id', roomId).single();
+        if (roomData.data) {
+          const otherId = roomData.data.runner_id === state.profile.id ? roomData.data.customer_id : roomData.data.runner_id;
+          const milestoneLabels = {
+            heading_to_pickup: 'Runner is heading to pickup', collected: 'Item collected',
+            journey_started: 'Journey started', border_reached: 'Border reached',
+            destination_reached: 'Destination reached', out_for_delivery: 'Out for delivery',
+          };
+          sb.rpc('insert_notification', {
+            p_user_id: otherId,
+            p_type: milestoneLabels[m] ? 'journey_started' : 'pickup_ready',
+            p_title: milestoneLabels[m] || 'Journey update',
+            p_description: 'Your order: ' + (milestoneLabels[m] || m.replace(/_/g, ' ')),
+            p_data: JSON.stringify({ order_room_id: roomId }),
+            p_high_priority: true
+          });
+        }
+      } catch(e) {}
+      openOrderRoom(roomId);
+    }
+
   };
   const sc = $('#sendChat');
   if (sc) sc.onclick = async () => {
     const msg = $('#chatInput').value.trim();
     if (!msg) return;
     const { error } = await sb.from('order_messages').insert({ order_room_id: roomId, sender_id: state.profile.id, message: msg });
-    if (error) toast(error.message); else openOrderRoom(roomId);
+    if (error) toast(error.message); else {
+      if (window.RunWiseNotificationSystem) {
+        RunWiseNotificationSystem.sounds.newMessage();
+      }
+      // Notify other participant
+      try {
+        const roomData = await sb.from('order_rooms').select('runner_id, customer_id').eq('id', roomId).single();
+        if (roomData.data) {
+          const otherId = roomData.data.runner_id === state.profile.id ? roomData.data.customer_id : roomData.data.runner_id;
+          if (otherId !== state.profile.id) {
+            sb.rpc('insert_notification', {
+              p_user_id: otherId,
+              p_type: 'new_message',
+              p_title: 'New message',
+              p_description: msg.slice(0, 80) + (msg.length > 80 ? '...' : ''),
+              p_data: JSON.stringify({ order_room_id: roomId }),
+              p_high_priority: false
+            });
+          }
+        }
+      } catch(e) {}
+      openOrderRoom(roomId);
+    }
+
   };
   const fe = $('#fundEscrow');
   if (fe) fe.onclick = async () => {
@@ -1723,7 +1785,30 @@ function bindPage() {
     if (error) { toast(friendlyError(error)); setBusy(b, false); return; }
     clearCache('customer-matches:', 'my-requests:', 'rooms:', 'open-requests', 'open-trips');
     const result = Array.isArray(data) ? data[0] : data;
-    toast(result?.match_status === 'confirmed' ? 'Offer accepted. Your Order Room is ready.' : 'Offer accepted. Waiting for the runner.');
+    const matchAccepted = result?.match_status === 'confirmed';
+    toast(matchAccepted ? 'Offer accepted. Your Order Room is ready.' : 'Offer accepted. Waiting for the runner.');
+    // Play sound for acceptance
+    if (window.RunWiseNotificationSystem) {
+      RunWiseNotificationSystem.sounds.confirmed();
+    }
+    // Notify other party when confirmed
+    if (matchAccepted) {
+      try {
+        const mData = await sb.from('matches').select('runner_id, customer_id').eq('id', b.dataset.id).single();
+        if (mData.data) {
+          const otherId = mData.data.runner_id === state.profile.id ? mData.data.customer_id : mData.data.runner_id;
+          sb.rpc('insert_notification', {
+            p_user_id: otherId,
+            p_type: 'job_confirmed',
+            p_title: 'Job confirmed!',
+            p_description: 'Your match has been accepted and an Order Room is ready.',
+            p_data: JSON.stringify({ match_id: b.dataset.id }),
+            p_high_priority: true
+          });
+        }
+      } catch(e) {}
+    }
+
     state.page = result?.match_status === 'confirmed' ? 'orders' : 'customerMatches';
     render();
   });
@@ -1743,6 +1828,21 @@ function bindPage() {
     if (error) { toast(friendlyError(error)); setBusy(b, false); return; }
     clearCache('open-requests', 'my-requests:', 'rooms:', 'customer-matches:');
     toast('Offer sent. The customer can now accept or decline it.');
+    // Notify the customer about the offer
+    try {
+      const reqData = await sb.from('requests').select('customer_id, from_city, to_city').eq('id', request_id).single();
+      if (reqData.data) {
+        sb.rpc('insert_notification', {
+          p_user_id: reqData.data.customer_id,
+          p_type: 'offer_proposed',
+          p_title: 'Runner made an offer',
+          p_description: 'A runner wants to carry your ' + reqData.data.from_city + ' \u2192 ' + reqData.data.to_city + ' request.',
+          p_data: JSON.stringify({ match_id: null, request_id, trip_id, from_city: reqData.data.from_city, to_city: reqData.data.to_city }),
+          p_high_priority: true
+        });
+      }
+    } catch(e) {}
+
     render();
   });
 
@@ -1802,7 +1902,11 @@ function bindPage() {
       }
       clearCache('my-trips:', 'open-trips');
       toast('Trip published.');
+      if (window.RunWiseNotificationSystem) {
+        RunWiseNotificationSystem.sounds.tripAnnounced();
+      }
       state.page = 'mytrips'; render();
+
     };
   }
 

@@ -195,7 +195,7 @@ function App() {
     initialized.current = true;
 
     // Load the existing RunWise JS files in order
-    const scripts = ['config.js', 'app.js', 'legal-v11.js', 'session-fix.js'];
+    const scripts = ['config.js', 'app.js', 'legal-v11.js', 'session-fix.js', 'notification-system.js'];
     let loaded = 0;
     scripts.forEach((src) => {
       const s = document.createElement('script');
@@ -204,6 +204,13 @@ function App() {
         loaded++;
         if (loaded === scripts.length) {
           document.dispatchEvent(new Event('runwise-ready'));
+          // Initialize notifications after a short delay to let everything settle
+          setTimeout(() => {
+            if (window.RunWiseNotificationSystem) {
+              window.RunWiseNotificationSystem.init();
+              // Re-init after auth is ready (listen for session)
+            }
+          }, 500);
         }
       };
       s.onerror = () => {
