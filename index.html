@@ -210,5 +210,20 @@
 <script src="legal-v11.js?v=1"></script>
 <script src="session-fix.js?v=2"></script>
 <script src="notification-system.js?v=1"></script>
+<script>
+  // Convert Supabase's technical email rate-limit response into a clear user-facing message.
+  (() => {
+    const resetError = document.getElementById('resetError');
+    if (!resetError) return;
+    const friendlyRateLimit = 'Too many reset attempts. Please wait a little while before requesting another reset link.';
+    const translate = () => {
+      if (/email rate limit exceeded|rate limit/i.test(resetError.textContent || '')) {
+        resetError.textContent = friendlyRateLimit;
+      }
+    };
+    new MutationObserver(translate).observe(resetError, { childList: true, characterData: true, subtree: true });
+    translate();
+  })();
+</script>
 </body>
 </html>
