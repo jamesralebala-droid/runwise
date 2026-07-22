@@ -24,9 +24,30 @@
   <form id="loginForm">
     <div class="field"><label>Email</label><input type="email" name="email" required></div>
     <div class="field"><label>Password</label><input type="password" name="password" required></div>
+    <div style="display:flex;justify-content:flex-end;margin:-4px 0 12px">
+      <button type="button" id="forgotBtn" style="border:0;background:transparent;color:#123F34;padding:2px 0;font-weight:600;text-decoration:underline">Forgot password?</button>
+    </div>
     <button class="primary" style="width:100%">Log in</button>
     <div class="error-msg" id="loginError"></div>
   </form>
+
+  <div id="resetForm" class="hidden">
+    <p style="font-size:14px;line-height:1.5;color:#59665f">Enter your email address and we’ll send you a link to reset your password.</p>
+    <div class="field"><label>Email</label><input type="email" id="resetEmail" required></div>
+    <button class="primary" id="sendResetBtn" style="width:100%">Send reset link</button>
+    <button type="button" id="backToLoginBtn" class="secondary" style="width:100%;margin-top:8px">← Back to login</button>
+    <div class="error-msg" id="resetError"></div>
+    <div class="error-msg hidden" id="resetSuccess" style="color:#1f7a4d"></div>
+  </div>
+
+  <div id="recoveryForm" class="hidden">
+    <p style="font-size:14px;line-height:1.5;color:#59665f">Choose a new password for your RunWise account.</p>
+    <div class="field"><label>New password (min 6 characters)</label><input type="password" id="recoveryPassword" required minlength="6"></div>
+    <div class="field"><label>Confirm new password</label><input type="password" id="recoveryConfirm" required minlength="6"></div>
+    <button class="primary" id="recoverySubmitBtn" style="width:100%">Update password</button>
+    <div class="error-msg" id="recoveryError"></div>
+    <div class="error-msg hidden" id="recoverySuccess" style="color:#1f7a4d"></div>
+  </div>
 
   <form id="signupForm" class="hidden">
     <div class="field"><label>Full name</label><input type="text" name="full_name" required></div>
@@ -175,8 +196,9 @@
 </datalist>
 
 <script src="config.js"></script>
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 <script src="legal-v11.js?v=1"></script>
 <script src="session-fix.js?v=1"></script>
+<script src="notification-system.js?v=1"></script>
 </body>
 </html>
