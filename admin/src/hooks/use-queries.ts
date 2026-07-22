@@ -15,13 +15,13 @@ import {
 import { useAuth } from './use-auth';
 
 // Helper to log actions
-export const logAdminAction = async (adminId: string, action: string, targetType: string, targetId: string, notes: string | null = null) => {
+export const logAdminAction = async (adminId: string, action: string, targetTable: string, targetId: string, notes: string | null = null) => {
   await supabase.from('admin_audit_log').insert({
     admin_id: adminId,
-    action,
-    target_type,
-    target_id,
-    notes
+    action: action,
+    target_table: targetTable,
+    target_id: targetId,
+    notes: notes
   });
 };
 
@@ -65,7 +65,8 @@ export function useVerifications() {
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data as RunnerVerification[];
-    }
+    },
+    refetchInterval: 30000,
   });
 }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import { useWallets, useWalletTransactions } from '@/hooks/use-queries';
 import { Loader2, Wallet as WalletIcon, ArrowDownRight, ArrowUpRight, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
@@ -35,7 +35,7 @@ export default function Wallets() {
             </thead>
             <tbody className="divide-y divide-card-border">
               {wallets?.map((w) => (
-                <React.Fragment key={w.id}>
+                <Fragment key={w.id}>
                   <tr 
                     className={cn(
                       "hover:bg-muted/30 transition-colors cursor-pointer",
@@ -77,7 +77,7 @@ export default function Wallets() {
                       </td>
                     </tr>
                   )}
-                </React.Fragment>
+                </Fragment>
               ))}
             </tbody>
           </table>
