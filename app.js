@@ -3,6 +3,8 @@
 // Talks to Supabase for real auth + persisted data. No localStorage mock data.
 // ============================================================================
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Expose sb and state on window so other modules (notification-system.js) can access them
+window.__sb = sb;
 const $ = s => document.querySelector(s);
 const money = n => 'P' + Number(n || 0).toLocaleString('en-BW');
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -106,6 +108,8 @@ const state = {
   session: null, profile: null, page: 'home', openOrderRoom: null,
   legalMode: false, renderId: 0, bootId: 0,
 };
+// Expose state on window for notification-system.js and other modules
+window.__state = state;
 
 const menus = {
   customer: [['home', '⌂ Home'], ['trips', '🚗 Trip Marketplace'], ['requests', '📦 My Requests'],
@@ -425,9 +429,14 @@ async function boot(session = state.session) {
   }
   state.profile = profile;
 
-  // Initialize authenticated notification system
-  if (window.RunWiseNotificationSystem) {
-    RunWiseNotificationSystem.initAuthenticated();
+  // Initialize authenticated notification system — wrapped in try/catch
+  // so a notification failure NEVER blocks authentication or app boot.
+  try {
+    if (window.RunWiseNotificationSystem) {
+      RunWiseNotificationSystem.initAuthenticated();
+    }
+  } catch (e) {
+    console.warn('Notification init failed (auth continues):', e);
   }
 
   if (profile.suspended) {

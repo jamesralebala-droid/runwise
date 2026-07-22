@@ -581,7 +581,8 @@ function subscribeToNotifications(userId) {
     NotifState.channel = null;
   }
 
-  if (!window.sb) return;
+  if (!window.__sb) return;
+  const sb = window.__sb;
 
   // Subscribe to notification_history inserts for this user via Supabase Realtime
   NotifState.channel = sb.channel('notifications-' + userId, {
@@ -689,7 +690,8 @@ function safeJsonParse(str, fallback) {
 // 9. NAVIGATE FROM NOTIFICATION
 // ---------------------------------------------------------------------------
 function navigateFromNotification(type, data) {
-  if (!window.state) return;
+  if (!window.__state) return;
+  const state = window.__state;
 
   // Navigate to the relevant view based on notification type
   if (data.order_room_id) {
@@ -1208,8 +1210,8 @@ async function initNotifications() {
   }
 
   // Wait for state to be ready
-  if (!window.state?.profile?.id) {
-    // Not logged in yet — the system will be initialized after auth
+  if (!window.__state?.profile?.id) {
+    // Not logged in yet — the system will be initialized after auth via initAuthenticated()
     return;
   }
 
