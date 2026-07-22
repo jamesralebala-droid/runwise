@@ -358,7 +358,8 @@ function showSuspendedScreen() {
 // ---------------------------------------------------------------------------
 async function fetchOpenTrips() {
   return cachedRead('open-trips', async () => {
-    const { data: trips, error } = await sb.from('trips').select('*').order('depart_date', { ascending: true }).limit(30);
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: trips, error } = await sb.from('trips').select('*').gte('depart_date', today).order('depart_date', { ascending: true }).limit(30);
     if (error) return { data: null, error };
     const runnerIds = [...new Set((trips || []).map(t => t.runner_id))];
     if (!runnerIds.length) return { data: trips || [], error: null };
@@ -717,10 +718,15 @@ function tripCard(t) {
   const runnerName = t.profiles?.full_name || 'Runner';
   const rating = t.profiles?.rating_count ? (t.profiles.rating_sum / t.profiles.rating_count).toFixed(1) : '—';
   return `<div class="card trip-card">
-    <div><span class="badge success">${t.status.replace('_',' ')}</span>
+    <div><span class="badge ${t.depart_date && t.depart_date < new Date().toISOString().slice(0,10) && t.status === 'upcoming' ? 'danger' : 'success'}">${t.depart_date && t.depart_date < new Date().toISOString().slice(0,10) && t.status === 'upcoming' ? 'expired' : t.status.replace('_',' ')}</span>
       <h3>${escapeHtml(t.from_city)} → ${escapeHtml(t.to_city)}</h3>
       <p>${escapeHtml(t.depart_date)} • ${escapeHtml(t.depart_time)} • ${escapeHtml(runnerName)} • ★ ${escapeHtml(rating)}</p>
       <div class="pills">${(t.services||[]).map(s=>`<span>${escapeHtml(titleCase(s))}</span>`).join('')}<span>${escapeHtml(t.capacity_kg)} kg</span><span>${escapeHtml(t.spaces_remaining)}/${escapeHtml(t.capacity_spaces)} spaces</span></div>
+      <div class="pills"><span>${{
+        'private_car':'🚗 Car','bus_coach':'🚌 Bus/Coach','combi_taxi':'🚐 Combi/Taxi',
+        'truck':'🚛 Truck','motorcycle':'🏍️ Motorcycle','bicycle':'🚲 Bicycle',
+        'air_travel':'✈️ Air','other':'🚶 Other'
+      }[t.transport_mode] || '🚗 Car'}</span>${['bus_coach','combi_taxi'].includes(t.transport_mode) && t.transport_company ? `<span>${t.transport_company}</span>` : ''}${['bus_coach','combi_taxi'].includes(t.transport_mode) && t.licence_plate ? `<span>${t.licence_plate}</span>` : ''}${['bus_coach','combi_taxi'].includes(t.transport_mode) && !t.transport_id_complete ? `<span class="badge warning">⚠️ ID</span>` : ''}${t.transport_mode === 'air_travel' && t.airline ? `<span>✈️ ${t.airline}</span>` : ''}${t.transport_mode === 'air_travel' && t.flight_number ? `<span>${t.flight_number}</span>` : ''}</div>
     </div>
     <div class="price"><small>Potential earnings</small><strong>${money(t.potential_earnings)}</strong>
       <button class="secondary matchTrip" data-id="${escapeHtml(t.id)}" data-from="${escapeHtml(t.from_city)}" data-to="${escapeHtml(t.to_city)}">Match a Request</button>
@@ -794,12 +800,41 @@ async function announceView() {
   if (!verification || verification.status !== 'approved') {
     return `<div class="gate-card"><span>🪪</span><h2>Verification required</h2><p>An administrator must approve your identity before you can announce a trip.</p><button class="primary goVerification">Open Verification</button></div>`;
   }
-  if (!vehicles.length) {
-    return `<div class="gate-card"><span>🚙</span><h2>Approved vehicle required</h2><p>Add a vehicle and wait for administrator approval before announcing a trip.</p><button class="primary goVehicle">Open My Vehicles</button></div>`;
-  }
+  const vehicleSection = vehicles.length
+    ? `<label id="vehicleField" class="full">Approved vehicle<select name="vehicle_id">${vehicles.map(v => `<option value="${escapeHtml(v.id)}">${escapeHtml(v.make_model)} &mdash; ${escapeHtml(v.plate_number || 'No plate')}</option>`).join('')}</select></label>`
+    : '<p id="vehicleField" class="full muted" style="display:none">No approved vehicles on file. Add one in My Vehicles if you plan to drive.</p>';
   return `<div class="card"><h3>Announce your journey</h3>
     <form id="tripForm" class="grid2">
-      <label class="full">Approved vehicle<select name="vehicle_id" required>${vehicles.map(vehicle => `<option value="${escapeHtml(vehicle.id)}">${escapeHtml(vehicle.make_model)} — ${escapeHtml(vehicle.plate_number || 'No plate')}</option>`).join('')}</select></label>
+      <label class="full" style="font-weight:800;color:var(--green)">How are you travelling?</label>
+      <div class="full transport-mode-pick" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px">
+        <label style="cursor:pointer;padding:6px;border:1px solid var(--line);border-radius:8px;text-align:center;font-size:13px;background:#fff"><input type="radio" name="transport_mode" value="private_car" checked onchange="toggleTransportMode()" style="margin-right:4px">🚗 Car</label>
+        <label style="cursor:pointer;padding:6px;border:1px solid var(--line);border-radius:8px;text-align:center;font-size:13px;background:#fff"><input type="radio" name="transport_mode" value="bus_coach" onchange="toggleTransportMode()" style="margin-right:4px">🚌 Bus/Coach</label>
+        <label style="cursor:pointer;padding:6px;border:1px solid var(--line);border-radius:8px;text-align:center;font-size:13px;background:#fff"><input type="radio" name="transport_mode" value="combi_taxi" onchange="toggleTransportMode()" style="margin-right:4px">🚐 Combi/Taxi</label>
+        <label style="cursor:pointer;padding:6px;border:1px solid var(--line);border-radius:8px;text-align:center;font-size:13px;background:#fff"><input type="radio" name="transport_mode" value="truck" onchange="toggleTransportMode()" style="margin-right:4px">🚛 Truck</label>
+        <label style="cursor:pointer;padding:6px;border:1px solid var(--line);border-radius:8px;text-align:center;font-size:13px;background:#fff"><input type="radio" name="transport_mode" value="motorcycle" onchange="toggleTransportMode()" style="margin-right:4px">🏍️ Bike</label>
+        <label style="cursor:pointer;padding:6px;border:1px solid var(--line);border-radius:8px;text-align:center;font-size:13px;background:#fff"><input type="radio" name="transport_mode" value="bicycle" onchange="toggleTransportMode()" style="margin-right:4px">🚲 Cycle</label>
+        <label style="cursor:pointer;padding:6px;border:1px solid var(--line);border-radius:8px;text-align:center;font-size:13px;background:#fff"><input type="radio" name="transport_mode" value="air_travel" onchange="toggleTransportMode()" style="margin-right:4px">✈️ Air</label>
+        <label style="cursor:pointer;padding:6px;border:1px solid var(--line);border-radius:8px;text-align:center;font-size:13px;background:#fff"><input type="radio" name="transport_mode" value="other" onchange="toggleTransportMode()" style="margin-right:4px">🚶 Other</label>
+      </div>
+      ${vehicleSection}
+      <!-- Dynamic transport fields by mode -->
+      <div id="publicTransportFields" class="full hidden">
+        <label>Transport / bus company name <span style="color:var(--danger)">*</span>
+          <input name="transport_company" placeholder="e.g. Greyhound, Intercape">
+        </label>
+        <label>Vehicle registration / licence plate
+          <input name="licence_plate" placeholder="e.g. B 123 ABC">
+          <small style="display:block;color:#68756e;font-weight:400;margin-top:3px">Enter the registration if known, or leave blank to add before pickup.</small>
+        </label>
+      </div>
+      <div id="airTravelFields" class="full hidden">
+        <label>Airline <span style="color:var(--danger)">*</span>
+          <input name="airline" placeholder="e.g. Air Botswana, Airlink">
+        </label>
+        <label>Flight number
+          <input name="flight_number" placeholder="e.g. BP 201">
+        </label>
+      </div>
       <label>From country<input name="from_country" required></label>
       <label>From city<input name="from_city" required></label>
       <label>To country<input name="to_country" required></label>
@@ -811,20 +846,83 @@ async function announceView() {
       <label class="full">Intermediate stops (comma separated)<input name="stops" placeholder="Pretoria, Polokwane, Tlokweng Border"></label>
       <label>Landmark near start (optional)<input name="from_landmark"></label>
       <label>Landmark near end (optional)<input name="to_landmark"></label>
-      <label class="full">Written directions (optional — for stops without a mappable address)<textarea name="written_directions" rows="2"></textarea></label>
+      <label class="full">Written directions (optional &mdash; for stops without a mappable address)<textarea name="written_directions" rows="2"></textarea></label>
       <label class="full">Services offered<select name="services" multiple size="4">${REQUEST_TYPES.map(t=>`<option value="${t}">${t.replace('_',' ')}</option>`).join('')}</select></label>
 
       <div class="full declaration-box">
-        <div class="legal-check"><label><input type="checkbox" name="d1" required> I am legally permitted to drive and use the listed vehicle.</label></div>
+        <div id="vehicleDeclaration" class="legal-check"><label><input type="checkbox" name="d1" required> I am legally permitted to drive and use the listed vehicle.</label></div>
         <div class="legal-check"><label><input type="checkbox" name="d2" required> I will comply with applicable road, transport, insurance, border, and customs laws.</label></div>
         <div class="legal-check"><label><input type="checkbox" name="d3" required> I will not accept goods that appear unlawful, dangerous, or materially different from their description.</label></div>
         <div class="legal-check"><label><input type="checkbox" name="d4" required> I understand that posting a trip does not guarantee a match or payment.</label></div>
         <div id="tripCrossBorderNote" class="hidden">
-          <div class="legal-check"><label><input type="checkbox" name="cb1"> This is an international trip — I have read the ${legalLinkHtml('cross_border', 'Cross-Border Delivery Policy')}.</label></div>
+          <div class="legal-check"><label><input type="checkbox" name="cb1"> This is an international trip &mdash; I have read the ${legalLinkHtml('cross_border', 'Cross-Border Delivery Policy')}.</label></div>
         </div>
       </div>
       <button class="primary full">Publish Trip</button>
-    </form></div>`;
+    </form></div>
+    <script>
+      function toggleTransportMode() {
+        const mode = document.querySelector('input[name="transport_mode"]:checked')?.value;
+        const vf = document.getElementById('vehicleField');
+        const ptf = document.getElementById('publicTransportFields');
+        const atf = document.getElementById('airTravelFields');
+        const vd = document.getElementById('vehicleDeclaration');
+        const d1 = document.querySelector('[name="d1"]');
+        const vs = document.querySelector('[name="vehicle_id"]');
+        const tc = document.querySelector('[name="transport_company"]');
+        const al = document.querySelector('[name="airline"]');
+        // Determine if this mode needs a vehicle
+        const needsVehicle = ['private_car', 'motorcycle', 'truck'].includes(mode);
+        // Determine if this mode needs transport company + plate (public passenger transport)
+        const needsTransitInfo = ['bus_coach', 'combi_taxi'].includes(mode);
+        // Vehicle-required modes
+        if (needsVehicle) {
+          vf.style.display = '';
+          ptf.classList.add('hidden');
+          atf.classList.add('hidden');
+          vd.style.display = '';
+          d1.required = true;
+          d1.checked = false;
+          if (vs) vs.required = true;
+          if (tc) tc.required = false;
+          if (al) al.required = false;
+        // Public transport modes (bus, combi) — company + plate
+        } else if (needsTransitInfo) {
+          vf.style.display = 'none';
+          ptf.classList.remove('hidden');
+          atf.classList.add('hidden');
+          vd.style.display = 'none';
+          d1.required = false;
+          d1.checked = true;
+          if (vs) vs.required = false;
+          if (tc) tc.required = true;
+          if (al) al.required = false;
+        // Air travel — airline + flight
+        } else if (mode === 'air_travel') {
+          vf.style.display = 'none';
+          ptf.classList.add('hidden');
+          atf.classList.remove('hidden');
+          vd.style.display = 'none';
+          d1.required = false;
+          d1.checked = true;
+          if (vs) vs.required = false;
+          if (tc) tc.required = false;
+          if (al) al.required = true;
+        // Other modes (bicycle, other) — no extra docs
+        } else {
+          vf.style.display = 'none';
+          ptf.classList.add('hidden');
+          atf.classList.add('hidden');
+          vd.style.display = 'none';
+          d1.required = false;
+          d1.checked = true;
+          if (vs) vs.required = false;
+          if (tc) tc.required = false;
+          if (al) al.required = false;
+        }
+      }
+      toggleTransportMode();
+    </script>`;
 }
 async function myTripsView() {
   const trips = await fetchMyTrips();
@@ -869,7 +967,9 @@ async function vehicleView() {
 async function matchesView(role) {
   if (role === 'runner') {
     const [trips, openReqs] = await Promise.all([fetchMyTrips(), fetchOpenRequests()]);
-    const compatible = openReqs.filter(r => trips.some(t => t.from_city === r.from_city && t.to_city === r.to_city));
+    const today = new Date().toISOString().slice(0, 10);
+    const activeTrips = trips.filter(t => !(t.depart_date && t.depart_date < today && t.status === 'upcoming'));
+    const compatible = openReqs.filter(r => activeTrips.some(t => t.from_city === r.from_city && t.to_city === r.to_city));
     return `<div class="grid g3">${compatible.length ? compatible.map(r => {
       const t = trips.find(t => t.from_city === r.from_city && t.to_city === r.to_city);
       return `<div class="card"><small>SMART MATCH</small><h3>${r.type}</h3><p>${r.from_city} → ${r.to_city}</p><strong>${money(r.estimated_value)}</strong>
@@ -1043,7 +1143,7 @@ async function openAdminCase(disputeId, roomId, button) {
   }
   setBusy(button, true, 'Loading case…');
   const [roomResult, messagesResult, milestonesResult, proofResult] = await Promise.all([
-    sb.from('order_rooms').select('*, escrow_transactions(*)').eq('id', roomId).single(),
+    sb.from('order_rooms').select('*, escrow_transactions(*), trips(*)').eq('id', roomId).single(),
     sb.from('order_messages').select('*').eq('order_room_id', roomId).order('created_at', { ascending: true }),
     sb.from('journey_milestones').select('*').eq('order_room_id', roomId).order('created_at', { ascending: true }),
     sb.from('proof_uploads').select('*').eq('order_room_id', roomId).order('created_at', { ascending: true }),
@@ -1198,7 +1298,7 @@ async function openOrderRoom(roomId) {
   const detailHost = $('#roomDetail');
   if (detailHost) detailHost.innerHTML = '<div class="loading-cards"><i></i><i></i></div>';
   const [roomResult, milestoneResult, messageResult] = await Promise.all([
-    readWithRetry(() => sb.from('order_rooms').select('*, escrow_transactions(*)').eq('id', roomId).single()),
+    readWithRetry(() => sb.from('order_rooms').select('*, escrow_transactions(*), trips(*)').eq('id', roomId).single()),
     readWithRetry(() => sb.from('journey_milestones').select('*').eq('order_room_id', roomId).order('created_at', { ascending: true })),
     readWithRetry(() => sb.from('order_messages').select('*').eq('order_room_id', roomId).order('created_at', { ascending: true })),
   ]);
@@ -1231,9 +1331,23 @@ async function openOrderRoom(roomId) {
       <div class="card">
         <h3>Order Room chat</h3>
         <div class="chat-box">${messages.length ? messages.map(m => `<div class="chat-msg"><b>${m.sender_id===state.profile.id?'You':'Them'}:</b> ${m.message}</div>`).join('') : '<div class="empty">No messages yet.</div>'}</div>
-        <div class="chat-input"><input id="chatInput" placeholder="Type a message"><button class="primary" id="sendChat">Send</button></div>
+        </div>
+      ${isActiveOrder ? `
+      <!-- Transport ID gate -->
+      ${['bus_coach','combi_taxi'].includes(room.trips?.transport_mode) && !isCustomer && !room.trips?.transport_id_complete ? `
+      <div class="card" style="border-left:4px solid var(--gold)">
+        <b>⚠️ Transport ID Incomplete</b>
+        <p style="color:#68756e;font-size:13px;line-height:1.5;margin:6px 0 10px">You selected public transport but haven't entered the vehicle registration (licence plate). You can add it now. This is required before confirming pickup.</p>
+        <div class="field">
+          <label>Vehicle registration / licence plate
+            <input id="licencePlateUpdate" placeholder="e.g. B 123 ABC">
+          </label>
+        </div>
+        <button class="primary" id="saveLicencePlate">Save Licence Plate</button>
+        <span id="plateSaveMsg" style="margin-left:10px;font-size:13px;color:var(--success)"></span>
       </div>
-      ${isActiveOrder ? `<div class="card">
+      ` : ''}
+      <div class="card">
           <h3>Nearby contact</h3>
           <p><small>Share your location so we can reveal a phone number only once you and the other party are close by — for a safe handover.</small></p>
           <button class="secondary" id="shareLocation">Share My Location</button>
@@ -1295,7 +1409,23 @@ async function openOrderRoom(roomId) {
 
 function bindOrderRoom(roomId, isCustomer) {
   const pm = $('#postMilestone');
-  if (pm) pm.onclick = async () => {
+  const slp = $('#saveLicencePlate');
+  if (slp) slp.onclick = async () => {
+    const plate = $('#licencePlateUpdate')?.value?.trim();
+    const msg = $('#plateSaveMsg');
+    if (!plate) { toast('Please enter the licence plate number.'); return; }
+    try {
+      const { error } = await sb.from('trips').update({ licence_plate: plate, transport_id_complete: true }).eq('id', room.trip_id);
+      if (error) throw error;
+      if (msg) msg.textContent = '✅ Saved';
+      toast('Licence plate saved. You can now proceed with pickup.');
+    } catch (e) {
+      console.error('Plate save error:', e);
+      toast('Failed to save licence plate: ' + e.message);
+    }
+  };
+
+    if (pm) pm.onclick = async () => {
     const m = $('#milestoneSelect').value;
     const { error } = await sb.rpc('add_milestone', { p_order_room_id: roomId, p_milestone: m });
     if (error) toast(error.message); else { toast('Milestone posted'); openOrderRoom(roomId); }
@@ -1464,7 +1594,17 @@ $('#requestForm').elements.cross_border.addEventListener('change', e => {
 });
 
 function bindPage() {
-  document.querySelectorAll('.matchTrip').forEach(b => b.onclick = () => openRequestModal({ from_city: b.dataset.from, to_city: b.dataset.to }));
+  document.querySelectorAll('.matchTrip').forEach(b => b.onclick = async () => {
+      const id = b.dataset.id;
+      if (id) {
+        const { data: tc } = await sb.from('trips').select('depart_date, status').eq('id', id).maybeSingle();
+        if (tc && tc.depart_date && tc.depart_date < new Date().toISOString().slice(0, 10) && tc.status === 'upcoming') {
+          toast('This trip has expired and can no longer receive requests.');
+          return;
+        }
+      }
+      openRequestModal({ from_city: b.dataset.from, to_city: b.dataset.to });
+    });
   document.querySelectorAll('.openRoom').forEach(b => b.onclick = () => openOrderRoom(b.dataset.id));
   document.querySelectorAll('.goVerification').forEach(b => b.onclick = () => { state.page = 'verification'; render(); });
   document.querySelectorAll('.goVehicle').forEach(b => b.onclick = () => { state.page = 'vehicle'; render(); });
@@ -1521,7 +1661,15 @@ function bindPage() {
       const payload = {
         id: newId(),
         runner_id: state.profile.id,
-        vehicle_id: f.get('vehicle_id'),
+        transport_mode: f.get('transport_mode') || 'private_car',
+        vehicle_id: ['private_car','motorcycle','truck'].includes(f.get('transport_mode')) ? f.get('vehicle_id') : null,
+        transport_details: f.get('transport_mode') === 'other' ? (f.get('transport_details') || '') : null,
+        transport_company: ['bus_coach','combi_taxi'].includes(f.get('transport_mode')) ? f.get('transport_company') : null,
+        licence_plate: ['bus_coach','combi_taxi'].includes(f.get('transport_mode')) ? (f.get('licence_plate') || '') : null,
+        transport_id_complete: ['bus_coach','combi_taxi'].includes(f.get('transport_mode')) ? (f.get('licence_plate') ? true : false) : null,
+        airline: f.get('transport_mode') === 'air_travel' ? f.get('airline') : null,
+        flight_number: f.get('transport_mode') === 'air_travel' ? (f.get('flight_number') || '') : null,
+
         from_country: f.get('from_country'), from_city: f.get('from_city'),
         to_country: f.get('to_country'), to_city: f.get('to_city'),
         from_landmark: f.get('from_landmark') || null, to_landmark: f.get('to_landmark') || null,
