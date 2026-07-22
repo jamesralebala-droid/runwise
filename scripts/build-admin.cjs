@@ -10,6 +10,8 @@ const files = [
   'app.js',
   'legal-v11.js',
   'session-fix.js',
+  'notification-system.js',
+  'notification-worker.js',
 ];
 
 const output = path.join(process.cwd(), 'dist');
