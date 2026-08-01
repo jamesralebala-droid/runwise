@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <meta name="theme-color" content="#123F34" />
 <title>RunWise — Your Cart. Our Run.</title>
+<script>
+  // Capture Supabase's recovery marker before the auth client consumes/cleans the URL hash.
+  // This prevents the temporary recovery session from being mistaken for a normal login.
+  (() => {
+    const recoveryUrl = `${window.location.search}${window.location.hash}`;
+    if (/(?:[?#&])type=recovery(?:&|$)/i.test(recoveryUrl)) {
+      sessionStorage.setItem('runwise_password_recovery', '1');
+    }
+  })();
+</script>
 </head>
 <body>
 <div id="root"></div>
