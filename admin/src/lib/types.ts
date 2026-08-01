@@ -146,6 +146,21 @@ export type RestrictedItem = {
   created_at: string;
 };
 
+export type WaitlistSignup = {
+  id: string;
+  email: string;
+  full_name: string;
+  interest: 'customer' | 'runner' | 'both';
+  town_city: string;
+  frequent_routes: string | null;
+  phone: string | null;
+  marketing_consent: boolean;
+  source: string;
+  status: 'new' | 'contacted' | 'converted' | 'archived';
+  notes: string | null;
+  created_at: string;
+};
+
 export type DashboardStats = {
   pendingVerifications: number;
   pendingVehicles: number;

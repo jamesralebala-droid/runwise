@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "VITE_SUPABASE_URL=https://lugbyiwtmxvhmhtwcrle.supabase.co VITE_SUPABASE_ANON_KEY=sb_publishable_KG7TwPctMeDCLnRVcTdjIQ_ol3yPVvX BASE_PATH=/admin/ vite build && ln -sf dist/assets assets && ln -sf dist/favicon.svg favicon.svg && ln -sf dist/robots.txt robots.txt && cp dist/index.html index.html",
     "serve": "vite preview",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

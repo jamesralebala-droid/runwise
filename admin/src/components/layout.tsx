@@ -11,7 +11,8 @@ import {
   ShieldAlert, 
   History,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Mail
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -30,6 +31,7 @@ const navItems = [
   { href: '/wallets', label: 'Wallets', icon: Wallet },
   { href: '/restricted-items', label: 'Restricted Items', icon: ShieldAlert },
   { href: '/audit-log', label: 'Audit Log', icon: History },
+  { href: '/waitlist', label: 'Waitlist', icon: Mail },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {

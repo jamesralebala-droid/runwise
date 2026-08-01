@@ -17,6 +17,7 @@ import Users from '@/pages/users';
 import Wallets from '@/pages/wallets';
 import RestrictedItems from '@/pages/restricted-items';
 import AuditLog from '@/pages/audit-log';
+import Waitlist from '@/pages/waitlist';
 import NotFound from '@/pages/not-found';
 
 const queryClient = new QueryClient();
@@ -70,6 +71,7 @@ function Router() {
       <Route path="/wallets" component={() => <ProtectedRoute component={Wallets} />} />
       <Route path="/restricted-items" component={() => <ProtectedRoute component={RestrictedItems} />} />
       <Route path="/audit-log" component={() => <ProtectedRoute component={AuditLog} />} />
+      <Route path="/waitlist" component={() => <ProtectedRoute component={Waitlist} />} />
       <Route component={() => (
         <Layout>
           <NotFound />

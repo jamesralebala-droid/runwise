@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build",
+  "buildCommand": "./build.sh",
   "outputDirectory": "dist",
   "cleanUrls": false,
   "headers": [
@@ -24,6 +24,20 @@
           "value": "geolocation=(self), camera=(), microphone=()"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/early-access",
+      "destination": "/early-access.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/admin/index.html"
     }
   ]
 }
