@@ -23,12 +23,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: |
+          npm install --no-audit --no-fund
+          cd admin && npm install --no-audit --no-fund
+      - name: Build site
+        # GitHub Pages serves the site under the repository subpath (e.g. /runwise/),
+        # so the Vite build base is set to that subpath.
+        run: RUNWISE_BASE=/${{ github.event.repository.name }}/ sh ./build.sh
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: dist
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

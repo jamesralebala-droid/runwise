@@ -871,7 +871,7 @@ async function loadNotifications() {
 async function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return false;
   try {
-    const registration = await navigator.serviceWorker.register('/notification-worker.js');
+    const registration = await navigator.serviceWorker.register((window.RUNWISE_BASE || '/') + 'notification-worker.js');
     return registration;
   } catch (e) {
     console.warn('Service worker registration failed:', e);

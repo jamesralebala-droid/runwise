@@ -1,5 +1,15 @@
 import { useEffect, useRef } from 'react';
 
+// Globals shared with the vanilla RunWise scripts (loaded via <script> tags).
+declare global {
+  interface Window {
+    RUNWISE_BASE?: string;
+    RunWiseNotificationSystem?: {
+      init(): void;
+    };
+  }
+}
+
 // The existing RunWise SPA (app.js) expects this exact HTML structure in the DOM.
 // We render it once on mount and never re-render, because app.js takes over
 // DOM manipulation from that point. React will not touch the DOM after mount.
@@ -194,12 +204,16 @@ function App() {
     if (initialized.current) return;
     initialized.current = true;
 
-    // Load the existing RunWise JS files in order
+    // Load the existing RunWise JS files in order. They live beside the built
+    // index.html, so resolve them against the Vite base — this keeps the app
+    // working on any deploy path (Vercel root domain or GitHub Pages subpath).
+    const scriptBase = import.meta.env.BASE_URL || '/';
+    window.RUNWISE_BASE = scriptBase;
     const scripts = ['config.js', 'app.js', 'legal-v11.js', 'session-fix.js', 'notification-system.js'];
     let loaded = 0;
     scripts.forEach((src) => {
       const s = document.createElement('script');
-      s.src = '/' + src;
+      s.src = scriptBase + src;
       s.onload = () => {
         loaded++;
         if (loaded === scripts.length) {
