@@ -2,3 +2,12 @@
 .env
 .env.local
 node_modules/
+
+# Build outputs & derived artifacts
+dist/
+admin/dist/
+admin/assets
+admin/favicon.svg
+admin/robots.txt
+admin/bun.lock
+tsconfig.tsbuildinfo
