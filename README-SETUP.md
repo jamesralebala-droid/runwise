@@ -9,17 +9,16 @@ walkthrough of the entire flow — signup through KYC, trip/request matching,
 escrow, delivery, ratings, disputes, and admin controls — before you rely on
 any of this.
 
-## 1. Clean up the repo first
+## 1. Repo layout (current)
 
-The repo currently has **three copies** of the app (root `index.html`/`app.js`,
-`" zip 3"/`, `"files.zip 5"/`). Delete the two duplicate folders and the old
-root files before adding these — keeping divergent copies around is exactly
-what the Master Prompt says not to do.
-
-```
-git rm -r " zip 3" "files.zip 5"
-git rm index.html app.js styles.css
-```
+The web app is a Vite + React shell (`index.html` + `src/`) that mounts the
+legacy RunWise SPA. The runtime scripts (`app.js`, `config.js`, `legal-v11.js`,
+`session-fix.js`, `notification-system.js`, `notification-worker.js`) live in
+`public/` — that folder is the single source of truth and is copied into
+`dist/` by Vite. `admin/` is a separate React admin portal (built into
+`dist/admin/` by `build.cjs`), and `mobile/` is the Expo client. Supabase
+schema/function files live in `supabase/` with migrations in
+`supabase/migrations/`.
 
 ## 2. Create your Supabase project
 
@@ -104,7 +103,7 @@ After the original `schema.sql`, `functions.sql`, and `storage.sql` have been
 installed, run this migration once in the Supabase SQL Editor:
 
 ```
-migrations/20260718_001_security_and_core_flow.sql
+supabase/migrations/20260718_001_security_and_core_flow.sql
 ```
 
 It prevents role self-promotion and self-approval, protects trusted order and

@@ -33,10 +33,12 @@ if (!existsSync(path.join(__dirname, 'node_modules', 'vite'))) {
 //    RUNWISE_BASE to set the asset base for the current deploy target.
 run('main app', 'npx vite build');
 
-// 1b. Guarantee dist/app.js is the current root app.js (Vite copies public/ which can go stale)
+// 1b. Guarantee dist/app.js is the current app.js. public/ is the single
+//     source of truth for runtime scripts (Vite copies it, but the copy can
+//     go stale on incremental builds), so sync from there.
 try {
-  cpSync(path.resolve(__dirname, 'app.js'), path.resolve(__dirname, 'dist', 'app.js'));
-  console.log('  (synced dist/app.js from root app.js)');
+  cpSync(path.resolve(__dirname, 'public', 'app.js'), path.resolve(__dirname, 'dist', 'app.js'));
+  console.log('  (synced dist/app.js from public/app.js)');
 } catch (err) {
   console.error('  WARN: could not sync dist/app.js:', err.message);
 }

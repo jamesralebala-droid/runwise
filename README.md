@@ -1,12 +1,26 @@
-# RunWise Web App MVP
+# RunWise
 
-Open `index.html` in a browser.
+Cross-border delivery and errand marketplace for Botswana and Southern Africa.
 
-Included:
-- Official RunWise branding and logo
-- Buyer, Runner, Business, and Admin portals
-- Order creation
-- Wallet and escrow simulation
-- Tracking dashboard
-- Local browser storage
-- Responsive layout
+## Apps
+
+- **Web app** — Vite + React shell (`index.html`, `src/`) that mounts the RunWise SPA. Runtime scripts live in `public/`.
+- **Admin portal** — `admin/` (separate Vite + React app, built into `dist/admin/`).
+- **Mobile** — `mobile/` (Expo React Native, Android-first).
+- **Backend** — Supabase: schema/functions in `supabase/`, migrations in `supabase/migrations/`, edge functions in `supabase/functions/`.
+
+## Develop
+
+```bash
+bun install
+bun run dev      # web app
+cd admin && npm install && npm run dev   # admin portal
+```
+
+## Build & deploy
+
+```bash
+bun run build    # builds web app + admin into dist/
+```
+
+See `README-SETUP.md` for the Supabase setup and `TESTING-CHECKLIST.md` for the end-to-end test walkthrough.
