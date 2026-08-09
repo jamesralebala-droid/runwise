@@ -846,8 +846,7 @@ function tripCard(t) {
       <p>${escapeHtml(t.depart_date)} • ${escapeHtml(t.depart_time)} • ${escapeHtml(runnerName)} • ★ ${escapeHtml(rating)}</p>
       <div class="pills">${(t.services||[]).map(s=>`<span>${escapeHtml(titleCase(s))}</span>`).join('')}<span>${escapeHtml(t.capacity_kg)} kg</span><span>${escapeHtml(t.spaces_remaining)}/${escapeHtml(t.capacity_spaces)} spaces</span></div>
       <div class="pills"><span>${{
-        'private_car':'🚗 Car','bus_coach':'🚌 Bus/Coach','combi_taxi':'🚐 Combi/Taxi',
-        'truck':'🚛 Truck','motorcycle':'🏍️ Motorcycle','bicycle':'🚲 Bicycle',
+        'private_car':'🚗 Car','bus_coach':'🚌 Bus/Coach','combi_taxi':'🚐 Combi/Taxi',         'truck':'🚛 Truck','motorcycle':'🏍️ Motorcycle','bicycle':'🚲 Bicycle',
         'air_travel':'✈️ Air','other':'🚶 Other'
       }[t.transport_mode] || '🚗 Car'}</span>${['bus_coach','combi_taxi'].includes(t.transport_mode) && t.transport_company ? `<span>${t.transport_company}</span>` : ''}${['bus_coach','combi_taxi'].includes(t.transport_mode) && t.licence_plate ? `<span>${t.licence_plate}</span>` : ''}${['bus_coach','combi_taxi'].includes(t.transport_mode) && !t.transport_id_complete ? `<span class="badge warning">⚠️ ID</span>` : ''}${t.transport_mode === 'air_travel' && t.airline ? `<span>✈️ ${t.airline}</span>` : ''}${t.transport_mode === 'air_travel' && t.flight_number ? `<span>${t.flight_number}</span>` : ''}</div>
     </div>
@@ -1572,14 +1571,14 @@ function bindOrderRoom(roomId, isCustomer) {
             journey_started: 'Journey started', border_reached: 'Border reached',
             destination_reached: 'Destination reached', out_for_delivery: 'Out for delivery',
           };
-          sb.rpc('insert_notification', {
-            p_user_id: otherId,
-            p_type: milestoneLabels[m] ? 'journey_started' : 'pickup_ready',
-            p_title: milestoneLabels[m] || 'Journey update',
-            p_description: 'Your order: ' + (milestoneLabels[m] || m.replace(/_/g, ' ')),
-            p_data: JSON.stringify({ order_room_id: roomId }),
-            p_high_priority: true
-          });
+          RunWiseNotificationSystem.trigger(
+            otherId,
+            milestoneLabels[m] ? 'journey_started' : 'pickup_ready',
+            milestoneLabels[m] || 'Journey update',
+            'Your order: ' + (milestoneLabels[m] || m.replace(/_/g, ' ')),
+            { order_room_id: roomId },
+            true
+          );
         }
       } catch(e) {}
       openOrderRoom(roomId);
@@ -1601,14 +1600,14 @@ function bindOrderRoom(roomId, isCustomer) {
         if (roomData.data) {
           const otherId = roomData.data.runner_id === state.profile.id ? roomData.data.customer_id : roomData.data.runner_id;
           if (otherId !== state.profile.id) {
-            sb.rpc('insert_notification', {
-              p_user_id: otherId,
-              p_type: 'new_message',
-              p_title: 'New message',
-              p_description: msg.slice(0, 80) + (msg.length > 80 ? '...' : ''),
-              p_data: JSON.stringify({ order_room_id: roomId }),
-              p_high_priority: false
-            });
+            RunWiseNotificationSystem.trigger(
+              otherId,
+              'new_message',
+              'New message',
+              msg.slice(0, 80) + (msg.length > 80 ? '...' : ''),
+              { order_room_id: roomId },
+              false
+            );
           }
         }
       } catch(e) {}
@@ -1806,14 +1805,14 @@ function bindPage() {
         const mData = await sb.from('matches').select('runner_id, customer_id').eq('id', b.dataset.id).single();
         if (mData.data) {
           const otherId = mData.data.runner_id === state.profile.id ? mData.data.customer_id : mData.data.runner_id;
-          sb.rpc('insert_notification', {
-            p_user_id: otherId,
-            p_type: 'job_confirmed',
-            p_title: 'Job confirmed!',
-            p_description: 'Your match has been accepted and an Order Room is ready.',
-            p_data: JSON.stringify({ match_id: b.dataset.id }),
-            p_high_priority: true
-          });
+          RunWiseNotificationSystem.trigger(
+            otherId,
+            'job_confirmed',
+            'Job confirmed!',
+            'Your match has been accepted and an Order Room is ready.',
+            { match_id: b.dataset.id },
+            true
+          );
         }
       } catch(e) {}
     }
@@ -1841,14 +1840,14 @@ function bindPage() {
     try {
       const reqData = await sb.from('requests').select('customer_id, from_city, to_city').eq('id', request_id).single();
       if (reqData.data) {
-        sb.rpc('insert_notification', {
-          p_user_id: reqData.data.customer_id,
-          p_type: 'offer_proposed',
-          p_title: 'Runner made an offer',
-          p_description: 'A runner wants to carry your ' + reqData.data.from_city + ' \u2192 ' + reqData.data.to_city + ' request.',
-          p_data: JSON.stringify({ match_id: null, request_id, trip_id, from_city: reqData.data.from_city, to_city: reqData.data.to_city }),
-          p_high_priority: true
-        });
+        RunWiseNotificationSystem.trigger(
+          reqData.data.customer_id,
+          'offer_proposed',
+          'Runner made an offer',
+          'A runner wants to carry your ' + reqData.data.from_city + ' \u2192 ' + reqData.data.to_city + ' request.',
+          { match_id: null, request_id, trip_id, from_city: reqData.data.from_city, to_city: reqData.data.to_city },
+          true
+        );
       }
     } catch(e) {}
 
