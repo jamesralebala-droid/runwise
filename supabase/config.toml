@@ -1,0 +1,18 @@
+# ============================================================================
+# RunWise — Supabase CLI configuration
+# ============================================================================
+# Used by the Supabase CLI for local development and Edge Function settings.
+# Supabase project ref: lugbyiwtmxvhmhtwcrle (https://lugbyiwtmxvhmhtwcrle.supabase.co)
+project_id = "runwise"
+
+# ---------------------------------------------------------------------------
+# Edge functions
+# ---------------------------------------------------------------------------
+
+[functions.send-push]
+# verify_jwt = false: this function performs its OWN authorization inside
+# index.ts — it accepts a Supabase user JWT (client calls) OR the
+# PUSH_SEND_SECRET shared secret via the x-push-secret header (server-side
+# callers like DB triggers / cron). The platform-level JWT gate must stay off
+# so the shared-secret path can reach the function.
+verify_jwt = false

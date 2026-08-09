@@ -1061,7 +1061,7 @@ function checkPushPermissionPrompt() {
 // ---------------------------------------------------------------------------
 async function triggerNotification(userId, type, title, description, data = {}, highPriority = false) {
   try {
-    await sb.rpc('insert_notification', {
+    const { data: inserted, error } = await sb.rpc('insert_notification', {
       p_user_id: userId,
       p_type: type,
       p_title: title,
@@ -1069,6 +1069,21 @@ async function triggerNotification(userId, type, title, description, data = {}, 
       p_data: data,
       p_high_priority: highPriority,
     });
+    if (error) throw error;
+
+    // Server-side push delivery — hand the freshly created notification to the
+    // send-push edge function so the RECIPIENT gets a browser push even when
+    // their RunWise tab is closed. Fire-and-forget: never blocks or breaks the
+    // sender's flow, and silently skips if push is disabled or unavailable.
+    const row = Array.isArray(inserted) ? inserted[0] : inserted;
+    if (row && row.id && highPriority && NotifState.preferences.push_enabled) {
+      try {
+        sb.functions.invoke('send-push', { body: { notification_id: row.id } })
+          .catch((e) => console.warn('send-push invoke failed (non-fatal):', e));
+      } catch (e) {
+        console.warn('send-push invoke unavailable (non-fatal):', e);
+      }
+    }
   } catch (e) {
     console.warn('Failed to insert notification:', e);
   }
