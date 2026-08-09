@@ -11,3 +11,6 @@ admin/favicon.svg
 admin/robots.txt
 admin/bun.lock
 tsconfig.tsbuildinfo
+
+# Platform-generated workspace snapshot (recreated on each build)
+isolate/

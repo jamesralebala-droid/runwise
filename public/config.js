@@ -13,5 +13,5 @@ window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
 // To generate a VAPID key pair, run: npx web-push generate-vapid-keys
 // Set this value and keep the corresponding PRIVATE key in your hosting
 // environment (Vercel, Netlify) or Supabase Edge Function for sending pushes.
-const VAPID_PUBLIC_KEY = "BIMA8J7oauIVmPPdMz-FuUnfnD0Mj3ZuoAr30s3BiaO_T1LzraK1oFOVN83RyG_WdIx-aSifUhTjmiq1ocFnrvI";
+const VAPID_PUBLIC_KEY = "BGq8N5ZlemBUQeH_GY8vkh4bUku0MJNBrjCqexhvnypCgmxM0WO1vIZjAcXzYb1Y4xUmz2X5urXhIjJjPOQeZtY";
 window.VAPID_PUBLIC_KEY = VAPID_PUBLIC_KEY;

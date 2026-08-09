@@ -38,7 +38,7 @@ supabase link --project-ref lugbyiwtmxvhmhtwcrle
 
 supabase secrets set \
   VAPID_PRIVATE_KEY='<the private key matching public/config.js>' \
-  VAPID_PUBLIC_KEY='BIMA8J7oauIVmPPdMz-FuUnfnD0Mj3ZuoAr30s3BiaO_T1LzraK1oFOVN83RyG_WdIx-aSifUhTjmiq1ocFnrvI' \
+  VAPID_PUBLIC_KEY='BGq8N5ZlemBUQeH_GY8vkh4bUku0MJNBrjCqexhvnypCgmxM0WO1vIZjAcXzYb1Y4xUmz2X5urXhIjJjPOQeZtY' \
   VAPID_SUBJECT='mailto:support@runwise.co.bw' \
   PUSH_SEND_SECRET='<long random string>'
 
