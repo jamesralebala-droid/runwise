@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RunWise</title>
+    <script>
+      // GitHub Pages has no SPA fallback: any unknown URL (e.g. /admin/waitlist)
+      // is served this root 404.html. Client-side routes must be handed back to
+      // the app's entry point, which restores the original URL from sessionStorage
+      // before the router initializes (see admin/src/main.tsx).
+      (function () {
+        var path = window.location.pathname;
+        var search = window.location.search;
+        var hash = window.location.hash;
+
+        // The admin portal lives at <anything>/admin/ on any host or subpath
+        // (e.g. /admin/ on Vercel, /runwise/admin/ on GitHub Pages).
+        var marker = '/admin/';
+        var idx = path.indexOf(marker);
+        if (idx !== -1) {
+          var base = path.slice(0, idx + marker.length);
+          var rest = path.slice(base.length);
+          if (rest && !rest.startsWith('index.html')) {
+            try {
+              sessionStorage.setItem('runwiseAdminRedirect', path + search + hash);
+            } catch (e) {}
+            window.location.replace(base);
+            return;
+          }
+        }
+
+        // Anything else that 404s lands on the marketing site root.
+        window.location.replace('./');
+      })();
+    </script>
+  </head>
+  <body style="margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0b1020;color:#e7ecf7;display:flex;align-items:center;justify-content:center;min-height:100vh">
+    <div style="text-align:center;padding:24px">
+      <p style="font-size:15px;color:#94a3b8">Taking you to RunWise…</p>
+      <noscript>
+        <p style="margin-top:16px;font-size:14px;color:#cbd5e1">
+          <a href="./" style="color:#22d3ee">Open RunWise</a>
+        </p>
+      </noscript>
+    </div>
+  </body>
+</html>
