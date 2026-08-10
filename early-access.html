@@ -1,0 +1,1301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123F34">
+<meta name="description" content="RunWise — Your Cart. Our Run. Early access to the travel-powered logistics marketplace for Southern Africa.">
+<meta property="og:title" content="RunWise — Early Access">
+<meta property="og:description" content="What if someone was already going your way? Join the waitlist for Botswana's travel-powered delivery marketplace.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="runwise-logo.svg">
+<title>RunWise — Early Access</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* =========================================================================
+   RunWise Brand — Premium Early Access Teaser
+   ========================================================================= */
+:root {
+  --green: #123F34;
+  --green-light: #1c5a49;
+  --green-dark: #0a2b23;
+  --green-soft: rgba(18, 63, 52, 0.06);
+  --gold: #C9A34A;
+  --gold-light: #dbb95a;
+  --gold-soft: rgba(201, 163, 74, 0.12);
+  --ivory: #F7F2E8;
+  --ivory-dark: #ebe5d8;
+  --charcoal: #242826;
+  --charcoal-light: #4a504c;
+  --charcoal-muted: #7b8580;
+  --white: #ffffff;
+  --danger: #b3402f;
+  --success: #1f7a4d;
+  --line: #e2ded2;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--ivory);
+  color: var(--charcoal);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.page-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* =========================================================================
+   Navigation
+   ========================================================================= */
+nav.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 0 20px;
+  position: relative;
+}
+
+nav.navbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line), var(--line), transparent);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-text .brand-name {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.brand-text .brand-name span {
+  color: var(--gold);
+}
+
+.brand-text .brand-tagline {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--charcoal-light);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.nav-links a {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--charcoal-muted);
+  text-decoration: none;
+  transition: color 0.25s ease;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 1.5px;
+  background: var(--gold);
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: var(--green);
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+.btn-signin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  background: var(--green);
+  color: var(--ivory) !important;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.btn-signin::after { display: none !important; }
+
+.btn-signin:hover {
+  background: var(--green-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(18, 63, 52, 0.25);
+}
+
+/* =========================================================================
+   Hero — Above the Fold
+   ========================================================================= */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 80px;
+  padding: 80px 0 40px;
+}
+
+.hero-content {
+  flex: 1;
+  max-width: 600px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  background: var(--green);
+  color: var(--gold);
+  border-radius: 100px;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 8px rgba(18, 63, 52, 0.15);
+}
+
+.hero-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+
+.hero h1 {
+  font-family: 'Space Grotesk', monospace;
+  font-size: clamp(2.8rem, 5.5vw, 4.2rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: var(--green);
+  margin-bottom: 20px;
+}
+
+.hero h1 .highlight {
+  color: var(--gold);
+  position: relative;
+}
+
+.hero h1 .highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gold-soft);
+  border-radius: 2px;
+}
+
+.hero p {
+  font-size: 1.125rem;
+  color: var(--charcoal-muted);
+  max-width: 480px;
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+/* CTA Button */
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 40px;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ivory);
+  background: var(--green);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(18, 63, 52, 0.25);
+}
+
+.btn-cta:hover {
+  background: var(--green-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(18, 63, 52, 0.35);
+}
+
+.btn-cta:active {
+  transform: translateY(0);
+}
+
+.btn-cta .arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.btn-cta:hover .arrow {
+  transform: translateX(4px);
+}
+
+/* Hero Visual — Route Map */
+.hero-visual {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.route-map {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  filter: drop-shadow(0 8px 32px rgba(18, 63, 52, 0.06));
+}
+
+/* =========================================================================
+   Form Section
+   ========================================================================= */
+.form-section {
+  padding: 40px 0 60px;
+  position: relative;
+}
+
+.form-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  border-radius: 1px;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.section-header .label {
+  display: inline-block;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.section-header h2 {
+  font-family: 'Space Grotesk', monospace;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+}
+
+.section-header p {
+  color: var(--charcoal-muted);
+  font-size: 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.form-card {
+  max-width: 640px;
+  margin: 0 auto;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 52px 48px;
+  box-shadow: 0 8px 40px rgba(18, 63, 52, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.form-card:hover {
+  box-shadow: 0 12px 48px rgba(18, 63, 52, 0.08);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-grid .full {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 6px;
+  letter-spacing: 0.01em;
+}
+
+.form-group label .required {
+  color: var(--danger);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 0.9375rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--charcoal);
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 4px rgba(18, 63, 52, 0.08);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #b0b3ae;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+/* Interest selector — premium cards */
+.interest-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.interest-option {
+  position: relative;
+}
+
+.interest-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.interest-option label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: center;
+  background: var(--white);
+}
+
+.interest-option label .icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.interest-option label .interest-label {
+  font-weight: 600;
+  color: var(--charcoal);
+}
+
+.interest-option label .interest-sub {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--charcoal-muted);
+}
+
+.interest-option input:checked + label {
+  border-color: var(--green);
+  background: var(--green-soft);
+  box-shadow: 0 0 0 3px rgba(18, 63, 52, 0.12), inset 0 0 0 1px rgba(18, 63, 52, 0.05);
+}
+
+.interest-option input:checked + label::after {
+  content: '✓';
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  background: var(--green);
+  color: var(--white);
+  border-radius: 50%;
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+/* Checkbox */
+.checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  accent-color: var(--green);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  font-size: 0.8125rem;
+  color: var(--charcoal-light);
+  cursor: pointer;
+  font-weight: 400;
+}
+
+/* Source selector */
+.source-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.source-option {
+  position: relative;
+}
+
+.source-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.source-option label {
+  display: block;
+  padding: 10px 6px;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--charcoal-muted);
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--white);
+}
+
+.source-option input:checked + label {
+  border-color: var(--gold);
+  background: rgba(201, 163, 74, 0.06);
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* Submit button */
+.btn-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 18px 32px;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ivory);
+  background: var(--green);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 12px;
+  box-shadow: 0 4px 16px rgba(18, 63, 52, 0.2);
+}
+
+.btn-submit:hover {
+  background: var(--green-light);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(18, 63, 52, 0.3);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-submit .spinner {
+  display: none;
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid var(--ivory);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.btn-submit.is-busy .spinner {
+  display: inline-block;
+}
+
+.btn-submit.is-busy .label-text {
+  display: none;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.form-error {
+  display: none;
+  padding: 14px 18px;
+  background: rgba(179, 64, 47, 0.06);
+  border: 1px solid rgba(179, 64, 47, 0.15);
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  color: var(--danger);
+  margin-top: 16px;
+  line-height: 1.5;
+}
+
+.form-error.show {
+  display: block;
+}
+
+.form-footer {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.form-footer a {
+  color: var(--green);
+  text-decoration: underline;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.form-footer a:hover {
+  color: var(--gold);
+}
+
+/* =========================================================================
+   Success Screen
+   ========================================================================= */
+.success-screen {
+  display: none;
+  text-align: center;
+  padding: 32px 0;
+}
+
+.success-screen.show {
+  display: block;
+  animation: fade-up 0.5s ease;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background: linear-gradient(135deg, rgba(31, 122, 77, 0.1), rgba(31, 122, 77, 0.04));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.25rem;
+  position: relative;
+}
+
+.success-icon::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(31, 122, 77, 0.1);
+}
+
+.success-screen h2 {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 10px;
+}
+
+.success-screen p {
+  color: var(--charcoal-muted);
+  font-size: 1rem;
+  max-width: 440px;
+  margin: 0 auto 28px;
+  line-height: 1.7;
+}
+
+.share-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-share {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--charcoal);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.btn-share:hover {
+  border-color: var(--gold);
+  color: var(--green);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(18, 63, 52, 0.06);
+}
+
+.btn-share-whatsapp:hover {
+  border-color: #25D366;
+  color: #25D366;
+}
+
+/* =========================================================================
+   Features Section
+   ========================================================================= */
+.features {
+  padding: 80px 0;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.feature-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 36px 28px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(18, 63, 52, 0.06);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+.feature-card .icon {
+  font-size: 1.75rem;
+  margin-bottom: 14px;
+  display: inline-block;
+}
+
+.feature-card h3 {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--green);
+  margin-bottom: 8px;
+}
+
+.feature-card p {
+  font-size: 0.8125rem;
+  color: var(--charcoal-muted);
+  line-height: 1.65;
+}
+
+/* =========================================================================
+   Footer
+   ========================================================================= */
+.footer {
+  text-align: center;
+  padding: 48px 0;
+  border-top: 1px solid var(--line);
+  margin-top: 40px;
+}
+
+.footer p {
+  font-size: 0.75rem;
+  color: var(--charcoal-muted);
+  line-height: 1.8;
+}
+
+.footer a {
+  color: var(--green);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.footer a:hover {
+  color: var(--gold);
+}
+
+/* =========================================================================
+   Responsive
+   ========================================================================= */
+@media (max-width: 1024px) {
+  .hero {
+    gap: 48px;
+    padding: 70px 0 50px;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero {
+    flex-direction: column;
+    gap: 40px;
+    padding: 48px 0 32px;
+    min-height: auto;
+  }
+
+  .hero-content {
+    text-align: center;
+    max-width: none;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.2rem, 6vw, 3rem);
+  }
+
+  .hero p {
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .route-map {
+    max-width: 360px;
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .page-wrap { padding: 0 20px; }
+
+  nav.navbar { padding: 18px 0 16px; }
+
+  .nav-links a:not(.btn-signin) {
+    display: none;
+  }
+
+  .btn-signin {
+    padding: 8px 18px;
+    font-size: 0.8125rem;
+  }
+
+  .brand-icon { width: 36px; height: 36px; }
+  .brand-text .brand-name { font-size: 1.15rem; }
+  .brand-text .brand-tagline { font-size: 0.55rem; }
+
+  .hero { padding: 32px 0 16px; gap: 32px; }
+  .hero h1 { font-size: 2rem; }
+
+  .btn-cta {
+    width: 100%;
+    padding: 16px 24px;
+    justify-content: center;
+  }
+
+  .form-card {
+    padding: 32px 20px;
+    border-radius: 16px;
+  }
+
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .full { grid-column: 1; }
+
+  .interest-grid { grid-template-columns: 1fr 1fr; }
+  .source-grid { grid-template-columns: repeat(2, 1fr); }
+  .features-grid { grid-template-columns: 1fr; }
+
+  .share-buttons { flex-direction: column; align-items: stretch; }
+
+  .features { padding: 60px 0; }
+  .form-section { padding: 60px 0 40px; }
+}
+
+@media (max-width: 480px) {
+  .interest-grid { grid-template-columns: 1fr; }
+}
+
+/* =========================================================================
+   Toast
+   ========================================================================= */
+.toast-ea {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  padding: 14px 24px;
+  background: var(--charcoal);
+  color: var(--ivory);
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 1000;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.toast-ea.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast-ea.success {
+  background: var(--success);
+}
+
+.toast-ea.error {
+  background: var(--danger);
+}
+
+.runner-routes-field {
+  display: none;
+}
+
+.runner-routes-field.show {
+  display: block;
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="/" class="brand">
+      <img src="runwise-logo.svg" alt="RunWise" class="brand-icon" width="42" height="42">
+      <div class="brand-text">
+        <div class="brand-name">Run<span>Wise</span></div>
+        <div class="brand-tagline">Your Cart. Our Run.</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#features">How it works</a>
+      <a href="#signup">Early Access</a>
+    </div>
+  </nav>
+
+  <!-- Hero — Above the Fold -->
+  <section class="hero" id="top">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        COMING SOON
+      </div>
+      <h1>What if someone was<br>already going <span class="highlight">your way</span>?</h1>
+      <p>RunWise is a new delivery and travel-powered app connecting people already travelling with those who need something carried, shopped for, or delivered — across Botswana, South Africa, Zimbabwe and Zambia.</p>
+      <p style="font-size:0.95rem;color:var(--charcoal-muted);margin-bottom:24px;">Be among the first to experience RunWise. Join the waitlist and we'll let you know when we launch in your area.</p>
+      <a href="#signup" class="btn-cta">
+        Join Early Access
+        <span class="arrow">→</span>
+      </a>
+    </div>
+    <div class="hero-visual">
+      <svg class="route-map" viewBox="0 0 440 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Card background -->
+        <rect x="10" y="10" width="420" height="360" rx="24" fill="#ffffff" stroke="#e2ded2" stroke-width="1"/>
+        <!-- Subtle grid pattern -->
+        <g opacity="0.03">
+          <line x1="20" y1="110" x2="420" y2="110" stroke="#123F34" stroke-width="0.5"/>
+          <line x1="20" y1="190" x2="420" y2="190" stroke="#123F34" stroke-width="0.5"/>
+          <line x1="20" y1="270" x2="420" y2="270" stroke="#123F34" stroke-width="0.5"/>
+          <line x1="130" y1="20" x2="130" y2="370" stroke="#123F34" stroke-width="0.5"/>
+          <line x1="220" y1="20" x2="220" y2="370" stroke="#123F34" stroke-width="0.5"/>
+          <line x1="310" y1="20" x2="310" y2="370" stroke="#123F34" stroke-width="0.5"/>
+        </g>
+        <!-- Country labels -->
+        <text x="220" y="52" text-anchor="middle" font-family="'Space Grotesk',monospace" font-size="11" font-weight="700" fill="#123F34" letter-spacing="3" opacity="0.4">RUNWISE NETWORK</text>
+        <text x="220" y="342" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" fill="#7b8580" letter-spacing="2">SOUTHERN AFRICA</text>
+        <!-- City dots -->
+        <circle cx="140" cy="130" r="10" fill="#C9A34A" opacity="0.15"/>
+        <circle cx="140" cy="130" r="5" fill="#C9A34A"/>
+        <circle cx="300" cy="110" r="10" fill="#C9A34A" opacity="0.15"/>
+        <circle cx="300" cy="110" r="5" fill="#C9A34A"/>
+        <circle cx="190" cy="230" r="10" fill="#123F34" opacity="0.10"/>
+        <circle cx="190" cy="230" r="4" fill="#123F34" opacity="0.6"/>
+        <circle cx="320" cy="240" r="10" fill="#123F34" opacity="0.10"/>
+        <circle cx="320" cy="240" r="4" fill="#123F34" opacity="0.6"/>
+        <!-- Route lines — geographically balanced connections -->
+        <path d="M140 130 Q220 70 300 110" stroke="#123F34" stroke-width="2" stroke-dasharray="5 4" fill="none" opacity="0.5"/>
+        <path d="M300 110 Q245 200 190 230" stroke="#123F34" stroke-width="2" stroke-dasharray="5 4" fill="none" opacity="0.5"/>
+        <path d="M140 130 Q160 185 190 230" stroke="#123F34" stroke-width="1.5" stroke-dasharray="4 4" fill="none" opacity="0.3"/>
+        <path d="M300 110 Q315 175 320 240" stroke="#123F34" stroke-width="1.5" stroke-dasharray="4 4" fill="none" opacity="0.3"/>
+        <path d="M190 230 Q255 235 320 240" stroke="#123F34" stroke-width="1.5" stroke-dasharray="4 4" fill="none" opacity="0.25"/>
+        <!-- Package icon → positioned at network centre -->
+        <g transform="translate(202, 148)">
+          <rect x="0" y="0" width="36" height="30" rx="5" fill="#123F34" opacity="0.06"/>
+          <rect x="5" y="4" width="26" height="22" rx="3" fill="#123F34"/>
+          <path d="M5 4 L18 -1 L31 4 Z" fill="#123F34" opacity="0.9"/>
+          <rect x="9" y="9" width="18" height="12" rx="2" fill="#F7F2E8" opacity="0.85"/>
+        </g>
+        <!-- City labels -->
+        <text x="140" y="117" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-weight="700" fill="#123F34">Gaborone</text>
+        <text x="300" y="99" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-weight="700" fill="#123F34">Johannesburg</text>
+        <text x="190" y="246" text-anchor="middle" font-family="Inter,sans-serif" font-size="7" font-weight="600" fill="#7b8580">Harare</text>
+        <text x="320" y="256" text-anchor="middle" font-family="Inter,sans-serif" font-size="7" font-weight="600" fill="#7b8580">Lusaka</text>
+        <!-- Gold accent connecting hub pair -->
+        <path d="M145 130 Q180 155 208 150" stroke="#C9A34A" stroke-width="1.5" fill="none" opacity="0.3"/>
+        <!-- Small runner vehicle -->
+        <g transform="translate(106, 131)">
+          <rect x="0" y="0" width="18" height="9" rx="2.5" fill="#C9A34A" opacity="0.8"/>
+          <circle cx="4.5" cy="9" r="2.5" fill="#123F34"/>
+          <circle cx="13.5" cy="9" r="2.5" fill="#123F34"/>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="section-header">
+      <div class="label">How it works</div>
+      <h2>Travel-powered delivery</h2>
+      <p>RunWise turns journeys into opportunities — for everyone.</p>
+    </div>
+    <p style="text-align:center;font-size:1.05rem;color:var(--charcoal-light);margin-bottom:36px;font-family:'Space Grotesk',monospace;font-weight:500;letter-spacing:-0.01em;line-height:1.6;">
+      One app. Two ways to use it. Send what you need, or earn as a Runner on journeys you're already making.
+    </p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="icon">📦</div>
+        <h3>Send what you need</h3>
+        <p>Shopping, parcels, documents, gifts, business stock or large cargo — if it fits, we can move it.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🚗</div>
+        <h3>Already travelling?</h3>
+        <p>Announce your route and earn money carrying items along the way. Turn your next trip into income.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔒</div>
+        <h3>Safe &amp; tracked</h3>
+        <p>Escrow payments, delivery PINs, live journey milestones, and photo proof — for every order.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🌍</div>
+        <h3>Cross-border ready</h3>
+        <p>Connect across Botswana, South Africa, Zimbabwe and Zambia. Cross-border deliveries are matched with travellers already making the journey. Senders and runners remain responsible for applicable customs requirements.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">⭐</div>
+        <h3>Trusted runners</h3>
+        <p>Runners complete identity verification, with additional transport or vehicle verification where applicable. Ratings and RunScore help build trust across the community.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">💬</div>
+        <h3>Support &amp; dispute resolution</h3>
+        <p>Dedicated support, dispute resolution, emergency procedures, and next-of-kin contact for every active order.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Form Section → Coming Soon / Early Access -->
+  <section class="form-section" id="signup">
+    <div class="section-header">
+      <div class="label">COMING SOON</div>
+      <h2>Join Early Access</h2>
+      <p>Be among the first to experience RunWise. Join the waitlist and we'll let you know when we launch in your area.</p>
+    </div>
+
+    <div class="form-card">
+      <!-- Signup Form -->
+      <form id="waitlistForm" novalidate>
+        <div class="form-grid">
+          <!-- Full Name -->
+          <div class="form-group full">
+            <label>Full name <span class="required">*</span></label>
+            <input type="text" name="full_name" placeholder="e.g. Thabo Molefe" required>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group full">
+            <label>Email address <span class="required">*</span></label>
+            <input type="email" name="email" placeholder="e.g. thabo@example.com" required autocomplete="email">
+          </div>
+
+          <!-- Interest -->
+          <div class="form-group full">
+            <label>I want to use RunWise as <span class="required">*</span></label>
+            <div class="interest-grid">
+              <div class="interest-option">
+                <input type="radio" name="interest" id="int-customer" value="customer" required>
+                <label for="int-customer">
+                  <span class="icon">🛍️</span>
+                  <span class="interest-label">Customer / Sender</span>
+                  <span class="interest-sub">Send or shop</span>
+                </label>
+              </div>
+              <div class="interest-option">
+                <input type="radio" name="interest" id="int-runner" value="runner">
+                <label for="int-runner">
+                  <span class="icon">🚚</span>
+                  <span class="interest-label">Runner</span>
+                  <span class="interest-sub">Earn while travelling</span>
+                </label>
+              </div>
+              <div class="interest-option">
+                <input type="radio" name="interest" id="int-both" value="both">
+                <label for="int-both">
+                  <span class="icon">🤝</span>
+                  <span class="interest-label">Both</span>
+                  <span class="interest-sub">Send, shop &amp; earn</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Town / City -->
+          <div class="form-group full">
+            <label>Town or city <span class="required">*</span></label>
+            <input type="text" name="town_city" placeholder="e.g. Gaborone, Francistown, Maun" required>
+          </div>
+
+          <!-- Phone / WhatsApp -->
+          <div class="form-group full">
+            <label>Phone number</label>
+            <input type="tel" name="phone" placeholder="e.g. +267 71 234 567">
+          </div>
+
+          <!-- Marketing consent -->
+          <div class="form-group full">
+            <div class="checkbox-group">
+              <input type="checkbox" name="marketing_consent" id="marketingConsent">
+              <label for="marketingConsent">I'd like to receive RunWise launch updates and early access notifications. You can unsubscribe at any time.</label>
+            </div>
+          </div>
+        </div>
+
+        <div id="formError" class="form-error"></div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span class="label-text">Join Early Access</span>
+          <span class="spinner"></span>
+        </button>
+
+        <p style="text-align:center;font-size:0.85rem;color:var(--charcoal-muted);margin:20px 0 16px;line-height:1.5;">
+          Coming soon. Built for journeys across Botswana and Southern Africa.
+        </p>
+        <div class="form-footer">
+          By signing up, you agree to our <a href="#legal/terms">Terms</a> and <a href="#legal/privacy">Privacy Policy</a>.
+        </div>
+      </form>
+
+      <!-- Success Screen -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon">✓</div>
+        <h2>You're on the RunWise Early Access list</h2>
+        <p><strong id="successName">Friend</strong>, we'll let you know when RunWise is ready in <strong id="successCity">your area</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2026 RunWise. Your Cart. Our Run.<br>
+    Botswana · South Africa · Zimbabwe · Zambia</p>
+    <p style="margin-top:10px;">
+      <a href="#legal/terms">Terms</a> · <a href="#legal/privacy">Privacy</a> · <a href="#legal/cross_border">Cross-Border Policy</a>
+    </p>
+  </footer>
+</div>
+
+<!-- Toast -->
+<div class="toast-ea" id="toast"></div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const $ = function(s) { return document.querySelector(s); };
+  const $$ = function(s) { return document.querySelectorAll(s); };
+
+  function toast(msg, type) {
+    var t = $('#toast');
+    t.textContent = msg;
+    t.className = 'toast-ea ' + (type || '');
+    setTimeout(function() { t.classList.add('show'); }, 10);
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+  }
+
+  // Interest selection — no separate routes field on this form version
+
+  // Form submission
+  $('#waitlistForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    var errorEl = $('#formError');
+    errorEl.classList.remove('show');
+    errorEl.textContent = '';
+
+    var btn = $('#submitBtn');
+    btn.disabled = true;
+    btn.classList.add('is-busy');
+
+    var fd = new FormData(this);
+
+    var payload = {
+      email: fd.get('email'),
+      full_name: fd.get('full_name'),
+      interest: fd.get('interest'),
+      town_city: fd.get('town_city'),
+      frequent_routes: fd.get('frequent_routes') || '',
+      phone: fd.get('phone'),
+      marketing_consent: fd.get('marketing_consent') === 'on',
+      source: fd.get('source') || 'organic',
+    };
+
+    try {
+      var { data, error } = await sb.from('waitlist_signups').insert([payload], { count: 'exact' });
+
+      if (error) {
+        if (error.message && /duplicate|unique|already exists/i.test(error.message)) {
+          errorEl.textContent = 'This email is already on our waitlist — you\'re all set!';
+          errorEl.classList.add('show');
+          btn.disabled = false;
+          btn.classList.remove('is-busy');
+          showSuccess(fd.get('full_name'), fd.get('town_city'));
+          return;
+        }
+        throw error;
+      }
+
+      showSuccess(fd.get('full_name'), fd.get('town_city'));
+
+    } catch (err) {
+      var msg = (err && err.message) || 'Something went wrong. Please try again.';
+      errorEl.textContent = msg;
+      errorEl.classList.add('show');
+      btn.disabled = false;
+      btn.classList.remove('is-busy');
+    }
+  });
+
+  function showSuccess(name, city) {
+    $('#waitlistForm').style.display = 'none';
+    $('#successName').textContent = name || 'friend';
+    $('#successCity').textContent = city || 'your area';
+    $('#successScreen').classList.add('show');
+    $('#signup').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+})();
+</script>
+</body>
+</html>
