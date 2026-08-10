@@ -102,11 +102,12 @@ nav.navbar::after {
 
 .brand-text .brand-name {
   font-family: 'Space Grotesk', monospace;
-  font-size: 1.35rem;
+  font-size: 1.12rem;
   font-weight: 700;
   color: var(--green);
-  letter-spacing: -0.03em;
+  letter-spacing: 0.14em;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .brand-text .brand-name span {
@@ -897,9 +898,9 @@ nav.navbar::after {
     font-size: 0.8125rem;
   }
 
-  .brand-icon { height: 38px; width: auto; }
-  .brand-text .brand-name { font-size: 1.15rem; }
-  .brand-text .brand-tagline { font-size: 0.55rem; }
+  .brand-icon { height: 34px; width: auto; }
+  .brand-text .brand-name { font-size: 0.98rem; letter-spacing: 0.12em; }
+  .brand-text .brand-tagline { font-size: 0.52rem; }
 
   .hero { padding: 32px 0 16px; gap: 32px; }
   .hero h1 { font-size: 2rem; }
@@ -978,8 +979,48 @@ nav.navbar::after {
 <div class="page-wrap">
   <!-- Navigation -->
   <nav class="navbar">
-    <a href="index.html" class="brand">
-      <img src="runwise-logo.svg" alt="RunWise" class="brand-icon">
+    <a href="index.html" class="brand" aria-label="RunWise home">
+      <svg class="brand-icon" viewBox="112 30 204 108" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="goldRunMark" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#A9802F"/>
+            <stop offset="0.55" stop-color="#D4AC4F"/>
+            <stop offset="1" stop-color="#EBCF7E"/>
+          </linearGradient>
+        </defs>
+        <g stroke="#123F34" stroke-width="8" stroke-linecap="round">
+          <path d="M118 60 L150 60"/>
+          <path d="M126 78 L150 78"/>
+          <path d="M118 96 L150 96"/>
+        </g>
+        <g fill="none" stroke="#123F34" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M160 34 L160 100 L196 132"/>
+          <path d="M160 34 L214 34"/>
+          <path d="M214 40 C 234 40 244 56 244 72 C 244 90 230 101 210 101 C 196 101 187 95 181 85 C 176 77 173 68 172 58 L 160 58"/>
+        </g>
+        <g fill="none" stroke="#123F34" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M196 132 L228 96"/>
+          <path d="M228 96 L262 128"/>
+        </g>
+        <g fill="none" stroke="url(#goldRunMark)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M262 128 L296 84"/>
+        </g>
+        <g fill="none" stroke="url(#goldRunMark)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M296 84 L284 68"/>
+          <path d="M296 84 L308 68"/>
+        </g>
+        <g stroke="#123F34" fill="none" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M258 52 L250 42"/>
+          <path d="M253 52 L283 52 C 285 60 284 70 278 73 L 258 73 C 253 73 250 70 250 62 Z"/>
+        </g>
+        <circle cx="256" cy="78" r="5.5" fill="#123F34"/>
+        <circle cx="274" cy="78" r="5.5" fill="#123F34"/>
+        <path d="M259 62 Q 266 67 273 62" stroke="#A9802F" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-text">
+        <span class="brand-name">RUN<span>WISE</span></span>
+        <span class="brand-tagline">Your Cart. Our Run.</span>
+      </span>
     </a>
     <div class="nav-links">
       <a href="#features">How it works</a>

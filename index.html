@@ -175,9 +175,9 @@ h1, h2, h3 { font-family: 'Manrope', sans-serif; color: var(--green); letter-spa
 }
 
 .brand { display: inline-flex; align-items: center; gap: 13px; text-decoration: none; flex-shrink: 0; }
-.brand img.brand-logo { width: auto; height: 50px; border-radius: 0; box-shadow: none; }
+.brand .brand-mark { width: auto; height: 40px; display: block; flex-shrink: 0; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
-.brand-name { font-family: 'Manrope', sans-serif; font-size: 1.22rem; font-weight: 800; color: var(--green); letter-spacing: -0.02em; }
+.brand-name { font-family: 'Manrope', sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--green); letter-spacing: 0.15em; white-space: nowrap; }
 .brand-name span { color: var(--gold-deep); }
 .brand-tagline { font-size: 0.55rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-mute); }
 
@@ -714,8 +714,8 @@ h1, h2, h3 { font-family: 'Manrope', sans-serif; color: var(--green); letter-spa
   .final-section { padding: 88px 0; }
   .footer-grid { grid-template-columns: 1fr; gap: 36px; }
   .header-inner { height: 66px; }
-  .brand img.brand-logo { height: 40px; }
-  .brand-name { font-size: 1.1rem; }
+  .brand .brand-mark { height: 33px; }
+  .brand-name { font-size: 0.95rem; letter-spacing: 0.12em; }
   .brand-tagline { display: none; }
 }
 </style>
@@ -726,7 +726,47 @@ h1, h2, h3 { font-family: 'Manrope', sans-serif; color: var(--green); letter-spa
 <header class="site-header" id="siteHeader">
   <div class="container header-inner">
     <a href="index.html" class="brand" aria-label="RunWise home">
-      <img src="runwise-logo.svg" alt="RunWise" class="brand-logo">
+      <svg class="brand-mark" viewBox="112 30 204 108" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="goldRunMark" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#A9802F"/>
+            <stop offset="0.55" stop-color="#D4AC4F"/>
+            <stop offset="1" stop-color="#EBCF7E"/>
+          </linearGradient>
+        </defs>
+        <g stroke="#123F34" stroke-width="8" stroke-linecap="round">
+          <path d="M118 60 L150 60"/>
+          <path d="M126 78 L150 78"/>
+          <path d="M118 96 L150 96"/>
+        </g>
+        <g fill="none" stroke="#123F34" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M160 34 L160 100 L196 132"/>
+          <path d="M160 34 L214 34"/>
+          <path d="M214 40 C 234 40 244 56 244 72 C 244 90 230 101 210 101 C 196 101 187 95 181 85 C 176 77 173 68 172 58 L 160 58"/>
+        </g>
+        <g fill="none" stroke="#123F34" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M196 132 L228 96"/>
+          <path d="M228 96 L262 128"/>
+        </g>
+        <g fill="none" stroke="url(#goldRunMark)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M262 128 L296 84"/>
+        </g>
+        <g fill="none" stroke="url(#goldRunMark)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M296 84 L284 68"/>
+          <path d="M296 84 L308 68"/>
+        </g>
+        <g stroke="#123F34" fill="none" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M258 52 L250 42"/>
+          <path d="M253 52 L283 52 C 285 60 284 70 278 73 L 258 73 C 253 73 250 70 250 62 Z"/>
+        </g>
+        <circle cx="256" cy="78" r="5.5" fill="#123F34"/>
+        <circle cx="274" cy="78" r="5.5" fill="#123F34"/>
+        <path d="M259 62 Q 266 67 273 62" stroke="#A9802F" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-text">
+        <span class="brand-name">RUN<span>WISE</span></span>
+        <span class="brand-tagline">Your Cart. Our Run.</span>
+      </span>
     </a>
 
     <nav class="main-nav" aria-label="Main navigation">
