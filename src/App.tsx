@@ -10,11 +10,8 @@ declare global {
   }
 }
 
-// Resolve the brand logo against the deploy base so it works at any path
-// (root domain, /app/, or the GitHub Pages subpath).
-const LOGO_SRC = `${import.meta.env.BASE_URL}runwise-logo.svg`;
-// Light-on-dark variant for the green sidebar.
-const LOGO_LIGHT_SRC = `${import.meta.env.BASE_URL}runwise-logo-light.svg`;
+// Brand identity is rendered inline (mark + wordmark) so it is always crisp:
+// webfonts apply to HTML text and inline SVG paths never fall back to Arial.
 
 // The existing RunWise SPA (app.js) expects this exact HTML structure in the DOM.
 // We render it once on mount and never re-render, because app.js takes over
@@ -25,7 +22,47 @@ const APP_HTML = `<!-- TOAST -->
 <!-- AUTH SCREEN -->
 <div id="authScreen" class="auth-wrap">
   <p class="tag">Botswana &bull; South Africa &bull; Zimbabwe &bull; Zambia</p>
-  <img class="auth-logo" src="${LOGO_SRC}" alt="RunWise">
+  <div class="auth-brand">
+    <svg class="auth-mark" viewBox="112 30 204 108" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="goldRunAuth" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0" stop-color="#A9802F"/>
+          <stop offset="0.55" stop-color="#D4AC4F"/>
+          <stop offset="1" stop-color="#EBCF7E"/>
+        </linearGradient>
+      </defs>
+      <g stroke="#123F34" stroke-width="8" stroke-linecap="round">
+        <path d="M118 60 L150 60"/>
+        <path d="M126 78 L150 78"/>
+        <path d="M118 96 L150 96"/>
+      </g>
+      <g fill="none" stroke="#123F34" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M160 34 L160 100 L196 132"/>
+        <path d="M160 34 L214 34"/>
+        <path d="M214 40 C 234 40 244 56 244 72 C 244 90 230 101 210 101 C 196 101 187 95 181 85 C 176 77 173 68 172 58 L 160 58"/>
+      </g>
+      <g fill="none" stroke="#123F34" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M196 132 L228 96"/>
+        <path d="M228 96 L262 128"/>
+      </g>
+      <g fill="none" stroke="url(#goldRunAuth)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M262 128 L296 84"/>
+      </g>
+      <g fill="none" stroke="url(#goldRunAuth)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M296 84 L284 68"/>
+        <path d="M296 84 L308 68"/>
+      </g>
+      <g stroke="#123F34" fill="none" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M258 52 L250 42"/>
+        <path d="M253 52 L283 52 C 285 60 284 70 278 73 L 258 73 C 253 73 250 70 250 62 Z"/>
+      </g>
+      <circle cx="256" cy="78" r="5.5" fill="#123F34"/>
+      <circle cx="274" cy="78" r="5.5" fill="#123F34"/>
+      <path d="M259 62 Q 266 67 273 62" stroke="#A9802F" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+    </svg>
+    <span class="auth-wordmark">RUN<span>WISE</span></span>
+    <span class="auth-tagline">Your Cart. Our Run.</span>
+  </div>
   <div class="auth-tabs">
     <button id="tabLogin" class="active">Log in</button>
     <button id="tabSignup">Sign up</button>
@@ -98,7 +135,46 @@ const APP_HTML = `<!-- TOAST -->
 <div id="app" class="hidden">
   <aside class="sidebar">
     <div class="brand">
-      <img class="brand-logo" src="${LOGO_LIGHT_SRC}" alt="RunWise">
+      <svg class="brand-mark" viewBox="112 30 204 108" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="goldRunSide" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#C79A3E"/>
+            <stop offset="1" stop-color="#E9CD7A"/>
+          </linearGradient>
+        </defs>
+        <g stroke="#F2EFE5" stroke-width="8" stroke-linecap="round">
+          <path d="M118 60 L150 60"/>
+          <path d="M126 78 L150 78"/>
+          <path d="M118 96 L150 96"/>
+        </g>
+        <g fill="none" stroke="#F2EFE5" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M160 34 L160 100 L196 132"/>
+          <path d="M160 34 L214 34"/>
+          <path d="M214 40 C 234 40 244 56 244 72 C 244 90 230 101 210 101 C 196 101 187 95 181 85 C 176 77 173 68 172 58 L 160 58"/>
+        </g>
+        <g fill="none" stroke="#F2EFE5" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M196 132 L228 96"/>
+          <path d="M228 96 L262 128"/>
+        </g>
+        <g fill="none" stroke="url(#goldRunSide)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M262 128 L296 84"/>
+        </g>
+        <g fill="none" stroke="url(#goldRunSide)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M296 84 L284 68"/>
+          <path d="M296 84 L308 68"/>
+        </g>
+        <g stroke="#F2EFE5" fill="none" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M258 52 L250 42"/>
+          <path d="M253 52 L283 52 C 285 60 284 70 278 73 L 258 73 C 253 73 250 70 250 62 Z"/>
+        </g>
+        <circle cx="256" cy="78" r="5.5" fill="#F2EFE5"/>
+        <circle cx="274" cy="78" r="5.5" fill="#F2EFE5"/>
+        <path d="M259 62 Q 266 67 273 62" stroke="#E9CD7A" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-text">
+        <strong>RUNWISE</strong>
+        <span>Your Cart. Our Run.</span>
+      </span>
     </div>
     <nav id="nav"></nav>
     <button id="modeBtn" class="mode"></button>
