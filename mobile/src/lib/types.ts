@@ -108,3 +108,25 @@ export type Vehicle = {
   rejection_reason?: string | null;
   created_at: string;
 };
+
+export type RunnerWalletSummary = {
+  runner_id: string;
+  total_earned: number;
+  pending: number;
+  paid_out: number;
+  available: number;
+  completed_deliveries: number;
+};
+
+export type Settlement = {
+  id: string;
+  runner_id: string;
+  amount: number;
+  status: 'pending' | 'approved' | 'paid' | 'rejected';
+  payment_method: string | null;
+  reference_number: string | null;
+  requested_by: string | null;
+  paid_at: string | null;
+  notes: string | null;
+  created_at: string;
+};

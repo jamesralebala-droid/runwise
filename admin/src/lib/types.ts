@@ -169,3 +169,175 @@ export type DashboardStats = {
   totalUsers: number;
   platformRevenue: number;
 };
+
+// ---------------------------------------------------------------------------
+// Wallet & Payment System
+// ---------------------------------------------------------------------------
+
+export type PaymentStatus =
+  | 'payment_verification_required'
+  | 'info_requested'
+  | 'paid'
+  | 'rejected'
+  | 'refunded'
+  | 'cancelled';
+
+export type Payment = {
+  id: string;
+  order_no: string;
+  order_room_id: string;
+  customer_id: string;
+  runner_id: string;
+  delivery_fee: number;
+  commission: number;
+  runner_earnings: number;
+  total_amount: number;
+  payment_method: string;
+  recipient_name: string | null;
+  status: PaymentStatus;
+  reference_number: string | null;
+  amount_reported: number | null;
+  screenshot_url: string | null;
+  paid_at: string | null;
+  verified_by: string | null;
+  verified_at: string | null;
+  rejection_reason: string | null;
+  info_request_reason: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  customer?: { full_name: string; phone: string | null } | null;
+  runner?: { full_name: string; phone: string | null } | null;
+  payment_references?: PaymentReference[] | null;
+  order_rooms?: { id: string; created_at: string } | null;
+};
+
+export type PaymentReference = {
+  id: string;
+  payment_id: string;
+  submitted_by: string;
+  reference_number: string;
+  amount_reported: number | null;
+  screenshot_url: string | null;
+  paid_at: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type TransactionType =
+  | 'CUSTOMER_PAYMENT'
+  | 'RUNWISE_COMMISSION'
+  | 'RUNNER_EARNING'
+  | 'RUNNER_SETTLEMENT'
+  | 'REFUND'
+  | 'PAYMENT_REVERSAL'
+  | 'ADJUSTMENT';
+
+export type LedgerTransaction = {
+  id: string;
+  tx_ref: string;
+  order_room_id: string | null;
+  payment_id: string | null;
+  customer_id: string | null;
+  runner_id: string | null;
+  amount: number;
+  transaction_type: TransactionType;
+  payment_method: string | null;
+  status: string;
+  reference_number: string | null;
+  notes: string | null;
+  created_at: string;
+  customer?: { full_name: string; phone: string | null } | null;
+  runner?: { full_name: string; phone: string | null } | null;
+};
+
+export type WalletLedger = {
+  id: string;
+  order_room_id: string;
+  order_no: string;
+  customer_payment: number;
+  runwise_revenue: number;
+  runner_earnings: number;
+  refund_amount: number;
+  payment_status: string;
+  delivery_status: string;
+  settlement_status: string;
+  created_at: string;
+};
+
+export type RunnerEarning = {
+  id: string;
+  runner_id: string;
+  order_room_id: string;
+  payment_id: string | null;
+  amount: number;
+  status: 'pending' | 'approved' | 'paid' | 'rejected';
+  settled_at: string | null;
+  settled_by: string | null;
+  created_at: string;
+};
+
+export type Settlement = {
+  id: string;
+  runner_id: string;
+  amount: number;
+  status: 'pending' | 'approved' | 'paid' | 'rejected';
+  payment_method: string | null;
+  reference_number: string | null;
+  requested_by: string | null;
+  processed_by: string | null;
+  paid_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  runner?: { full_name: string; phone: string | null } | null;
+};
+
+export type Refund = {
+  id: string;
+  payment_id: string | null;
+  order_room_id: string;
+  customer_id: string;
+  amount: number;
+  reason: string | null;
+  status: 'pending' | 'processed' | 'rejected';
+  processed_by: string | null;
+  processed_at: string | null;
+  notes: string | null;
+  created_at: string;
+  payment?: { order_no: string; total_amount: number; payment_method: string | null; reference_number: string | null } | null;
+  customer?: { full_name: string; phone: string | null } | null;
+};
+
+export type PaymentMethod = {
+  id: string;
+  display_name: string;
+  mode: string;
+  recipient_name: string | null;
+  is_active: boolean;
+  sort_order: number;
+};
+
+export type PaymentDashboardStats = {
+  total_transactions: number;
+  today_revenue: number;
+  paid_today: number;
+  total_commission: number;
+  total_runner_earnings: number;
+  awaiting_verification: number;
+  info_requested: number;
+  pending_settlements: number;
+  completed_deliveries: number;
+  refunds: number;
+  rejected_payments: number;
+  pending_refunds: number;
+};
+
+export type RunnerWalletSummary = {
+  runner_id: string;
+  total_earned: number;
+  pending: number;
+  paid_out: number;
+  available: number;
+  completed_deliveries: number;
+};

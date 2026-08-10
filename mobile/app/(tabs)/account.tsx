@@ -3,15 +3,17 @@ import { useCallback, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppButton, Card, ErrorState, Field, Header, LoadingState, Pill, Screen } from '@/components/ui';
 import { formatMoney, titleCase } from '@/lib/constants';
-import { getVerification, getVehicles, getWallet, getWalletTransactions } from '@/lib/api';
+import { getRunnerWalletSummary, getSettlements, getVerification, getVehicles, getWallet, getWalletTransactions, requestSettlement } from '@/lib/api';
 import { colors, radius } from '@/lib/theme';
-import { friendlyError, supabase } from '@/lib/supabase';
+import { friendlyError } from '@/lib/supabase';
 import { useAuth } from '@/providers/AuthProvider';
-import { UserRole, Vehicle, Wallet } from '@/lib/types';
+import { RunnerWalletSummary, Settlement, UserRole, Vehicle, Wallet } from '@/lib/types';
 
 export default function AccountScreen() {
   const { profile, switchRole, signOut } = useAuth();
   const [wallet, setWallet] = useState<Wallet | null>(null);
+  const [summary, setSummary] = useState<RunnerWalletSummary | null>(null);
+  const [settlements, setSettlements] = useState<Settlement[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [verification, setVerification] = useState<any>(null);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -29,6 +31,10 @@ export default function AccountScreen() {
       const [walletData, verificationData, vehicleData] = await Promise.all([getWallet(profile.id), getVerification(profile.id), getVehicles(profile.id)]);
       setWallet(walletData); setVerification(verificationData); setVehicles(vehicleData);
       setTransactions(walletData ? await getWalletTransactions(walletData.id) : []);
+      if (profile.active_role === 'runner') {
+        const [summaryData, settlementsData] = await Promise.all([getRunnerWalletSummary(profile.id), getSettlements(profile.id)]);
+        setSummary(summaryData); setSettlements(settlementsData);
+      }
     } catch (err) { setError(friendlyError(err)); }
     finally { setLoading(false); }
   }, [profile]);
@@ -45,12 +51,13 @@ export default function AccountScreen() {
     const value = Number(withdrawAmount);
     if (!value || value <= 0) return Alert.alert('Invalid amount', 'Enter an amount greater than zero.');
     setBusy(true);
-    const { error: rpcError } = await supabase.rpc('request_withdrawal', { p_amount: value, p_method: withdrawMethod });
-    setBusy(false);
-    if (rpcError) return Alert.alert('Withdrawal failed', friendlyError(rpcError));
-    setWithdrawAmount('');
-    Alert.alert('Request received', 'This remains a demo withdrawal until the real payment rail is connected.');
-    load();
+    try {
+      await requestSettlement(value, withdrawMethod);
+      setWithdrawAmount('');
+      Alert.alert('Settlement requested', 'RunWise will review and pay out your settlement. Every payout is recorded in the ledger.');
+      load();
+    } catch (err) { Alert.alert('Could not request settlement', friendlyError(err)); }
+    finally { setBusy(false); }
   };
 
   if (loading) return <LoadingState />;
@@ -66,23 +73,48 @@ export default function AccountScreen() {
           <ModeButton title="🚙 Runner" active={runner} disabled={busy} onPress={() => changeRole('runner')} />
         </View>
       </Card>
-      <View style={styles.balanceRow}>
-        <Card style={styles.balanceCard}><Text style={styles.muted}>Available</Text><Text style={styles.balance}>{formatMoney(wallet?.available_balance)}</Text></Card>
-        <Card style={styles.balanceCard}><Text style={styles.muted}>Pending</Text><Text style={styles.balance}>{formatMoney(wallet?.pending_balance)}</Text></Card>
-      </View>
+      {runner && summary ? (
+        <>
+          <View style={styles.balanceRow}>
+            <Card style={styles.balanceCard}><Text style={styles.muted}>Available</Text><Text style={styles.balance}>{formatMoney(summary.available)}</Text></Card>
+            <Card style={styles.balanceCard}><Text style={styles.muted}>Pending</Text><Text style={styles.balance}>{formatMoney(summary.pending)}</Text></Card>
+          </View>
+          <View style={styles.balanceRow}>
+            <Card style={styles.balanceCard}><Text style={styles.muted}>Total earned</Text><Text style={styles.balance}>{formatMoney(summary.total_earned)}</Text></Card>
+            <Card style={styles.balanceCard}><Text style={styles.muted}>Completed jobs</Text><Text style={styles.balance}>{summary.completed_deliveries}</Text></Card>
+          </View>
+        </>
+      ) : (
+        <View style={styles.balanceRow}>
+          <Card style={styles.balanceCard}><Text style={styles.muted}>Available</Text><Text style={styles.balance}>{formatMoney(wallet?.available_balance)}</Text></Card>
+          <Card style={styles.balanceCard}><Text style={styles.muted}>Pending</Text><Text style={styles.balance}>{formatMoney(wallet?.pending_balance)}</Text></Card>
+        </View>
+      )}
       {runner && <Card>
         <View style={styles.row}><Text style={styles.sectionTitle}>Runner setup</Text><Pill text={verification?.status || 'not submitted'} tone={verification?.status === 'approved' ? 'success' : verification?.status === 'rejected' ? 'danger' : 'warning'} /></View>
         <Text style={styles.muted}>{vehicles.filter((vehicle) => vehicle.approved).length} approved vehicle(s)</Text>
         <View style={styles.modeRow}><AppButton title="Verification" variant="secondary" onPress={() => router.push('/verification')} style={{ flex: 1 }} /><AppButton title="Vehicles" variant="secondary" onPress={() => router.push('/vehicles')} style={{ flex: 1 }} /></View>
       </Card>}
       {runner && <Card>
-        <Text style={styles.sectionTitle}>Withdraw earnings</Text>
+        <Text style={styles.sectionTitle}>Request settlement</Text>
+        <Text style={styles.muted}>Withdraw your available earnings. RunWise reviews and pays out settlements; payouts are recorded in the ledger.</Text>
         <Field label="Amount (P)" value={withdrawAmount} onChangeText={setWithdrawAmount} keyboardType="decimal-pad" placeholder="0.00" />
         <View style={styles.methodRow}>{[
           ['orange_money', 'Orange Money'], ['myzaka', 'MyZaka'], ['bank_transfer', 'Bank transfer'],
         ].map(([value, label]) => <Pressable key={value} onPress={() => setWithdrawMethod(value as typeof withdrawMethod)} style={[styles.method, withdrawMethod === value && styles.methodActive]}><Text style={[styles.methodText, withdrawMethod === value && styles.methodTextActive]}>{label}</Text></Pressable>)}</View>
-        <AppButton title="Request withdrawal" onPress={withdraw} variant="secondary" loading={busy} />
-        <Text style={styles.muted}>Demo only until a real payment provider is connected.</Text>
+        <AppButton title="Request settlement" onPress={withdraw} variant="secondary" loading={busy} />
+      </Card>}
+      {runner && <Card>
+        <Text style={styles.sectionTitle}>Withdrawals & settlements</Text>
+        {settlements.length ? settlements.slice(0, 8).map((settlement) => (
+          <View key={settlement.id} style={styles.transaction}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.transactionName}>{formatMoney(settlement.amount)}</Text>
+              {settlement.reference_number ? <Text style={styles.muted}>{settlement.reference_number}</Text> : null}
+            </View>
+            <Pill text={titleCase(settlement.status)} tone={settlement.status === 'paid' ? 'success' : settlement.status === 'rejected' ? 'danger' : 'warning'} />
+          </View>
+        )) : <Text style={styles.muted}>No settlements yet. Request one above when your earnings are available.</Text>}
       </Card>}
       <Card>
         <Text style={styles.sectionTitle}>Recent wallet activity</Text>

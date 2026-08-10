@@ -10,7 +10,14 @@ import {
   WalletTransaction, 
   RestrictedItem, 
   AuditLog, 
-  DashboardStats 
+  DashboardStats, 
+  Payment, 
+  LedgerTransaction, 
+  Settlement, 
+  PaymentDashboardStats,
+  RunnerWalletSummary,
+  RunnerEarning,
+  Refund,
 } from '@/lib/types';
 import { useAuth } from './use-auth';
 
@@ -382,5 +389,271 @@ export function useDeleteRestrictedItem() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['restricted_items'] });
     }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Wallet & Payment System
+// ---------------------------------------------------------------------------
+
+const PAYMENT_SELECT = '*, customer:profiles!payments_customer_id_fkey(full_name, phone), runner:profiles!payments_runner_id_fkey(full_name, phone), payment_references(*)';
+const TX_SELECT = '*, customer:profiles!transactions_customer_id_fkey(full_name, phone), runner:profiles!transactions_runner_id_fkey(full_name, phone)';
+
+// ---- Payments (admin payment-verification dashboard) ----
+export function usePayments(status?: string | 'all') {
+  return useQuery({
+    queryKey: ['payments', status],
+    queryFn: async () => {
+      let query = supabase
+        .from('payments')
+        .select(PAYMENT_SELECT)
+        .order('created_at', { ascending: false })
+        .limit(300);
+      if (status && status !== 'all') {
+        query = query.eq('status', status);
+      }
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as Payment[];
+    },
+    refetchInterval: 15000,
+  });
+}
+
+// ---- Transaction ledger (immutable) ----
+export function useLedger(limit = 400) {
+  return useQuery({
+    queryKey: ['ledger', limit],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select(TX_SELECT)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return data as LedgerTransaction[];
+    },
+    refetchInterval: 20000,
+  });
+}
+
+// ---- Settlements ----
+export function useSettlements() {
+  return useQuery({
+    queryKey: ['settlements'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('settlements')
+        .select('*, runner:profiles!settlements_runner_id_fkey(full_name, phone)')
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return data as Settlement[];
+    },
+    refetchInterval: 15000,
+  });
+}
+
+// ---- Refunds ----
+export function useRefunds() {
+  return useQuery({
+    queryKey: ['refunds'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('refunds')
+        .select('*, payment:payments!refunds_payment_id_fkey(order_no, total_amount, payment_method, reference_number), customer:profiles!refunds_customer_id_fkey(full_name, phone)')
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return data as Refund[];
+    },
+    refetchInterval: 15000,
+  });
+}
+
+export function useCreateRefund() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ paymentId, amount, reason }: { paymentId: string; amount: number; reason: string }) => {
+      const { data, error } = await supabase.rpc('admin_create_refund', {
+        p_payment_id: paymentId,
+        p_amount: amount,
+        p_reason: reason,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      ['refunds', 'payments', 'payment_dashboard_stats'].forEach(k =>
+        queryClient.invalidateQueries({ queryKey: [k] }));
+    },
+  });
+}
+
+export function useUpdateRefund() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status, notes }: { id: string; status: 'processed' | 'rejected'; notes?: string }) => {
+      const { data, error } = await supabase.rpc('admin_update_refund', {
+        p_refund_id: id,
+        p_status: status,
+        p_notes: notes || null,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      ['refunds', 'payments', 'ledger', 'payment_dashboard_stats', 'runner_earnings', 'wallets'].forEach(k =>
+        queryClient.invalidateQueries({ queryKey: [k] }));
+    },
+  });
+}
+
+// ---- Runner earnings ----
+export function useRunnerEarnings() {
+  return useQuery({
+    queryKey: ['runner_earnings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('runner_earnings')
+        .select('*, runner:profiles!runner_earnings_runner_id_fkey(full_name)')
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return data as RunnerEarning[];
+    },
+    refetchInterval: 20000,
+  });
+}
+
+// ---- Payment methods (modular provider list) ----
+export function usePaymentMethods() {
+  return useQuery({
+    queryKey: ['payment_methods'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('payment_methods')
+        .select('*')
+        .order('sort_order')
+        .order('id');
+      if (error) throw error;
+      return data as { id: string; display_name: string; mode: string; recipient_name: string | null; is_active: boolean; sort_order: number }[];
+    },
+  });
+}
+
+// ---- Dashboard / stats RPCs ----
+export function usePaymentDashboardStats() {
+  return useQuery({
+    queryKey: ['payment_dashboard_stats'],
+    queryFn: async (): Promise<PaymentDashboardStats> => {
+      const { data, error } = await supabase.rpc('get_admin_payment_dashboard');
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      return (row ?? {}) as PaymentDashboardStats;
+    },
+    refetchInterval: 20000,
+  });
+}
+
+export function useRunnerWalletSummary(runnerId: string | null) {
+  return useQuery({
+    queryKey: ['runner_wallet_summary', runnerId],
+    queryFn: async (): Promise<RunnerWalletSummary | null> => {
+      if (!runnerId) return null;
+      const { data, error } = await supabase.rpc('get_runner_wallet_summary', { p_runner_id: runnerId });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      return (row ?? null) as RunnerWalletSummary | null;
+    },
+    enabled: !!runnerId,
+  });
+}
+
+// ---- Mutations ----
+export function useVerifyPayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, notes }: { id: string; notes?: string }) => {
+      const { data, error } = await supabase.rpc('admin_verify_payment', {
+        p_payment_id: id,
+        p_notes: notes || null,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      ['payments', 'ledger', 'payment_dashboard_stats', 'runner_earnings', 'orders'].forEach(k =>
+        queryClient.invalidateQueries({ queryKey: [k] }));
+    },
+  });
+}
+
+export function useRejectPayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+      const { data, error } = await supabase.rpc('admin_reject_payment', {
+        p_payment_id: id,
+        p_reason: reason,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      ['payments', 'ledger', 'payment_dashboard_stats'].forEach(k =>
+        queryClient.invalidateQueries({ queryKey: [k] }));
+    },
+  });
+}
+
+export function useRequestPaymentInfo() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+      const { data, error } = await supabase.rpc('admin_request_payment_info', {
+        p_payment_id: id,
+        p_reason: reason,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      ['payments', 'payment_dashboard_stats'].forEach(k =>
+        queryClient.invalidateQueries({ queryKey: [k] }));
+    },
+  });
+}
+
+export function useUpdateSettlementStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      status,
+      paymentMethod,
+      reference,
+      notes,
+    }: {
+      id: string;
+      status: 'pending' | 'approved' | 'paid' | 'rejected';
+      paymentMethod?: string;
+      reference?: string;
+      notes?: string;
+    }) => {
+      const { data, error } = await supabase.rpc('admin_update_settlement', {
+        p_settlement_id: id,
+        p_status: status,
+        p_payment_method: paymentMethod || null,
+        p_reference_number: reference || null,
+        p_notes: notes || null,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      ['settlements', 'ledger', 'payment_dashboard_stats', 'runner_earnings'].forEach(k =>
+        queryClient.invalidateQueries({ queryKey: [k] }));
+    },
   });
 }

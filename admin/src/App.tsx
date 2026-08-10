@@ -18,6 +18,10 @@ import Wallets from '@/pages/wallets';
 import RestrictedItems from '@/pages/restricted-items';
 import AuditLog from '@/pages/audit-log';
 import Waitlist from '@/pages/waitlist';
+import Payments from '@/pages/payments';
+import Ledger from '@/pages/ledger';
+import Settlements from '@/pages/settlements';
+import Refunds from '@/pages/refunds';
 import NotFound from '@/pages/not-found';
 
 const queryClient = new QueryClient();
@@ -72,6 +76,10 @@ function Router() {
       <Route path="/restricted-items" component={() => <ProtectedRoute component={RestrictedItems} />} />
       <Route path="/audit-log" component={() => <ProtectedRoute component={AuditLog} />} />
       <Route path="/waitlist" component={() => <ProtectedRoute component={Waitlist} />} />
+      <Route path="/payments" component={() => <ProtectedRoute component={Payments} />} />
+      <Route path="/ledger" component={() => <ProtectedRoute component={Ledger} />} />
+      <Route path="/settlements" component={() => <ProtectedRoute component={Settlements} />} />
+      <Route path="/refunds" component={() => <ProtectedRoute component={Refunds} />} />
       <Route component={() => (
         <Layout>
           <NotFound />

@@ -506,6 +506,145 @@ async function fetchMyOrderRooms() {
   const col = state.profile.active_role === 'runner' ? 'runner_id' : 'customer_id';
   return cachedRead(`rooms:${col}:${state.profile.id}`, () => sb.from('order_rooms').select('*, escrow_transactions(*)').eq(col, state.profile.id).order('created_at', { ascending: false }));
 }
+
+// ---------------------------------------------------------------------------
+// PAYMENT SYSTEM HELPERS
+// ---------------------------------------------------------------------------
+// Launch-period transparency notice. RunWise never claims the temporary
+// recipient is the company — this notice is shown at checkout, on payment
+// instructions and on the receipt.
+const PAYMENT_NOTICE_HTML = `RunWise is currently using a temporary payment account while our official merchant payment integration is being completed. When you make this payment through Orange Money, the recipient name shown by Orange Money will be <b>Tefo Ralebala</b>. This is the authorized temporary payment account being used to process RunWise launch payments. Always verify the recipient name and amount before confirming your payment. Do not send payment if the recipient name or amount does not match the information shown above.`;
+
+async function fetchRoomPayment(roomId) {
+  return cachedRead(`room-payment:${roomId}`, () => sb.from('payments').select('*').eq('order_room_id', roomId).order('created_at', { ascending: false }).limit(1).maybeSingle(), null);
+}
+async function fetchActivePaymentMethods() {
+  return cachedRead('active-payment-methods', () => sb.from('payment_methods').select('*').eq('is_active', true).order('sort_order'));
+}
+async function fetchMySettlements() {
+  return cachedRead(`settlements:${state.profile.id}`, () => sb.from('settlements').select('*').eq('runner_id', state.profile.id).order('created_at', { ascending: false }));
+}
+function paymentMethodName(methods, id) {
+  const m = (methods || []).find(x => x.id === id);
+  return m ? m.display_name : (id || 'Orange Money');
+}
+function paymentRecipient(methods, id, fallback) {
+  const m = (methods || []).find(x => x.id === id);
+  return m?.recipient_name || fallback || 'Tefo Ralebala';
+}
+
+// Renders the checkout / instructions / receipt panel for an order room.
+function paymentSectionHtml({ payment, methods, esc, isCustomer, isDisputed, commissionPct }) {
+  if (isDisputed || !esc) return '';
+  const pct = Number(commissionPct) || 0.15;
+  const methodName = paymentMethodName(methods, payment?.payment_method);
+  const recipient = paymentRecipient(methods, payment?.payment_method, payment?.recipient_name);
+
+  // Fresh checkout is shown when there is no payment yet OR the previous one
+  // was rejected (retry allowed). Customer only, while escrow awaits funding.
+  const needsCheckout = !payment || payment.status === 'rejected' || payment.status === 'cancelled';
+  if (needsCheckout && isCustomer && esc.status === 'awaiting_funding') {
+    const suggested = Number(esc.runner_fee) > 0 ? Number(esc.runner_fee) : 20;
+    return `
+      <div class="section"><h3>Payment</h3></div>
+      ${payment?.status === 'rejected'
+        ? `<div class="card" style="border-color:var(--danger);background:var(--danger-bg)"><b>Your previous payment was rejected.</b> <span>${escapeHtml(payment.rejection_reason || 'No reason given.')} You can start a new payment below.</span></div>` : ''}
+      <div class="card" style="border:2px solid var(--green)">
+        <h3>RunWise Checkout</h3>
+        <div class="field">
+          <label>Delivery fee (BWP)
+            <input type="number" id="deliveryFeeInput" min="1" step="0.01" value="${suggested}" inputmode="decimal">
+          </label>
+        </div>
+        <div id="priceBreakdown" class="declaration-box" style="font-size:14px">
+          <div class="order"><span>Delivery fee</span><b id="pbFee">${money(suggested)}</b></div>
+          <div class="order"><span>RunWise service fee</span><b id="pbCommission">—</b></div>
+          <div class="order"><span>Total amount payable</span><b id="pbTotal">—</b></div>
+          <div class="order"><span>Runner receives</span><b id="pbRunner">—</b></div>
+        </div>
+        <div class="field">
+          <label>Payment method
+            <select id="paymentMethodSelect">${(methods || []).map(m => `<option value="${escapeHtml(m.id)}" ${m.id === 'orange_money' ? 'selected' : ''}>${escapeHtml(m.display_name)}</option>`).join('')}</select>
+          </label>
+        </div>
+        <div class="declaration-box" style="border-color:var(--gold)">
+          <b>Important Payment Notice</b>
+          <p style="font-size:13px;line-height:1.55;color:#68756e;margin:6px 0 10px">${PAYMENT_NOTICE_HTML}</p>
+          <div class="legal-check"><label><input type="checkbox" id="acceptRecipientCheck"> I understand that <b>${paymentRecipient(methods, 'orange_money')}</b> will be displayed as the payment recipient.</label></div>
+        </div>
+        <button class="primary" id="createPaymentBtn">Continue to Payment Instructions</button>
+      </div>`;
+  }
+
+  if (!payment) return ''; // no payment and no checkout eligibility (e.g. runner view)
+
+  // Receipt (verified)
+  if (payment.status === 'paid') {
+    return `
+      <div class="section"><h3>Payment receipt</h3></div>
+      <div class="card receipt">
+        <div class="receipt-head"><b>RUNWISE</b><span>Payment Receipt</span></div>
+        <div class="order"><span>Order</span><b>${payment.order_no}</b></div>
+        <div class="order"><span>Amount paid</span><b>${money(payment.amount_reported || payment.total_amount)}</b></div>
+        <div class="order"><span>Payment method</span><b>${methodName}</b></div>
+        <div class="order"><span>Payment reference</span><b>${escapeHtml(payment.reference_number || '—')}</b></div>
+        <div class="order"><span>Payment status</span><b class="badge success">PAID</b></div>
+        <div class="order"><span>RunWise commission</span><b>${money(payment.commission)}</b></div>
+        <div class="order"><span>Runner allocation</span><b>${money(payment.runner_earnings)}</b></div>
+        <p class="muted" style="font-size:12px;line-height:1.5">Payment transparency: During the RunWise launch period, Orange Money payments may display <b>${recipient}</b> as the recipient while RunWise completes its official merchant/payment integration.</p>
+        <button class="secondary" id="printReceiptBtn">🖨 Print receipt</button>
+      </div>`;
+  }
+
+  // Refunded receipt
+  if (payment.status === 'refunded') {
+    return `
+      <div class="section"><h3>Payment refunded</h3></div>
+      <div class="card receipt">
+        <div class="receipt-head"><b>RUNWISE</b><span>Refund Receipt</span></div>
+        <div class="order"><span>Order</span><b>${payment.order_no}</b></div>
+        <div class="order"><span>Amount refunded</span><b>${money(payment.amount_reported || payment.total_amount)}</b></div>
+        <div class="order"><span>Original payment method</span><b>${methodName}</b></div>
+        <div class="order"><span>Payment status</span><b class="badge warning">REFUNDED</b></div>
+        <p class="muted" style="font-size:12px;line-height:1.5">This payment was refunded by RunWise. If you are asked to pay again, the new payment appears separately on this order.</p>
+      </div>`;
+  }
+
+  // Awaiting verification / more info requested
+  const statusLabel = payment.status === 'info_requested'
+    ? '<span class="badge warning">MORE INFO REQUESTED</span>'
+    : '<span class="badge warning">PAYMENT VERIFICATION REQUIRED</span>';
+
+  return `
+    <div class="section"><h3>Payment ${payment.order_no}</h3></div>
+    <div class="card">
+      <p>Status: ${statusLabel}</p>
+      ${payment.status === 'info_requested' && payment.info_request_reason
+        ? `<p class="muted">RunWise requested more information: <b>${escapeHtml(payment.info_request_reason)}</b></p>` : ''}
+      ${isCustomer ? `
+      <div class="declaration-box" style="border-color:var(--gold)">
+        <b>Payment instructions</b>
+        <p style="font-size:14px;line-height:1.7;margin:6px 0 10px">
+          Pay to: <b>${recipient}</b><br>
+          Payment method: <b>${methodName}</b><br>
+          Amount: <b>${money(payment.total_amount)}</b><br>
+          RunWise order: <b>${payment.order_no}</b>
+        </p>
+        <p class="muted" style="font-size:12px;line-height:1.5">${PAYMENT_NOTICE_HTML}</p>
+      </div>
+      <div class="section"><h3>I have made the payment</h3></div>
+      <form id="paymentReferenceForm" class="grid2">
+        <label>Orange Money transaction/reference number<input name="reference" required placeholder="e.g. OM2026081048201"></label>
+        <label>Amount paid (BWP)<input type="number" name="amount" min="0.01" step="0.01" value="${payment.total_amount}" required></label>
+        <label class="full">Screenshot of confirmation (optional)<input type="file" name="screenshot" accept="image/*"></label>
+        <label class="full">Date/time of payment<input type="datetime-local" name="paid_at" value="${new Date().toISOString().slice(0, 16)}"></label>
+        <div class="full"><button class="primary">Submit Payment Details</button></div>
+        <div id="paymentFormError" class="full form-error"></div>
+      </form>
+      ` : `<p class="muted">The customer must complete this payment. You'll be notified when it is verified.</p>`}
+    </div>`;
+}
+
 async function fetchWallet() {
   return cachedRead(`wallet:${state.profile.id}`, () => sb.from('wallets').select('*').eq('user_id', state.profile.id).maybeSingle(), null);
 }

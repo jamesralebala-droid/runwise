@@ -1,5 +1,5 @@
 import { Link } from 'wouter';
-import { useDashboardStats } from '@/hooks/use-queries';
+import { useDashboardStats, usePaymentDashboardStats } from '@/hooks/use-queries';
 import { 
   UserCheck, 
   CarFront, 
@@ -8,12 +8,20 @@ import {
   Users, 
   Coins,
   Loader2,
-  ArrowUpRight
+  ArrowUpRight,
+  BadgeCheck,
+  HandCoins,
+  TrendingUp,
+  RotateCcw
 } from 'lucide-react';
 import { cn } from '@/components/layout';
 
+const fmtP = (n: number | undefined | null) =>
+  'P' + Number(n || 0).toLocaleString('en-BW', { minimumFractionDigits: 2 });
+
 export default function Dashboard() {
   const { data: stats, isLoading } = useDashboardStats();
+  const { data: payStats, isLoading: payLoading } = usePaymentDashboardStats();
 
   if (isLoading || !stats) {
     return (
@@ -76,6 +84,42 @@ export default function Dashboard() {
       href: '/wallets',
       color: 'text-secondary-foreground',
       bg: 'bg-secondary',
+      urgent: false
+    },
+    {
+      title: 'Payments Awaiting Verification',
+      value: payLoading ? '—' : (payStats?.awaiting_verification ?? 0),
+      icon: BadgeCheck,
+      href: '/payments',
+      color: 'text-amber-600',
+      bg: 'bg-amber-100',
+      urgent: (payStats?.awaiting_verification ?? 0) > 0
+    },
+    {
+      title: 'Pending Settlements',
+      value: payLoading ? '—' : (payStats?.pending_settlements ?? 0),
+      icon: HandCoins,
+      href: '/settlements',
+      color: 'text-blue-600',
+      bg: 'bg-blue-100',
+      urgent: (payStats?.pending_settlements ?? 0) > 0
+    },
+    {
+      title: 'Pending Refunds',
+      value: payLoading ? '—' : (payStats?.pending_refunds ?? 0),
+      icon: RotateCcw,
+      href: '/refunds',
+      color: 'text-amber-600',
+      bg: 'bg-amber-100',
+      urgent: (payStats?.pending_refunds ?? 0) > 0
+    },
+    {
+      title: "Today's Revenue",
+      value: payLoading ? '—' : fmtP(payStats?.today_revenue),
+      icon: TrendingUp,
+      href: '/ledger',
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-100',
       urgent: false
     }
   ];

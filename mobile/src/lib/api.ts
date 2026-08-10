@@ -1,5 +1,5 @@
 import * as Crypto from 'expo-crypto';
-import { MatchOffer, OrderRoom, RequestItem, Trip, Vehicle, Wallet } from '@/lib/types';
+import { MatchOffer, OrderRoom, RequestItem, RunnerWalletSummary, Settlement, Trip, Vehicle, Wallet } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 
 export const newId = () => Crypto.randomUUID();
@@ -58,6 +58,25 @@ export async function getWalletTransactions(walletId: string) {
   const { data, error } = await supabase.from('wallet_transactions').select('*').eq('wallet_id', walletId).order('created_at', { ascending: false }).limit(30);
   if (error) throw error;
   return data || [];
+}
+
+// Ledger-based runner wallet (available / pending / total earned / completed).
+export async function getRunnerWalletSummary(runnerId: string): Promise<RunnerWalletSummary> {
+  const { data, error } = await supabase.rpc('get_runner_wallet_summary', { p_runner_id: runnerId });
+  if (error) throw error;
+  return data as RunnerWalletSummary;
+}
+
+export async function getSettlements(runnerId: string): Promise<Settlement[]> {
+  const { data, error } = await supabase.from('settlements').select('*').eq('runner_id', runnerId).order('created_at', { ascending: false }).limit(30);
+  if (error) throw error;
+  return (data || []) as Settlement[];
+}
+
+// Settlement request (reviewed and paid out by RunWise admin; recorded in the ledger).
+export async function requestSettlement(amount: number, method: string): Promise<void> {
+  const { error } = await supabase.rpc('request_settlement', { p_amount: amount, p_method: method });
+  if (error) throw error;
 }
 
 export async function getVerification(userId: string) {

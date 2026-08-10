@@ -12,7 +12,11 @@ import {
   History,
   LogOut,
   ChevronRight,
-  Mail
+  Mail,
+  BadgeCheck,
+  BookOpenText,
+  HandCoins,
+  RotateCcw
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -29,6 +33,10 @@ const navItems = [
   { href: '/orders', label: 'Orders & Escrow', icon: PackageSearch },
   { href: '/users', label: 'Users', icon: Users },
   { href: '/wallets', label: 'Wallets', icon: Wallet },
+  { href: '/payments', label: 'Payment Verification', icon: BadgeCheck },
+  { href: '/ledger', label: 'Transaction Ledger', icon: BookOpenText },
+  { href: '/settlements', label: 'Settlements', icon: HandCoins },
+  { href: '/refunds', label: 'Refunds', icon: RotateCcw },
   { href: '/restricted-items', label: 'Restricted Items', icon: ShieldAlert },
   { href: '/audit-log', label: 'Audit Log', icon: History },
   { href: '/waitlist', label: 'Waitlist', icon: Mail },

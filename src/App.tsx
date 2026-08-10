@@ -221,7 +221,7 @@ function App() {
     favicon.type = 'image/svg+xml';
     favicon.href = scriptBase + 'runwise-mark.svg';
     document.head.appendChild(favicon);
-    const scripts = ['config.js', 'app.js', 'legal-v11.js', 'session-fix.js', 'notification-system.js'];
+    const scripts = ['config.js', 'app.js', 'legal-v11.js', 'session-fix.js', 'notification-system.js', 'payments.js'];
     let loaded = 0;
     scripts.forEach((src) => {
       const s = document.createElement('script');
