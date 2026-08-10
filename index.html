@@ -1,23 +1,1126 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta name="theme-color" content="#123F34" />
-<title>RunWise — Your Cart. Our Run.</title>
-<script>
-  // Capture Supabase's recovery marker before the auth client consumes/cleans the URL hash.
-  // This prevents the temporary recovery session from being mistaken for a normal login.
-  (() => {
-    const recoveryUrl = `${window.location.search}${window.location.hash}`;
-    if (/(?:[?#&])type=recovery(?:&|$)/i.test(recoveryUrl)) {
-      sessionStorage.setItem('runwise_password_recovery', '1');
-    }
-  })();
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123F34">
+<title>RunWise — Local Delivery &amp; Runner Platform for Botswana</title>
+<meta name="description" content="RunWise connects customers and businesses with local runners for convenient, on-demand delivery across Botswana — while creating new earning opportunities for people on the move. Coming soon.">
+<meta property="og:title" content="RunWise — Deliver Smarter. Move Faster. Earn More.">
+<meta property="og:description" content="Local delivery powered by local runners. RunWise is preparing to launch in Botswana — join early access to be among the first to know.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="runwise-logo.svg">
+<link rel="icon" type="image/svg+xml" href="runwise-logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* =========================================================================
+   RunWise — Pre-Launch Website
+   Refined: premium, human, mobile-first
+   ========================================================================= */
+:root {
+  --green: #123F34;
+  --green-light: #1B5B49;
+  --green-dark: #0A2B23;
+  --green-soft: rgba(18, 63, 52, 0.06);
+  --green-softer: rgba(18, 63, 52, 0.03);
+  --gold: #C9A34A;
+  --gold-deep: #9C7B2E;
+  --gold-soft: rgba(201, 163, 74, 0.16);
+  --ivory: #F7F2E8;
+  --white: #FFFFFF;
+  --ink: #20251F;
+  --ink-soft: #4B524D;
+  --ink-mute: #717A74;
+  --line: #E7E1D3;
+  --radius-lg: 24px;
+  --radius: 16px;
+  --shadow-sm: 0 1px 2px rgba(18, 63, 52, 0.04), 0 10px 30px rgba(18, 63, 52, 0.06);
+  --shadow-md: 0 2px 4px rgba(18, 63, 52, 0.05), 0 20px 50px rgba(18, 63, 52, 0.1);
+  --shadow-green: 0 10px 30px rgba(18, 63, 52, 0.28);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--ivory);
+  color: var(--ink);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+.container { max-width: 1140px; margin: 0 auto; padding: 0 28px; }
+@media (max-width: 640px) { .container { padding: 0 20px; } }
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+::selection { background: var(--gold); color: var(--green-dark); }
+
+h1, h2, h3 { font-family: 'Manrope', sans-serif; color: var(--green); letter-spacing: -0.025em; }
+
+/* ---------- Section scaffolding ---------- */
+.section { padding: 110px 0; }
+.section-head { max-width: 560px; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin-bottom: 18px;
+}
+.eyebrow::before {
+  content: '';
+  width: 18px;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 2px;
+}
+
+.section-head h2 {
+  font-size: clamp(1.9rem, 3.6vw, 2.7rem);
+  font-weight: 800;
+  line-height: 1.14;
+  margin-bottom: 16px;
+}
+.section-head p { color: var(--ink-mute); font-size: 1.05rem; line-height: 1.75; }
+
+.split-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 64px;
+}
+.split-head .section-head { margin-bottom: 0; }
+.split-head .split-note { max-width: 380px; color: var(--ink-mute); font-size: 1rem; line-height: 1.7; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 15px 28px;
+  min-height: 50px;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+.btn .arrow { transition: transform 0.3s ease; }
+.btn:hover .arrow { transform: translateX(4px); }
+
+.btn-primary {
+  background: var(--green);
+  color: #FBF8F0;
+  box-shadow: var(--shadow-green);
+}
+.btn-primary:hover { background: var(--green-light); transform: translateY(-2px); box-shadow: 0 14px 34px rgba(18, 63, 52, 0.35); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--green);
+  border-color: rgba(18, 63, 52, 0.22);
+}
+.btn-ghost:hover { border-color: var(--green); background: var(--green-soft); transform: translateY(-2px); }
+
+.btn-gold {
+  background: var(--gold);
+  color: var(--green-dark);
+  box-shadow: 0 10px 28px rgba(201, 163, 74, 0.35);
+}
+.btn-gold:hover { background: #DBB85E; transform: translateY(-2px); box-shadow: 0 14px 34px rgba(201, 163, 74, 0.42); }
+
+/* =========================================================================
+   Header
+   ========================================================================= */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: rgba(247, 242, 232, 0.86);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.site-header.is-scrolled { border-bottom-color: var(--line); box-shadow: 0 8px 30px rgba(18, 63, 52, 0.05); }
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  height: 74px;
+}
+
+.brand { display: inline-flex; align-items: center; gap: 13px; text-decoration: none; flex-shrink: 0; }
+.brand img { width: 40px; height: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(18, 63, 52, 0.14); }
+.brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+.brand-name { font-family: 'Manrope', sans-serif; font-size: 1.22rem; font-weight: 800; color: var(--green); letter-spacing: -0.02em; }
+.brand-name span { color: var(--gold-deep); }
+.brand-tagline { font-size: 0.55rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-mute); }
+
+.main-nav { display: flex; align-items: center; gap: 32px; }
+.main-nav a.nav-link {
+  font-size: 0.885rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  text-decoration: none;
+  position: relative;
+  padding: 6px 0;
+  transition: color 0.25s ease;
+}
+.main-nav a.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+.main-nav a.nav-link:hover { color: var(--green); }
+.main-nav a.nav-link:hover::after { transform: scaleX(1); }
+.header-cta { padding: 12px 22px; font-size: 0.875rem; min-height: 44px; }
+
+.nav-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--line);
+  border-radius: 11px;
+  background: var(--white);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-direction: column;
+}
+.nav-toggle span { display: block; width: 18px; height: 2px; background: var(--green); border-radius: 2px; transition: transform 0.3s ease, opacity 0.3s ease; }
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-menu { display: none; flex-direction: column; gap: 2px; padding: 8px 0 20px; border-top: 1px solid var(--line); }
+.mobile-menu a.mobile-link {
+  padding: 13px 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-radius: 10px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.mobile-menu a.mobile-link:hover { color: var(--green); background: var(--green-soft); }
+.mobile-menu .btn { margin-top: 14px; width: 100%; }
+
+@media (max-width: 920px) {
+  .main-nav { display: none; }
+  .nav-toggle { display: flex; }
+  .mobile-menu.open { display: flex; }
+}
+
+/* =========================================================================
+   Hero
+   ========================================================================= */
+.hero { position: relative; padding: 96px 0 90px; overflow: hidden; }
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -180px;
+  right: -140px;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 163, 74, 0.12), transparent 65%);
+  pointer-events: none;
+}
+.hero-inner { display: grid; grid-template-columns: 1.02fr 0.98fr; gap: 72px; align-items: center; }
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 18px;
+  background: var(--green);
+  color: var(--gold);
+  border-radius: 100px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  box-shadow: 0 6px 18px rgba(18, 63, 52, 0.22);
+}
+.hero-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: pulse 2.2s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.75); }
+}
+
+.hero h1 {
+  font-size: clamp(2.55rem, 5.2vw, 4.05rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  margin-bottom: 26px;
+}
+.hero h1 .accent { color: var(--gold-deep); position: relative; white-space: nowrap; }
+.hero h1 .accent::after {
+  content: '';
+  position: absolute;
+  left: 2px; right: 2px; bottom: 5px;
+  height: 7px;
+  background: var(--gold-soft);
+  border-radius: 4px;
+  z-index: -1;
+}
+
+.hero p.lead { font-size: 1.09rem; line-height: 1.8; color: var(--ink-soft); max-width: 520px; margin-bottom: 40px; }
+.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.hero-note {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 26px;
+  font-size: 0.86rem;
+  color: var(--ink-mute);
+}
+.hero-note .tick {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--green);
+  color: var(--ivory);
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+.hero-media { position: relative; }
+.hero-photo {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  background: var(--green-soft);
+  box-shadow: var(--shadow-md);
+}
+.hero-chip {
+  position: absolute;
+  left: -26px;
+  bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 15px 18px;
+  box-shadow: var(--shadow-md);
+  max-width: 250px;
+  animation: floaty 6s ease-in-out infinite;
+}
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+.hero-chip .chip-icon {
+  width: 42px; height: 42px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--green);
+  display: grid;
+  place-items: center;
+  color: var(--gold);
+}
+.hero-chip .chip-title { font-family: 'Manrope', sans-serif; font-size: 0.86rem; font-weight: 700; color: var(--ink); line-height: 1.25; }
+.hero-chip .chip-sub { font-size: 0.74rem; color: var(--ink-mute); }
+.hero-chip .chip-live { display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 0.72rem; font-weight: 600; color: #1F7A4D; }
+.hero-chip .chip-live::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #1F7A4D; animation: pulse 2s ease-in-out infinite; }
+
+/* =========================================================================
+   How it works
+   ========================================================================= */
+.how-section { background: var(--white); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
+.roles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 72px; }
+.role-card {
+  background: var(--ivory);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 38px 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.role-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: rgba(201, 163, 74, 0.45); }
+.role-card .icon {
+  width: 50px; height: 50px;
+  border-radius: 14px;
+  background: var(--green);
+  display: grid;
+  place-items: center;
+  color: var(--ivory);
+  margin-bottom: 22px;
+  transition: transform 0.3s ease;
+}
+.role-card:hover .icon { transform: scale(1.06); }
+.role-card:nth-child(2) .icon { background: var(--gold-deep); }
+.role-card h3 { font-size: 1.28rem; font-weight: 700; margin-bottom: 10px; }
+.role-card p { font-size: 0.95rem; color: var(--ink-mute); line-height: 1.7; }
+
+.flow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  position: relative;
+}
+.flow::before {
+  content: '';
+  position: absolute;
+  top: 24px;
+  left: 12%;
+  right: 12%;
+  height: 1.5px;
+  background: linear-gradient(90deg, var(--line), var(--gold), var(--line));
+  z-index: 0;
+}
+.flow-step { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; }
+.flow-step .node {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  color: var(--ink-soft);
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-sm);
+}
+.flow-step .flow-label { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--ink); }
+.flow-step .flow-sub { font-size: 0.78rem; color: var(--ink-mute); max-width: 140px; }
+.flow-step.hub .node { background: var(--green); border-color: var(--green); color: var(--gold); box-shadow: var(--shadow-green); }
+
+/* =========================================================================
+   For Runners
+   ========================================================================= */
+.runners-section { background: var(--green-dark); }
+.runners-section .eyebrow { color: var(--gold); }
+.runners-section .eyebrow::before { background: var(--gold); }
+.runners-section .section-head h2 { color: var(--ivory); }
+.runners-section .section-head p { color: rgba(247, 242, 232, 0.7); }
+
+.runners-grid { display: grid; grid-template-columns: 0.92fr 1.08fr; gap: 72px; align-items: center; }
+.runners-photo { position: relative; }
+.runners-photo img {
+  width: 100%;
+  aspect-ratio: 5 / 6;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  background: rgba(201, 163, 74, 0.14);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4);
+}
+.runners-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(201, 163, 74, 0.3);
+  pointer-events: none;
+}
+
+.benefit-grid { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 16px 28px; margin: 36px 0 34px; }
+.benefit-grid li { display: flex; align-items: flex-start; gap: 12px; color: rgba(247, 242, 232, 0.88); font-size: 0.95rem; }
+.benefit-grid li::before {
+  content: '';
+  flex-shrink: 0;
+  width: 20px; height: 20px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C9A34A' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  background-size: 11px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.runners-note {
+  margin-top: 28px;
+  font-size: 0.82rem;
+  color: rgba(247, 242, 232, 0.5);
+  border-top: 1px solid rgba(247, 242, 232, 0.12);
+  padding-top: 20px;
+}
+
+/* =========================================================================
+   For Businesses
+   ========================================================================= */
+.business-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 72px; align-items: center; }
+.business-photo img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  background: var(--green-soft);
+  box-shadow: var(--shadow-md);
+}
+.business-list { list-style: none; margin-top: 34px; }
+.business-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.97rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.business-list li:first-child { border-top: 1px solid var(--line); }
+.business-list .num {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 9px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  display: grid;
+  place-items: center;
+  margin-top: 1px;
+}
+.business-cta { margin-top: 34px; }
+
+/* =========================================================================
+   Why RunWise
+   ========================================================================= */
+.why-section { background: var(--white); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.why-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
+.why-item { border-top: 2px solid var(--line); padding-top: 22px; transition: border-color 0.3s ease; }
+.why-item:hover { border-top-color: var(--gold); }
+.why-item .why-letter { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 12px; }
+.why-item h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+.why-item p { font-size: 0.9rem; color: var(--ink-mute); line-height: 1.65; }
+
+/* =========================================================================
+   Early access banner
+   ========================================================================= */
+.early-banner {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-light) 100%);
+  padding: 80px 60px;
+  text-align: center;
+  box-shadow: 0 30px 70px rgba(18, 63, 52, 0.32);
+}
+.early-banner::before {
+  content: '';
+  position: absolute;
+  top: -140px;
+  right: -120px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 163, 74, 0.2), transparent 65%);
+  pointer-events: none;
+}
+.early-banner::after {
+  content: '';
+  position: absolute;
+  bottom: -120px;
+  left: -100px;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 163, 74, 0.12), transparent 65%);
+  pointer-events: none;
+}
+.early-banner .eyebrow { color: var(--gold); justify-content: center; }
+.early-banner .eyebrow::before { background: var(--gold); }
+.early-banner h2 { color: var(--ivory); font-size: clamp(1.9rem, 3.8vw, 2.6rem); font-weight: 800; margin-bottom: 16px; position: relative; }
+.early-banner p { color: rgba(247, 242, 232, 0.75); max-width: 500px; margin: 0 auto 34px; font-size: 1.03rem; position: relative; }
+
+/* =========================================================================
+   FAQ
+   ========================================================================= */
+.faq-wrap { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 72px; align-items: start; }
+.faq-side { position: sticky; top: 110px; }
+.faq-side p { color: var(--ink-mute); margin: 14px 0 24px; font-size: 1rem; }
+.faq-list { display: flex; flex-direction: column; gap: 12px; }
+.faq-item {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.faq-item[open] { border-color: rgba(201, 163, 74, 0.5); box-shadow: var(--shadow-sm); }
+.faq-item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 21px 24px;
+  cursor: pointer;
+  list-style: none;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: '+';
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 9px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+  transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+.faq-item[open] summary::after { transform: rotate(45deg); background: var(--green); color: var(--ivory); }
+.faq-item .faq-body { padding: 0 24px 22px; color: var(--ink-mute); font-size: 0.95rem; line-height: 1.75; }
+
+/* =========================================================================
+   Final CTA
+   ========================================================================= */
+.final-section { background: var(--green-dark); text-align: center; padding: 120px 0; position: relative; overflow: hidden; }
+.final-section::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(201, 163, 74, 0.12), transparent 70%);
+  pointer-events: none;
+}
+.final-section h2 { color: var(--ivory); font-size: clamp(2.3rem, 5vw, 3.4rem); font-weight: 800; line-height: 1.08; margin-bottom: 20px; }
+.final-section p.sub { color: rgba(247, 242, 232, 0.7); font-size: 1.12rem; margin-bottom: 40px; }
+.final-section .launch-note { margin-top: 30px; font-size: 0.8rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+
+/* =========================================================================
+   Footer
+   ========================================================================= */
+.site-footer { background: var(--green-dark); border-top: 1px solid rgba(247, 242, 232, 0.1); padding: 64px 0 40px; }
+.footer-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 48px; }
+.footer-brand img { width: 44px; height: 44px; border-radius: 11px; margin-bottom: 18px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3); }
+.footer-brand .brand-name { color: var(--ivory); font-size: 1.3rem; }
+.footer-brand .brand-name span { color: var(--gold); }
+.footer-tagline { color: rgba(247, 242, 232, 0.6); font-size: 0.95rem; margin-top: 8px; max-width: 260px; line-height: 1.7; }
+.footer-col h4 { color: rgba(247, 242, 232, 0.9); font-family: 'Manrope', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 18px; }
+.footer-col a { display: block; color: rgba(247, 242, 232, 0.66); text-decoration: none; font-size: 0.92rem; padding: 5px 0; transition: color 0.2s ease, transform 0.2s ease; }
+.footer-col a:hover { color: var(--gold); }
+.footer-cta-col p { color: rgba(247, 242, 232, 0.6); font-size: 0.9rem; line-height: 1.7; margin-bottom: 18px; }
+.footer-cta-col .btn { padding: 12px 20px; font-size: 0.85rem; min-height: 44px; }
+.footer-bottom {
+  margin-top: 52px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(247, 242, 232, 0.1);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: rgba(247, 242, 232, 0.42);
+  font-size: 0.8rem;
+}
+
+/* =========================================================================
+   Reveal
+   ========================================================================= */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0s);
+}
+[data-reveal].in-view { opacity: 1; transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .hero-badge .dot, .hero-chip, .hero-chip .chip-live::before { animation: none; }
+}
+
+/* =========================================================================
+   Responsive
+   ========================================================================= */
+@media (max-width: 1024px) {
+  .why-grid { grid-template-columns: repeat(2, 1fr); gap: 36px 28px; }
+  .hero-chip { left: -12px; }
+}
+
+@media (max-width: 920px) {
+  .section { padding: 84px 0; }
+  .hero { padding: 60px 0 64px; }
+  .hero-inner { grid-template-columns: 1fr; gap: 56px; }
+  .hero-media { order: -1; }
+  .hero-photo { aspect-ratio: 16 / 11; }
+  .roles-grid { grid-template-columns: 1fr; gap: 16px; }
+  .flow { grid-template-columns: 1fr 1fr; gap: 28px 16px; }
+  .flow::before { display: none; }
+  .runners-grid, .business-grid { grid-template-columns: 1fr; gap: 52px; }
+  .runners-photo { order: -1; }
+  .split-head { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 48px; }
+  .faq-wrap { grid-template-columns: 1fr; gap: 40px; }
+  .faq-side { position: static; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .footer-cta-col { grid-column: 1 / -1; }
+}
+
+@media (max-width: 640px) {
+  .section { padding: 68px 0; }
+  .hero { padding: 44px 0 52px; }
+  .hero h1 { font-size: 2.3rem; }
+  .hero p.lead { font-size: 1.02rem; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions .btn { width: 100%; }
+  .hero-note { justify-content: center; }
+  .hero-chip { left: 12px; bottom: 14px; padding: 12px 14px; max-width: 220px; }
+  .benefit-grid { grid-template-columns: 1fr; }
+  .why-grid { grid-template-columns: 1fr; }
+  .early-banner { padding: 56px 24px; border-radius: 20px; }
+  .final-section { padding: 88px 0; }
+  .footer-grid { grid-template-columns: 1fr; gap: 36px; }
+  .header-inner { height: 66px; }
+  .brand img { width: 36px; height: 36px; }
+  .brand-name { font-size: 1.1rem; }
+  .brand-tagline { display: none; }
+}
+</style>
 </head>
 <body>
-<div id="root"></div>
-<script type="module" src="/src/main.tsx"></script>
+
+<!-- ============================= HEADER ============================= -->
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <a href="index.html" class="brand" aria-label="RunWise home">
+      <img src="runwise-logo.svg" alt="RunWise logo" width="40" height="40">
+      <span class="brand-text">
+        <span class="brand-name">Run<span>Wise</span></span>
+        <span class="brand-tagline">Your Cart. Our Run.</span>
+      </span>
+    </a>
+
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="#how" class="nav-link">How It Works</a>
+      <a href="#runners" class="nav-link">For Runners</a>
+      <a href="#businesses" class="nav-link">For Businesses</a>
+      <a href="#faq" class="nav-link">FAQ</a>
+      <a href="early-access.html" class="btn btn-primary header-cta">Get Early Access</a>
+    </nav>
+
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div class="container">
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#how" class="mobile-link">How It Works</a>
+      <a href="#runners" class="mobile-link">For Runners</a>
+      <a href="#businesses" class="mobile-link">For Businesses</a>
+      <a href="#faq" class="mobile-link">FAQ</a>
+      <a href="early-access.html" class="btn btn-primary">Get Early Access</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ============================= HERO ============================= -->
+  <section class="hero" id="home">
+    <div class="container hero-inner">
+      <div class="hero-content">
+        <span class="hero-badge" data-reveal><span class="dot"></span>Coming Soon &bull; Botswana</span>
+        <h1 data-reveal style="--reveal-delay:0.06s">
+          Deliver Smarter.<br>
+          Move Faster.<br>
+          <span class="accent">Earn More.</span>
+        </h1>
+        <p class="lead" data-reveal style="--reveal-delay:0.12s">
+          RunWise connects customers and businesses with local runners for convenient,
+          on-demand delivery &mdash; while creating new earning opportunities for people on the move.
+        </p>
+        <div class="hero-actions" data-reveal style="--reveal-delay:0.18s">
+          <a href="early-access.html" class="btn btn-primary">Get Early Access <span class="arrow">&rarr;</span></a>
+          <a href="#how" class="btn btn-ghost">How It Works</a>
+        </div>
+        <p class="hero-note" data-reveal style="--reveal-delay:0.24s"><span class="tick">&#10003;</span>Early access is free &mdash; no commitment.</p>
+      </div>
+
+      <div class="hero-media" data-reveal style="--reveal-delay:0.1s">
+        <img
+          class="hero-photo"
+          src="https://images.unsplash.com/photo-1587813369290-091c9d432daf?auto=format&fit=crop&w=1000&h=1250&q=80"
+          alt="A motorcycle delivery rider weaving through traffic on an African city street"
+          width="1000" height="1250" fetchpriority="high">
+        <div class="hero-chip" aria-hidden="true">
+          <div class="chip-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 17h-2v-6l2-5h9l4 5h3v6h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/><path d="M10 17h5"/>
+            </svg>
+          </div>
+          <div>
+            <div class="chip-title">Gaborone &rarr; Francistown</div>
+            <div class="chip-sub">Parcel &bull; 40 km</div>
+            <div class="chip-live">Runner en route</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= HOW IT WORKS ============================= -->
+  <section class="section how-section" id="how">
+    <div class="container">
+      <div class="split-head" data-reveal>
+        <div class="section-head">
+          <span class="eyebrow">How RunWise Works</span>
+          <h2>One platform.<br>Three ways to move.</h2>
+        </div>
+        <p class="split-note">Whether you are sending, selling or on the move &mdash; RunWise brings delivery together in one simple flow.</p>
+      </div>
+
+      <div class="roles-grid">
+        <article class="role-card" data-reveal>
+          <div class="icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+          </div>
+          <h3>Customers</h3>
+          <p>Get your items delivered conveniently by a local RunWise runner.</p>
+        </article>
+        <article class="role-card" data-reveal style="--reveal-delay:0.08s">
+          <div class="icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>
+            </svg>
+          </div>
+          <h3>Businesses</h3>
+          <p>Offer delivery to your customers without having to manage your own delivery network.</p>
+        </article>
+        <article class="role-card" data-reveal style="--reveal-delay:0.16s">
+          <div class="icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <h3>Runners</h3>
+          <p>Turn your time and mobility into an opportunity to earn by completing deliveries.</p>
+        </article>
+      </div>
+
+      <div class="flow" data-reveal aria-label="How a delivery flows through RunWise">
+        <div class="flow-step">
+          <span class="node">1</span>
+          <div>
+            <div class="flow-label">Customer / Business</div>
+            <div class="flow-sub">Posts a delivery request</div>
+          </div>
+        </div>
+        <div class="flow-step hub">
+          <span class="node">2</span>
+          <div>
+            <div class="flow-label">RunWise</div>
+            <div class="flow-sub">Matches it to a local runner</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="node">3</span>
+          <div>
+            <div class="flow-label">Runner</div>
+            <div class="flow-sub">Picks up and carries it</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <span class="node">4</span>
+          <div>
+            <div class="flow-label">Delivery</div>
+            <div class="flow-sub">Handed over, done</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= FOR RUNNERS ============================= -->
+  <section class="section runners-section" id="runners">
+    <div class="container">
+      <div class="runners-grid">
+        <div class="runners-photo" data-reveal>
+          <img
+            src="https://images.unsplash.com/photo-1558981033-0f0309284409?auto=format&fit=crop&w=900&h=1080&q=80"
+            alt="A motorcycle courier ready for urban delivery" width="900" height="1080" loading="lazy">
+        </div>
+
+        <div data-reveal style="--reveal-delay:0.08s">
+          <span class="eyebrow">For Runners</span>
+          <div class="section-head" style="margin-bottom:0">
+            <h2>Your wheels. Your time. Your opportunity.</h2>
+            <p>RunWise gives local runners an opportunity to earn by completing delivery requests through the platform.</p>
+          </div>
+
+          <ul class="benefit-grid">
+            <li>Flexible earning opportunities</li>
+            <li>Choose when you want to run</li>
+            <li>Local delivery opportunities</li>
+            <li>Simple digital workflow</li>
+            <li>Track your deliveries</li>
+            <li>Build your customer service experience</li>
+          </ul>
+
+          <a href="early-access.html" class="btn btn-gold">Become a RunWise Runner <span class="arrow">&rarr;</span></a>
+          <p class="runners-note">Runner availability and onboarding requirements will be communicated before launch.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= FOR BUSINESSES ============================= -->
+  <section class="section" id="businesses">
+    <div class="container">
+      <div class="business-grid">
+        <div data-reveal>
+          <span class="eyebrow">For Businesses</span>
+          <div class="section-head" style="margin-bottom:0">
+            <h2>Give your customers delivery without building the fleet.</h2>
+            <p>RunWise is designed to help businesses connect their customers with local runners, making delivery simpler without requiring every business to manage its own delivery network.</p>
+          </div>
+
+          <ul class="business-list">
+            <li><span class="num">1</span>Convenient delivery option for your customers</li>
+            <li><span class="num">2</span>A local runner network ready to move</li>
+            <li><span class="num">3</span>Simple order coordination</li>
+            <li><span class="num">4</span>Potential to expand your customer reach</li>
+            <li><span class="num">5</span>Designed with small and growing businesses in mind</li>
+          </ul>
+
+          <a href="early-access.html" class="btn btn-primary business-cta">Join RunWise Early Access <span class="arrow">&rarr;</span></a>
+        </div>
+
+        <div class="business-photo" data-reveal style="--reveal-delay:0.1s">
+          <img
+            src="https://images.unsplash.com/photo-1588182728399-e8f2df121744?auto=format&fit=crop&w=1100&h=825&q=80"
+            alt="A courier handing a parcel to a customer beside a delivery motorcycle" width="1100" height="825" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= WHY RUNWISE ============================= -->
+  <section class="section why-section" id="why">
+    <div class="container">
+      <div class="split-head" data-reveal>
+        <div class="section-head">
+          <span class="eyebrow">Why RunWise</span>
+          <h2>Built for the way<br>Botswana moves.</h2>
+        </div>
+        <p class="split-note">A straightforward platform, designed locally, focused on getting the job done.</p>
+      </div>
+      <div class="why-grid">
+        <div class="why-item" data-reveal>
+          <div class="why-letter">Local</div>
+          <h3>Local</h3>
+          <p>Designed with local customers, businesses and runners in mind.</p>
+        </div>
+        <div class="why-item" data-reveal style="--reveal-delay:0.08s">
+          <div class="why-letter">Convenient</div>
+          <h3>Convenient</h3>
+          <p>Make getting items from one place to another easier.</p>
+        </div>
+        <div class="why-item" data-reveal style="--reveal-delay:0.16s">
+          <div class="why-letter">Opportunity</div>
+          <h3>Opportunity</h3>
+          <p>Create additional earning opportunities for local runners.</p>
+        </div>
+        <div class="why-item" data-reveal style="--reveal-delay:0.24s">
+          <div class="why-letter">Simple</div>
+          <h3>Simple</h3>
+          <p>A straightforward platform focused on getting the job done.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= EARLY ACCESS ============================= -->
+  <section class="section" id="early-access">
+    <div class="container">
+      <div class="early-banner" data-reveal>
+        <span class="eyebrow">Early Access</span>
+        <h2>Be there before we launch.</h2>
+        <p>RunWise is currently preparing for launch. Join early access to be among the first to hear when the platform becomes available.</p>
+        <a href="early-access.html" class="btn btn-gold">Get Early Access <span class="arrow">&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= FAQ ============================= -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="faq-wrap">
+        <div class="faq-side" data-reveal>
+          <span class="eyebrow">FAQ</span>
+          <h2 style="font-size:clamp(1.7rem,3vw,2.3rem);font-weight:800;line-height:1.15">Questions, answered.</h2>
+          <p>Can&rsquo;t find what you&rsquo;re looking for? Reach out through early access and our team will help.</p>
+          <a href="early-access.html" class="btn btn-ghost">Contact via Early Access</a>
+        </div>
+
+        <div class="faq-list" data-reveal style="--reveal-delay:0.08s">
+          <details class="faq-item">
+            <summary>Is RunWise available now?</summary>
+            <div class="faq-body">Not yet. RunWise is currently preparing for launch and is accepting early-access registrations.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Who can use RunWise?</summary>
+            <div class="faq-body">RunWise is being designed for customers, businesses and local runners.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Can I become a runner?</summary>
+            <div class="faq-body">Yes. People interested in becoming RunWise runners can register for early access and receive onboarding information as launch approaches.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Can businesses use RunWise?</summary>
+            <div class="faq-body">Yes. RunWise is being designed to help businesses provide delivery options to their customers.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Where will RunWise launch?</summary>
+            <div class="faq-body">RunWise is being developed for Botswana, with the initial rollout focused on selected locations before expanding.</div>
+          </details>
+          <details class="faq-item">
+            <summary>How do I join?</summary>
+            <div class="faq-body">Click &ldquo;Get Early Access&rdquo; and complete the early-access registration.</div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= FINAL CTA ============================= -->
+  <section class="final-section">
+    <div class="container" data-reveal>
+      <h2>RunWise is coming.<br>Be part of what we&rsquo;re building.</h2>
+      <p class="sub">Local deliveries. Local runners. Built for Botswana.</p>
+      <a href="early-access.html" class="btn btn-gold">Get Early Access <span class="arrow">&rarr;</span></a>
+      <p class="launch-note">Launching soon in Botswana</p>
+    </div>
+  </section>
+</main>
+
+<!-- ============================= FOOTER ============================= -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="runwise-logo.svg" alt="RunWise logo" width="44" height="44">
+        <div class="brand-name">Run<span>Wise</span></div>
+        <p class="footer-tagline">Smarter deliveries. Local runners. More opportunities.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="#how">How It Works</a>
+        <a href="#runners">For Runners</a>
+        <a href="#businesses">For Businesses</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="footer-col footer-cta-col">
+        <h4>Join the journey</h4>
+        <p>Be among the first to hear when RunWise launches in your area.</p>
+        <a href="early-access.html" class="btn btn-gold">Get Early Access</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 RunWise. All rights reserved.</span>
+      <span>Made in Botswana</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  // Header elevation on scroll
+  var header = document.getElementById('siteHeader');
+  var onScroll = function () {
+    header.classList.toggle('is-scrolled', window.scrollY > 8);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Mobile menu
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('mobileMenu');
+  toggle.addEventListener('click', function () {
+    var open = menu.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  menu.addEventListener('click', function (e) {
+    if (e.target.closest('a')) {
+      menu.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Subtle scroll reveal
+  var reveals = document.querySelectorAll('[data-reveal]');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('in-view'); });
+  }
+
+  // Accordion: keep at most one FAQ open at a time
+  var items = document.querySelectorAll('.faq-item');
+  items.forEach(function (item) {
+    item.addEventListener('toggle', function () {
+      if (item.open) {
+        items.forEach(function (other) {
+          if (other !== item) other.open = false;
+        });
+      }
+    });
+  });
+})();
+</script>
 </body>
 </html>

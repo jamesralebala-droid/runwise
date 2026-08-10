@@ -4,7 +4,8 @@ Cross-border delivery and errand marketplace for Botswana and Southern Africa.
 
 ## Apps
 
-- **Web app** — Vite + React shell (`index.html`, `src/`) that mounts the RunWise SPA. Runtime scripts live in `public/`.
+- **Marketing site** — pre-launch homepage (`index.html`) with all CTAs to `early-access.html`.
+- **Web app** — Vite + React shell (`app/index.html`, `src/`) that mounts the RunWise SPA, served at `/app`. Runtime scripts live in `public/`.
 - **Admin portal** — `admin/` (separate Vite + React app, built into `dist/admin/`).
 - **Mobile** — `mobile/` (Expo React Native, Android-first).
 - **Backend** — Supabase: schema/functions in `supabase/`, migrations in `supabase/migrations/`, edge functions in `supabase/functions/`.

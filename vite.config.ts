@@ -14,10 +14,16 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    // Multi-page app: index.html (marketing homepage) + app/index.html (the app,
+    // served at /app). Relative inputs are resolved against the project root.
+    // inlineDynamicImports must stay off — it is incompatible with multiple inputs.
     rollupOptions: {
+      input: {
+        main: 'index.html',
+        app: 'app/index.html',
+      },
       output: {
         manualChunks: undefined,
-        inlineDynamicImports: true,
       },
     },
   },

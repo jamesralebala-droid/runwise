@@ -79,6 +79,7 @@ cpSync(adminDist, adminDest, { recursive: true });
 
 console.log('\n=== RunWise Build: complete ===');
 console.log(`  base: ${RUNWISE_BASE || '/'}`);
-console.log('  dist/index.html          main app');
+console.log('  dist/index.html          marketing homepage');
+console.log('  dist/app/index.html      main app (/app)');
 console.log('  dist/early-access.html   early access landing');
 console.log('  dist/admin/index.html    admin portal');

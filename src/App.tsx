@@ -10,6 +10,10 @@ declare global {
   }
 }
 
+// Resolve the brand logo against the deploy base so it works at any path
+// (root domain, /app/, or the GitHub Pages subpath).
+const LOGO_SRC = `${import.meta.env.BASE_URL}runwise-logo.svg`;
+
 // The existing RunWise SPA (app.js) expects this exact HTML structure in the DOM.
 // We render it once on mount and never re-render, because app.js takes over
 // DOM manipulation from that point. React will not touch the DOM after mount.
@@ -92,7 +96,7 @@ const APP_HTML = `<!-- TOAST -->
 <div id="app" class="hidden">
   <aside class="sidebar">
     <div class="brand">
-      <img src="runwise-logo.svg" alt="RunWise">
+      <img src="${LOGO_SRC}" alt="RunWise">
       <div><strong>RunWise</strong><span>Your Cart. Our Run.</span></div>
     </div>
     <nav id="nav"></nav>

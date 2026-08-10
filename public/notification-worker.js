@@ -43,19 +43,21 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
   const data = event.notification.data || {};
-  let url = '/';
+  // The app lives at /app/ (relative to the worker scope, so this also works
+  // on the GitHub Pages subpath).
+  let url = 'app/index.html';
 
   // Navigate to the relevant section based on notification data
   if (data.order_room_id) {
-    url = '/?room=' + data.order_room_id;
+    url = 'app/index.html?room=' + data.order_room_id;
   } else if (data.match_id) {
-    url = '/?match=' + data.match_id;
+    url = 'app/index.html?match=' + data.match_id;
   } else if (data.request_id) {
-    url = '/?request=' + data.request_id;
+    url = 'app/index.html?request=' + data.request_id;
   } else if (data.trip_id) {
-    url = '/?trip=' + data.trip_id;
+    url = 'app/index.html?trip=' + data.trip_id;
   } else if (data.page) {
-    url = '/?page=' + data.page;
+    url = 'app/index.html?page=' + data.page;
   }
 
   event.waitUntil(
