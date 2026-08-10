@@ -42,10 +42,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen bg-background overflow-hidden">
       {/* Sidebar */}
       <aside className="w-64 bg-sidebar flex-shrink-0 border-r border-sidebar-border flex flex-col transition-all duration-300">
-        <div className="h-16 flex items-center px-6 border-b border-sidebar-border bg-sidebar-accent/50">
-          <ShieldAlert className="h-6 w-6 text-sidebar-accent-foreground mr-3" />
+        <div className="h-16 flex items-center px-5 border-b border-sidebar-border bg-sidebar-accent/50 gap-3">
+          <img
+            src={`${import.meta.env.BASE_URL}runwise-mark.svg`}
+            alt="RunWise"
+            className="h-9 w-9 rounded-lg ring-1 ring-sidebar-accent/60"
+          />
           <span className="font-mono font-bold text-sidebar-foreground tracking-tight text-lg">
-            COMMAND<span className="text-sidebar-accent-foreground">CENTER</span>
+            RUNWISE<span className="text-sidebar-accent-foreground"> ADMIN</span>
           </span>
         </div>
         

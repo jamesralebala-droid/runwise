@@ -2,27 +2,27 @@
   <defs>
     <linearGradient id="goldRun" x1="0" y1="1" x2="0" y2="0">
       <stop offset="0" stop-color="#A9802F"/>
-      <stop offset="0.55" stop-color="#D4AC4F"/>
-      <stop offset="1" stop-color="#EBCF7E"/>
+      <stop offset="0.55" stop-color="#C79A3E"/>
+      <stop offset="1" stop-color="#E9CD7A"/>
     </linearGradient>
   </defs>
 
   <!-- Motion lines -->
-  <g stroke="#123F34" stroke-width="8" stroke-linecap="round">
+  <g stroke="#F2EFE5" stroke-width="8" stroke-linecap="round">
     <path d="M118 60 L150 60"/>
     <path d="M126 78 L150 78"/>
     <path d="M118 96 L150 96"/>
   </g>
 
   <!-- R (stem continues into W first stroke) -->
-  <g fill="none" stroke="#123F34" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="#F2EFE5" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
     <path d="M160 34 L160 100 L196 132"/>
     <path d="M160 34 L214 34"/>
     <path d="M214 40 C 234 40 244 56 244 72 C 244 90 230 101 210 101 C 196 101 187 95 181 85 C 176 77 173 68 172 58 L 160 58"/>
   </g>
 
   <!-- W -->
-  <g fill="none" stroke="#123F34" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="#F2EFE5" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
     <path d="M196 132 L228 96"/>
     <path d="M228 96 L262 128"/>
   </g>
@@ -35,21 +35,21 @@
   </g>
 
   <!-- Shopping cart above the R/W gap -->
-  <g stroke="#123F34" fill="none" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+  <g stroke="#F2EFE5" fill="none" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
     <path d="M258 52 L250 42"/>
     <path d="M253 52 L283 52 C 285 60 284 70 278 73 L 258 73 C 253 73 250 70 250 62 Z"/>
   </g>
-  <circle cx="256" cy="78" r="5.5" fill="#123F34"/>
-  <circle cx="274" cy="78" r="5.5" fill="#123F34"/>
-  <path d="M259 62 Q 266 67 273 62" stroke="#A9802F" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="256" cy="78" r="5.5" fill="#F2EFE5"/>
+  <circle cx="274" cy="78" r="5.5" fill="#F2EFE5"/>
+  <path d="M259 62 Q 266 67 273 62" stroke="#E9CD7A" fill="none" stroke-width="3.5" stroke-linecap="round"/>
 
   <!-- Wordmark -->
   <text x="210" y="172" text-anchor="middle" font-family="'Inter', 'Manrope', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="46" font-weight="800" letter-spacing="7">
-    <tspan fill="#123F34">RUN</tspan><tspan fill="#24292F">WISE</tspan>
+    <tspan fill="#F7F4EC">RUN</tspan><tspan fill="#CFCBBF">WISE</tspan>
   </text>
 
   <!-- Tagline -->
   <text x="210" y="199" text-anchor="middle" font-family="'Inter', 'Manrope', 'Segoe UI', Arial, Helvetica, sans-serif" font-size="16" font-weight="600" letter-spacing="4.5">
-    <tspan fill="#A9802F">&#8212;  </tspan><tspan fill="#4A5A54">Your Cart.</tspan><tspan fill="#A9802F">  Our Run.  </tspan><tspan fill="#A9802F">&#8212;</tspan>
+    <tspan fill="#C79A3E">&#8212;  </tspan><tspan fill="#AEBAB3">Your Cart.</tspan><tspan fill="#E0BE6A">  Our Run.  </tspan><tspan fill="#C79A3E">&#8212;</tspan>
   </text>
 </svg>

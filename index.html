@@ -10,7 +10,7 @@
 <meta property="og:description" content="Local delivery powered by local runners. RunWise is preparing to launch in Botswana — join early access to be among the first to know.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="runwise-logo.svg">
-<link rel="icon" type="image/svg+xml" href="runwise-logo.svg">
+<link rel="icon" type="image/svg+xml" href="runwise-mark.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -175,7 +175,7 @@ h1, h2, h3 { font-family: 'Manrope', sans-serif; color: var(--green); letter-spa
 }
 
 .brand { display: inline-flex; align-items: center; gap: 13px; text-decoration: none; flex-shrink: 0; }
-.brand img { width: 40px; height: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(18, 63, 52, 0.14); }
+.brand img.brand-logo { width: auto; height: 50px; border-radius: 0; box-shadow: none; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
 .brand-name { font-family: 'Manrope', sans-serif; font-size: 1.22rem; font-weight: 800; color: var(--green); letter-spacing: -0.02em; }
 .brand-name span { color: var(--gold-deep); }
@@ -635,7 +635,7 @@ h1, h2, h3 { font-family: 'Manrope', sans-serif; color: var(--green); letter-spa
    ========================================================================= */
 .site-footer { background: var(--green-dark); border-top: 1px solid rgba(247, 242, 232, 0.1); padding: 64px 0 40px; }
 .footer-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 48px; }
-.footer-brand img { width: 44px; height: 44px; border-radius: 11px; margin-bottom: 18px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3); }
+.footer-brand img.footer-logo { width: auto; height: 58px; border-radius: 0; box-shadow: none; margin-bottom: 18px; }
 .footer-brand .brand-name { color: var(--ivory); font-size: 1.3rem; }
 .footer-brand .brand-name span { color: var(--gold); }
 .footer-tagline { color: rgba(247, 242, 232, 0.6); font-size: 0.95rem; margin-top: 8px; max-width: 260px; line-height: 1.7; }
@@ -714,7 +714,7 @@ h1, h2, h3 { font-family: 'Manrope', sans-serif; color: var(--green); letter-spa
   .final-section { padding: 88px 0; }
   .footer-grid { grid-template-columns: 1fr; gap: 36px; }
   .header-inner { height: 66px; }
-  .brand img { width: 36px; height: 36px; }
+  .brand img.brand-logo { height: 40px; }
   .brand-name { font-size: 1.1rem; }
   .brand-tagline { display: none; }
 }
@@ -726,11 +726,7 @@ h1, h2, h3 { font-family: 'Manrope', sans-serif; color: var(--green); letter-spa
 <header class="site-header" id="siteHeader">
   <div class="container header-inner">
     <a href="index.html" class="brand" aria-label="RunWise home">
-      <img src="runwise-logo.svg" alt="RunWise logo" width="40" height="40">
-      <span class="brand-text">
-        <span class="brand-name">Run<span>Wise</span></span>
-        <span class="brand-tagline">Your Cart. Our Run.</span>
-      </span>
+      <img src="runwise-logo.svg" alt="RunWise" class="brand-logo">
     </a>
 
     <nav class="main-nav" aria-label="Main navigation">
@@ -1043,8 +1039,7 @@ h1, h2, h3 { font-family: 'Manrope', sans-serif; color: var(--green); letter-spa
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <img src="runwise-logo.svg" alt="RunWise logo" width="44" height="44">
-        <div class="brand-name">Run<span>Wise</span></div>
+        <img src="runwise-logo-light.svg" alt="RunWise" class="footer-logo">
         <p class="footer-tagline">Smarter deliveries. Local runners. More opportunities.</p>
       </div>
       <div class="footer-col">

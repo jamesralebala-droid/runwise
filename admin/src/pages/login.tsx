@@ -1,7 +1,7 @@
 import { useAuth } from '@/hooks/use-auth';
 import { supabase, friendlyError } from '@/lib/supabase';
 import { useState } from 'react';
-import { ShieldCheck, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Login() {
@@ -40,9 +40,11 @@ export default function Login() {
     <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4">
       <div className="max-w-md w-full space-y-8 bg-card p-10 rounded-xl border border-card-border shadow-lg">
         <div className="flex flex-col items-center">
-          <div className="bg-primary p-4 rounded-full mb-4 shadow-sm">
-            <ShieldCheck className="h-10 w-10 text-secondary" />
-          </div>
+          <img
+            src={`${import.meta.env.BASE_URL}runwise-mark.svg`}
+            alt="RunWise"
+            className="h-16 w-16 rounded-2xl mb-4 shadow-md"
+          />
           <h2 className="text-3xl font-mono font-bold text-card-foreground text-center">RunWise Portal</h2>
           <p className="mt-2 text-sm text-muted-foreground text-center">
             Admin access only. Unauthorized access is prohibited.

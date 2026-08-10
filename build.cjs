@@ -43,12 +43,23 @@ try {
   console.error('  WARN: could not sync dist/app.js:', err.message);
 }
 
-// 2. Restore admin/index.html from git (its build script overwrites it with /admin/ paths)
+// 2. Back up admin/index.html before the admin build. The admin npm build
+//    script copies dist/index.html over the source entry, so we restore the
+//    backup afterwards — a plain `git checkout` would silently discard any
+//    uncommitted source edits (e.g. the relative favicon href fix).
 const adminDir = path.resolve(__dirname, 'admin');
+const adminIndex = path.resolve(adminDir, 'index.html');
+const adminIndexBackup = path.resolve(adminDir, 'index.html.runwise-bak');
+let hadIndexBackup = false;
 try {
-  execSync('git checkout -- index.html', { cwd: adminDir, stdio: 'pipe' });
-  console.log('  (restored admin/index.html from git)');
-} catch {}
+  if (existsSync(adminIndex)) {
+    cpSync(adminIndex, adminIndexBackup);
+    hadIndexBackup = true;
+    console.log('  (backed up admin/index.html)');
+  }
+} catch (err) {
+  console.error('  WARN: could not back up admin/index.html:', err.message);
+}
 
 // 2b. Ensure admin dependencies exist. The admin/ folder is a nested package
 //     that deploy runners do not install by default — the root cause of the
@@ -59,15 +70,29 @@ if (!existsSync(path.join(adminDir, 'node_modules', 'vite'))) {
 
 // 3. Build admin portal (its vite config reads BASE_PATH, and the wouter router
 //    derives its base from the built BASE_URL, so admin works on any subpath).
+//    Vite requires the base to start with a slash: '/admin/' on the root domain,
+//    or '/<repo>/admin/' on GitHub Pages.
+const adminBase = RUNWISE_BASE ? `${RUNWISE_BASE}admin/` : '/admin/';
 run('admin portal', 'npx vite build', {
   cwd: adminDir,
   env: {
     ...process.env,
-    BASE_PATH: `${RUNWISE_BASE}admin/`,
+    BASE_PATH: adminBase,
     VITE_SUPABASE_URL: 'https://lugbyiwtmxvhmhtwcrle.supabase.co',
     VITE_SUPABASE_ANON_KEY: 'sb_publishable_KG7TwPctMeDCLnRVcTdjIQ_ol3yPVvX',
   },
 });
+
+// 3b. Restore admin/index.html from the backup so uncommitted source edits survive.
+try {
+  if (hadIndexBackup && existsSync(adminIndexBackup)) {
+    cpSync(adminIndexBackup, adminIndex);
+    rmSync(adminIndexBackup, { force: true });
+    console.log('  (restored admin/index.html)');
+  }
+} catch (err) {
+  console.error('  WARN: could not restore admin/index.html:', err.message);
+}
 
 // 4. Stage admin into main dist/
 const dist = path.resolve(__dirname, 'dist');

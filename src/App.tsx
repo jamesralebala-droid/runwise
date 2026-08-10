@@ -13,6 +13,8 @@ declare global {
 // Resolve the brand logo against the deploy base so it works at any path
 // (root domain, /app/, or the GitHub Pages subpath).
 const LOGO_SRC = `${import.meta.env.BASE_URL}runwise-logo.svg`;
+// Light-on-dark variant for the green sidebar.
+const LOGO_LIGHT_SRC = `${import.meta.env.BASE_URL}runwise-logo-light.svg`;
 
 // The existing RunWise SPA (app.js) expects this exact HTML structure in the DOM.
 // We render it once on mount and never re-render, because app.js takes over
@@ -23,7 +25,7 @@ const APP_HTML = `<!-- TOAST -->
 <!-- AUTH SCREEN -->
 <div id="authScreen" class="auth-wrap">
   <p class="tag">Botswana &bull; South Africa &bull; Zimbabwe &bull; Zambia</p>
-  <h1>RunWise</h1>
+  <img class="auth-logo" src="${LOGO_SRC}" alt="RunWise">
   <div class="auth-tabs">
     <button id="tabLogin" class="active">Log in</button>
     <button id="tabSignup">Sign up</button>
@@ -96,8 +98,7 @@ const APP_HTML = `<!-- TOAST -->
 <div id="app" class="hidden">
   <aside class="sidebar">
     <div class="brand">
-      <img src="${LOGO_SRC}" alt="RunWise">
-      <div><strong>RunWise</strong><span>Your Cart. Our Run.</span></div>
+      <img class="brand-logo" src="${LOGO_LIGHT_SRC}" alt="RunWise">
     </div>
     <nav id="nav"></nav>
     <button id="modeBtn" class="mode"></button>
@@ -213,6 +214,13 @@ function App() {
     // working on any deploy path (Vercel root domain or GitHub Pages subpath).
     const scriptBase = import.meta.env.BASE_URL || '/';
     window.RUNWISE_BASE = scriptBase;
+
+    // Base-aware favicon (RunWise mark) so /app is branded on any deploy path.
+    const favicon = document.createElement('link');
+    favicon.rel = 'icon';
+    favicon.type = 'image/svg+xml';
+    favicon.href = scriptBase + 'runwise-mark.svg';
+    document.head.appendChild(favicon);
     const scripts = ['config.js', 'app.js', 'legal-v11.js', 'session-fix.js', 'notification-system.js'];
     let loaded = 0;
     scripts.forEach((src) => {
