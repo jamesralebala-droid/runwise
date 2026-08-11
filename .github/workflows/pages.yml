@@ -28,12 +28,14 @@ jobs:
         # built-in builder publishes the RAW repository (app/index.html still points at
         # /src/main.tsx) and overwrites this workflow's built output — the app goes blank.
         # Fail loudly here instead of silently shipping a broken site.
+        env:
+          # gh does not pick up the workflow token automatically — it needs GH_TOKEN.
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # Authenticated GET — GITHUB_TOKEN carries the "Pages" read permission, which is
-          # all this endpoint requires.
-          if ! PAGES_JSON=$(gh api "repos/${{ github.repository }}/pages"); then
-            echo "::error::Could not read GitHub Pages settings with the workflow token. Ensure the workflow's GITHUB_TOKEN has the Pages read permission."
+          # Authenticated GET — the workflow token's "pages: write" permission covers this read.
+          if ! PAGES_JSON=$(gh api "repos/${{ github.repository }}/pages" 2>&1); then
+            echo "::error::Could not read GitHub Pages settings: $PAGES_JSON"
             exit 1
           fi
           BUILD_TYPE=$(printf '%s' "$PAGES_JSON" | jq -r '.build_type // "unknown"')
