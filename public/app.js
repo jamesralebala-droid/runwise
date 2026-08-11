@@ -217,7 +217,14 @@ $('#signupForm').onsubmit = async e => {
   const { data, error } = await sb.auth.signUp({
     email: f.get('email'),
     password: f.get('password'),
-    options: { data: { full_name: f.get('full_name'), role: f.get('role') } },
+    options: {
+      data: { full_name: f.get('full_name'), role: f.get('role') },
+      // Email confirmation is required — after the user clicks the link in the
+      // confirmation email, land them back on the app so supabase-js picks up
+      // the session and signs them in (instead of falling back to the Site URL
+      // configured in the Supabase dashboard, which may be localhost).
+      emailRedirectTo: window.location.origin + window.location.pathname,
+    },
   });
   if (error) { $('#signupError').textContent = friendlyError(error, 'Could not create the account.'); setBusy(button, false); return; }
   if (data.session) {
@@ -226,7 +233,7 @@ $('#signupForm').onsubmit = async e => {
     await recordAcceptance('terms', 'registration');
     await recordAcceptance('privacy', 'registration');
   }
-  toast('Account created. Check your email to confirm, then log in.');
+  toast('Account created. Check your email to confirm your address, then log in (check spam if you don\'t see it).');
   $('#tabLogin').click();
   setBusy(button, false);
 };
