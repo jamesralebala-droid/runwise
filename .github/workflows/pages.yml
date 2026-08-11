@@ -23,6 +23,26 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Verify GitHub Pages source is GitHub Actions
+        # Guard: if Pages is set to "Deploy from a branch" (build_type=legacy), GitHub's
+        # built-in builder publishes the RAW repository (app/index.html still points at
+        # /src/main.tsx) and overwrites this workflow's built output — the app goes blank.
+        # Fail loudly here instead of silently shipping a broken site.
+        run: |
+          set -euo pipefail
+          # Authenticated GET — GITHUB_TOKEN carries the "Pages" read permission, which is
+          # all this endpoint requires.
+          if ! PAGES_JSON=$(gh api "repos/${{ github.repository }}/pages"); then
+            echo "::error::Could not read GitHub Pages settings with the workflow token. Ensure the workflow's GITHUB_TOKEN has the Pages read permission."
+            exit 1
+          fi
+          BUILD_TYPE=$(printf '%s' "$PAGES_JSON" | jq -r '.build_type // "unknown"')
+          if [ "$BUILD_TYPE" != "workflow" ]; then
+            echo "::error title=GitHub Pages misconfigured::build_type is '$BUILD_TYPE' (expected 'workflow')."
+            echo "::error::Fix: repo → Settings → Pages → Build and deployment → Source → select 'GitHub Actions'. Otherwise GitHub publishes the raw repo (app/index.html with /src/main.tsx) over the built site and the app shows a blank page."
+            exit 1
+          fi
+          echo "Pages source OK: build_type=workflow"
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
