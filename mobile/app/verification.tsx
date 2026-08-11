@@ -44,7 +44,7 @@ export default function VerificationScreen() {
     <Screen>
       <Card>
         <View style={styles.row}><Text style={styles.title}>Verification status</Text><Pill text={verification?.status || 'not submitted'} tone={verification?.status === 'approved' ? 'success' : verification?.status === 'rejected' ? 'danger' : 'warning'} /></View>
-        <Text style={styles.muted}>{verification?.status === 'approved' ? 'Your identity is approved. You can announce trips once you also have an approved vehicle.' : verification?.status === 'pending' ? 'An administrator is reviewing your private documents.' : 'Submit a valid ID or passport, a clear selfie and next-of-kin details.'}</Text>
+        <Text style={styles.muted}>{verification?.status === 'approved' ? 'Your identity is approved. You can announce trips using any transport mode — public or private. Add a vehicle only if you plan to drive your own car, truck or bike.' : verification?.status === 'pending' ? 'An administrator is reviewing your private documents.' : 'Submit a valid ID or passport, a clear selfie and next-of-kin details.'}</Text>
         {verification?.status === 'rejected' && <View style={styles.feedback}><Text style={styles.feedbackTitle}>Why it was rejected</Text><Text style={styles.feedbackText}>{verification.rejection_reason || 'The documents could not be approved. Please submit clearer or corrected information.'}</Text></View>}
       </Card>
       {canSubmit && <Card>

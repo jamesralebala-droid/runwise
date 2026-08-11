@@ -1103,6 +1103,11 @@ async function announceView() {
           <input name="flight_number" placeholder="e.g. BP 201">
         </label>
       </div>
+      <div id="otherTransportFields" class="full hidden">
+        <label>Describe your transport <span style="color:var(--danger)">*</span>
+          <input name="transport_details" placeholder="e.g. Walking, water taxi, shared minibus">
+        </label>
+      </div>
       <label>From country<input name="from_country" required></label>
       <label>From city<input name="from_city" required></label>
       <label>To country<input name="to_country" required></label>
@@ -1139,6 +1144,8 @@ async function announceView() {
         const vs = document.querySelector('[name="vehicle_id"]');
         const tc = document.querySelector('[name="transport_company"]');
         const al = document.querySelector('[name="airline"]');
+        const otf = document.getElementById('otherTransportFields');
+        const td = document.querySelector('[name="transport_details"]');
         // Determine if this mode needs a vehicle
         const needsVehicle = ['private_car', 'motorcycle', 'truck'].includes(mode);
         // Determine if this mode needs transport company + plate (public passenger transport)
@@ -1148,45 +1155,53 @@ async function announceView() {
           vf.style.display = '';
           ptf.classList.add('hidden');
           atf.classList.add('hidden');
+          otf.classList.add('hidden');
           vd.style.display = '';
           d1.required = true;
           d1.checked = false;
           if (vs) vs.required = true;
           if (tc) tc.required = false;
           if (al) al.required = false;
+          if (td) td.required = false;
         // Public transport modes (bus, combi) — company + plate
         } else if (needsTransitInfo) {
           vf.style.display = 'none';
           ptf.classList.remove('hidden');
           atf.classList.add('hidden');
+          otf.classList.add('hidden');
           vd.style.display = 'none';
           d1.required = false;
           d1.checked = true;
           if (vs) vs.required = false;
           if (tc) tc.required = true;
           if (al) al.required = false;
+          if (td) td.required = false;
         // Air travel — airline + flight
         } else if (mode === 'air_travel') {
           vf.style.display = 'none';
           ptf.classList.add('hidden');
           atf.classList.remove('hidden');
+          otf.classList.add('hidden');
           vd.style.display = 'none';
           d1.required = false;
           d1.checked = true;
           if (vs) vs.required = false;
           if (tc) tc.required = false;
           if (al) al.required = true;
+          if (td) td.required = false;
         // Other modes (bicycle, other) — no extra docs
         } else {
           vf.style.display = 'none';
           ptf.classList.add('hidden');
           atf.classList.add('hidden');
+          otf.classList.toggle('hidden', mode !== 'other');
           vd.style.display = 'none';
           d1.required = false;
           d1.checked = true;
           if (vs) vs.required = false;
           if (tc) tc.required = false;
           if (al) al.required = false;
+          if (td) td.required = mode === 'other';
         }
       }
       toggleTransportMode();
@@ -2016,6 +2031,12 @@ function bindPage() {
       const button = e.submitter;
       setBusy(button, true, 'Publishing…');
       const f = new FormData(e.target);
+      const mode = f.get('transport_mode') || 'private_car';
+      if (['private_car','motorcycle','truck'].includes(mode) && !f.get('vehicle_id')) {
+        toast('Select an approved vehicle for this trip. Add one in My Vehicles if you don\'t have one on file yet.');
+        setBusy(button, false);
+        return;
+      }
       const isIntl = f.get('from_country').trim().toLowerCase() !== f.get('to_country').trim().toLowerCase();
       if (isIntl && !f.get('cb1')) { toast('Please confirm you\'ve read the Cross-Border Delivery Policy.'); setBusy(button, false); return; }
       const services = Array.from(e.target.services.selectedOptions).map(o => o.value);

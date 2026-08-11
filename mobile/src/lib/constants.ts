@@ -28,6 +28,23 @@ export const REQUEST_ICONS: Record<string, string> = {
   large_cargo: '🚚',
 };
 
+export const TRANSPORT_MODES = [
+  { value: 'private_car', label: 'Car', icon: '🚗' },
+  { value: 'bus_coach', label: 'Bus/Coach', icon: '🚌' },
+  { value: 'combi_taxi', label: 'Combi/Taxi', icon: '🚐' },
+  { value: 'truck', label: 'Truck', icon: '🚛' },
+  { value: 'motorcycle', label: 'Bike', icon: '🏍️' },
+  { value: 'bicycle', label: 'Cycle', icon: '🚲' },
+  { value: 'air_travel', label: 'Air', icon: '✈️' },
+  { value: 'other', label: 'Other', icon: '🚶' },
+] as const;
+
+// Modes that run on the runner's own registered, admin-approved vehicle.
+export const PRIVATE_VEHICLE_MODES = ['private_car', 'motorcycle', 'truck'];
+
+// Public passenger-transport modes that need a company name + registration plate.
+export const TRANSIT_MODES = ['bus_coach', 'combi_taxi'];
+
 export const MILESTONES: Record<string, string> = {
   heading_to_pickup: 'Heading to pickup',
   collected: 'Collected',

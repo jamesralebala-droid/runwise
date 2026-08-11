@@ -18,7 +18,14 @@ export type Profile = {
 export type Trip = {
   id: string;
   runner_id: string;
+  transport_mode?: string | null;
   vehicle_id: string | null;
+  transport_company?: string | null;
+  licence_plate?: string | null;
+  transport_id_complete?: boolean | null;
+  airline?: string | null;
+  flight_number?: string | null;
+  transport_details?: string | null;
   from_country: string;
   from_city: string;
   to_country: string;
