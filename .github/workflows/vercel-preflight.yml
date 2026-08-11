@@ -1,0 +1,60 @@
+name: Vercel Preflight
+
+# Vercel builds run on Vercel's own infrastructure (git integration), so a
+# broken install/build can't be guarded from inside a GitHub workflow the way
+# the Pages deploy is. This preflight is the analog: it runs the EXACT commands
+# vercel.json declares, on every push to main and every pull request, and fails
+# loudly here — before Vercel ever starts a build that would fail (or ship a
+# partial site).
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-preflight-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify vercel.json is sane
+        # Fails fast on config problems BEFORE spending a full build cycle.
+        run: |
+          set -euo pipefail
+          INSTALL=$(jq -r '.installCommand' vercel.json)
+          BUILD=$(jq -r '.buildCommand' vercel.json)
+          OUT=$(jq -r '.outputDirectory' vercel.json)
+          [ -n "$INSTALL" ] || { echo "::error title=vercel.json invalid::installCommand is missing."; exit 1; }
+          [ -n "$BUILD" ] || { echo "::error title=vercel.json invalid::buildCommand is missing."; exit 1; }
+          [ "$OUT" = "dist" ] || { echo "::error title=vercel.json invalid::outputDirectory must be 'dist' (got '$OUT')."; exit 1; }
+          # The build script must be invoked via `sh` so it runs even if the
+          # checkout loses the executable bit (build.sh is committed as 100755,
+          # but Vercel-style pipelines can strip it).
+          if [ "$BUILD" = "./build.sh" ]; then
+            echo "::error title=vercel.json unsafe::buildCommand './build.sh' depends on the executable bit — use 'sh ./build.sh'."
+            exit 1
+          fi
+          [ -f build.sh ] || { echo "::error::build.sh referenced by vercel.json does not exist in the repo root."; exit 1; }
+          echo "vercel.json OK: install=$INSTALL build=$BUILD output=$OUT"
+      - name: Run the exact Vercel install command
+        run: sh -c "$(jq -r '.installCommand' vercel.json)"
+      - name: Run the exact Vercel build command
+        run: sh -c "$(jq -r '.buildCommand' vercel.json)"
+      - name: Verify the output directory is complete
+        # The deployed site depends on all three entry pages existing in dist/.
+        run: |
+          set -euo pipefail
+          for f in index.html app/index.html admin/index.html; do
+            [ -f "dist/$f" ] || { echo "::error::Vercel output is incomplete — dist/$f is missing. The build did not produce the full site."; exit 1; }
+          done
+          echo "dist output OK: index.html, app/index.html, admin/index.html all present"
