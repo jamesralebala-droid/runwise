@@ -67,7 +67,7 @@ export function useVerifications() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('runner_verifications')
-        .select('*, profiles(full_name, phone)')
+        .select('*, profiles!runner_verifications_user_id_fkey(full_name, phone)')
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -98,7 +98,7 @@ export function useDisputes() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('disputes')
-        .select('*, profiles(full_name)')
+        .select('*, profiles!disputes_raised_by_fkey(full_name)')
         .in('status', ['open', 'reviewing'])
         .order('created_at', { ascending: false });
       if (error) throw error;
