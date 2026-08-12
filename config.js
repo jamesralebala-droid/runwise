@@ -15,3 +15,15 @@ window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
 // environment (Vercel, Netlify) or Supabase Edge Function for sending pushes.
 const VAPID_PUBLIC_KEY = "BGq8N5ZlemBUQeH_GY8vkh4bUku0MJNBrjCqexhvnypCgmxM0WO1vIZjAcXzYb1Y4xUmz2X5urXhIjJjPOQeZtY";
 window.VAPID_PUBLIC_KEY = VAPID_PUBLIC_KEY;
+
+// ---------------------------------------------------------------------------
+// Pata (Botswana) checkout widget — pay.pata.co.bw.
+// Leave PATA_MERCHANT_ID empty (or "your-merchant-id") to keep the widget
+// dormant: the manual Orange Money flow stays in effect and the widget script
+// is never loaded. Fill in your real merchant ID once Pata activates your
+// account and the widget goes live.
+// ---------------------------------------------------------------------------
+const PATA_MERCHANT_ID = "";
+const PATA_WIDGET_URL = "https://pay.pata.co.bw/widget.js";
+window.PATA_MERCHANT_ID = PATA_MERCHANT_ID;
+window.PATA_WIDGET_URL = PATA_WIDGET_URL;

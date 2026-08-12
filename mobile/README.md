@@ -17,6 +17,19 @@ Android-first Expo React Native conversion of the RunWise customer and runner ex
 
 Admin and business operations intentionally remain in the web dashboard. Real Orange Money, MyZaka and card processing are still blocked on payment-provider credentials; this client clearly retains the existing demo payment behavior rather than pretending a live gateway is connected.
 
+## Pata checkout (web + mobile placement)
+
+Pata (pay.pata.co.bw) is RunWise's Botswana card / mobile-money gateway. Its widget is intended on **both the web app and this mobile client** (Pata placement: Both). The web integration lives in `public/pata.js` + `config.js` (`PATA_MERCHANT_ID`) and is **dormant until Pata activates the merchant account** — with no merchant ID set, no widget script loads and the manual flow stays in effect.
+
+When wiring Pata here, mirror the web contract exactly so both clients reconcile against the same backend RPCs:
+
+1. **Merchant ID**: reuse the same `PATA_MERCHANT_ID` from the web config (one Pata merchant account covers both placements). Keep the widget dormant until Pata confirms the account is live.
+2. **Pay for an order**: create the payment with `create_order_payment(p_order_room_id, p_delivery_fee, p_payment_method: 'pata')`, open the Pata checkout (in-app browser or WebView mounting the widget with the order number as the transaction reference), then submit the returned reference with `submit_payment_reference(...)` — same as `payments.js`. Payments stay `payment_verification_required` until the admin portal verifies them, so no client-side trust is introduced.
+3. **Wallet top-up**: call `request_wallet_topup(p_amount, p_reference)` with the Pata transaction reference after a successful checkout — the same RPC the web wallet uses.
+4. **Dormancy**: while `PATA_MERCHANT_ID` is empty, hide Pata UI and keep the existing demo/manual payment behavior.
+
+Supabase migration `20260812_001_pata_checkout.sql` seeds the `pata` payment method and defines `request_wallet_topup`; it must be applied before Pata goes live.
+
 ## Local setup
 
 1. Copy `.env.example` to `.env`.

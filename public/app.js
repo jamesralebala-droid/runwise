@@ -571,7 +571,7 @@ function paymentSectionHtml({ payment, methods, esc, isCustomer, isDisputed, com
         </div>
         <div class="field">
           <label>Payment method
-            <select id="paymentMethodSelect">${(methods || []).map(m => `<option value="${escapeHtml(m.id)}" ${m.id === 'orange_money' ? 'selected' : ''}>${escapeHtml(m.display_name)}</option>`).join('')}</select>
+            <select id="paymentMethodSelect">${(methods || []).map(m => `<option value="${escapeHtml(m.id)}" ${m.id === 'orange_money' ? 'selected' : ''}>${escapeHtml(m.display_name)}</option>`).join('')}${window.RunWisePata && window.RunWisePata.isConfigured() && !(methods || []).some(m => m.id === 'pata') ? '<option value="pata">Pata (card / mobile money)</option>' : ''}</select>
           </label>
         </div>
         <div class="declaration-box" style="border-color:var(--gold)">
@@ -580,6 +580,9 @@ function paymentSectionHtml({ payment, methods, esc, isCustomer, isDisputed, com
           <div class="legal-check"><label><input type="checkbox" id="acceptRecipientCheck"> I understand that <b>${paymentRecipient(methods, 'orange_money')}</b> will be displayed as the payment recipient.</label></div>
         </div>
         <button class="primary" id="createPaymentBtn">Continue to Payment Instructions</button>
+        ${window.RunWisePata && window.RunWisePata.isConfigured()
+          ? '<button class="secondary" id="pataPayBtn" style="margin-top:8px">⚡ Pay with Pata (card / mobile money)</button>'
+          : ''}
       </div>`;
   }
 
@@ -1049,6 +1052,15 @@ async function walletView() {
       <div class="card stat"><span>Pending</span><strong>${money(w.pending_balance)}</strong></div>
       <div class="card stat"><span>Frozen</span><strong>${money(w.frozen_balance)}</strong></div>
     </div>
+    ${window.RunWisePata && window.RunWisePata.isConfigured()
+      ? `<div class="section"><h3>Top up wallet</h3></div>
+      <div class="card" style="border:2px solid var(--gold)">
+        <p class="muted" style="font-size:13px;margin:0 0 10px">Add funds to your wallet instantly with Pata (card / mobile money).</p>
+        <div class="field"><label>Amount (BWP)<input type="number" id="walletTopupAmount" min="1" step="0.01" inputmode="decimal" placeholder="e.g. 50"></label></div>
+        <button class="primary" id="walletTopupBtn">Pay with Pata</button>
+        <div id="walletTopupError" class="form-error" style="margin-top:8px"></div>
+      </div>`
+      : ''}
     <div class="section"><h3>Recent transactions</h3></div>
     <div class="card">${tx.length ? tx.map(t => `<div class="order"><span>${t.type.replace(/_/g,' ')}</span><span class="price" style="color:${t.amount<0?'var(--danger)':'var(--success)'}">${t.amount<0?'−':'+'}${money(Math.abs(t.amount))}</span></div>`).join('') : '<div class="empty">No transactions yet.</div>'}</div>`;
 }
@@ -1927,6 +1939,50 @@ $('#requestForm').onsubmit = async e => {
   }
 };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#requestModal').classList.contains('hidden')) closeRequestModal(); });
+
+// Wallet top-up via Pata (dormant — only active when Pata is configured).
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('#walletTopupBtn');
+  if (!btn || !window.RunWisePata) return;
+  e.preventDefault();
+  const errBox = document.getElementById('walletTopupError');
+  if (errBox) errBox.textContent = '';
+  const amount = parseFloat(document.getElementById('walletTopupAmount')?.value);
+  if (!amount || amount <= 0) {
+    if (errBox) errBox.textContent = 'Enter a valid amount.';
+    return;
+  }
+  setBusy(btn, true, 'Opening Pata…');
+  window.RunWisePata.open({
+    amount,
+    reference: 'RW-WT-' + state.profile.id.slice(0, 8).toUpperCase(),
+    description: 'RunWise wallet top-up',
+    onSuccess: async (payload) => {
+      setBusy(btn, false);
+      const ref = payload && payload.reference;
+      if (!ref) {
+        if (errBox) errBox.textContent = 'Payment received, but no transaction reference came back. Contact support with your Pata confirmation.';
+        return;
+      }
+      const { error } = await sb.rpc('request_wallet_topup', {
+        p_amount: Number(payload.amount) || amount,
+        p_reference: ref,
+      });
+      if (error) {
+        if (errBox) errBox.textContent = 'Payment received but could not be recorded: ' + friendlyError(error);
+        return;
+      }
+      clearCache('wallet:', 'wallet-tx:');
+      toast('Wallet top-up received. It will appear in your available balance once RunWise verifies the Pata payment.');
+      renderPage();
+    },
+    onError: (err) => {
+      setBusy(btn, false);
+      const msg = err && err.message === '__manual__' ? 'Top-up cancelled.' : (err && err.message) || 'Top-up was not completed.';
+      if (errBox) errBox.textContent = msg;
+    },
+  });
+});
 $('#requestForm').elements.cross_border.addEventListener('change', e => {
   $('#crossBorderChecks').classList.toggle('hidden', !e.target.checked);
   $('#requestForm').querySelectorAll('[name=cb1],[name=cb2]').forEach(cb => { cb.required = e.target.checked; });

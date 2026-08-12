@@ -24,41 +24,13 @@ const APP_HTML = `<!-- TOAST -->
   <p class="tag">Botswana &bull; South Africa &bull; Zimbabwe &bull; Zambia</p>
   <div class="auth-brand">
     <svg class="auth-mark" viewBox="112 30 204 108" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id="goldRunAuth" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0" stop-color="#A9802F"/>
-          <stop offset="0.55" stop-color="#D4AC4F"/>
-          <stop offset="1" stop-color="#EBCF7E"/>
-        </linearGradient>
-      </defs>
-      <g stroke="#123F34" stroke-width="8" stroke-linecap="round">
+      <g fill="#123F34" transform="translate(234 83) scale(0.9373) translate(-85.950 36.000)"><path d="M20.6 0L7 0L7-72L37.4-72Q38.5-72 40.2-71.9Q42-71.9 43.4-71.6Q49.9-70.6 54-67.4Q58.1-64.1 60.1-59.2Q62-54.2 62-48.2Q62-39.2 57.5-32.7Q53-26.3 43.4-24.8L37.4-24.4L20.6-24.4L20.6 0M63 0L47.6 0L33.4-29.3L47.4-32L63 0M20.6-59.3L20.6-37.1L36.8-37.1Q37.9-37.1 39.1-37.2Q40.4-37.3 41.4-37.6Q44.2-38.4 45.7-40.1Q47.2-41.9 47.7-44.1Q48.3-46.2 48.3-48.2Q48.3-50.2 47.7-52.3Q47.2-54.5 45.7-56.3Q44.2-58.1 41.4-58.8Q40.4-59.1 39.1-59.2Q37.9-59.3 36.8-59.3"/></g>
+      <g fill="#A9802F" transform="translate(234 83) scale(0.9373) translate(-85.950 36.000)"><path d="M102.5 0L89.1 0L68-72L82.3-72L95.8-22.5L109.3-71.9L123.6-72L137.1-22.5L150.6-72L164.9-72L143.8 0L130.4 0L116.5-48.6"/></g>
+      <g stroke="#123F34" stroke-width="8" stroke-linecap="round" fill="none">
         <path d="M118 60 L150 60"/>
         <path d="M126 78 L150 78"/>
         <path d="M118 96 L150 96"/>
       </g>
-      <g fill="none" stroke="#123F34" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M160 34 L160 100 L196 132"/>
-        <path d="M160 34 L214 34"/>
-        <path d="M214 40 C 234 40 244 56 244 72 C 244 90 230 101 210 101 C 196 101 187 95 181 85 C 176 77 173 68 172 58 L 160 58"/>
-      </g>
-      <g fill="none" stroke="#123F34" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M196 132 L228 96"/>
-        <path d="M228 96 L262 128"/>
-      </g>
-      <g fill="none" stroke="url(#goldRunAuth)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M262 128 L296 84"/>
-      </g>
-      <g fill="none" stroke="url(#goldRunAuth)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M296 84 L284 68"/>
-        <path d="M296 84 L308 68"/>
-      </g>
-      <g stroke="#123F34" fill="none" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M258 52 L250 42"/>
-        <path d="M253 52 L283 52 C 285 60 284 70 278 73 L 258 73 C 253 73 250 70 250 62 Z"/>
-      </g>
-      <circle cx="256" cy="78" r="5.5" fill="#123F34"/>
-      <circle cx="274" cy="78" r="5.5" fill="#123F34"/>
-      <path d="M259 62 Q 266 67 273 62" stroke="#A9802F" fill="none" stroke-width="3.5" stroke-linecap="round"/>
     </svg>
     <span class="auth-wordmark">RUN<span>WISE</span></span>
     <span class="auth-tagline">Your Cart. Our Run.</span>
@@ -136,41 +108,14 @@ const APP_HTML = `<!-- TOAST -->
   <aside class="sidebar">
     <div class="brand">
       <svg class="brand-mark" viewBox="112 30 204 108" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-        <defs>
-          <linearGradient id="goldRunSide" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stop-color="#C79A3E"/>
-            <stop offset="1" stop-color="#E9CD7A"/>
-          </linearGradient>
-        </defs>
-        <g stroke="#F2EFE5" stroke-width="8" stroke-linecap="round">
-          <path d="M118 60 L150 60"/>
-          <path d="M126 78 L150 78"/>
-          <path d="M118 96 L150 96"/>
-        </g>
-        <g fill="none" stroke="#F2EFE5" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M160 34 L160 100 L196 132"/>
-          <path d="M160 34 L214 34"/>
-          <path d="M214 40 C 234 40 244 56 244 72 C 244 90 230 101 210 101 C 196 101 187 95 181 85 C 176 77 173 68 172 58 L 160 58"/>
-        </g>
-        <g fill="none" stroke="#F2EFE5" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M196 132 L228 96"/>
-          <path d="M228 96 L262 128"/>
-        </g>
-        <g fill="none" stroke="url(#goldRunSide)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M262 128 L296 84"/>
-        </g>
-        <g fill="none" stroke="url(#goldRunSide)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M296 84 L284 68"/>
-          <path d="M296 84 L308 68"/>
-        </g>
-        <g stroke="#F2EFE5" fill="none" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M258 52 L250 42"/>
-          <path d="M253 52 L283 52 C 285 60 284 70 278 73 L 258 73 C 253 73 250 70 250 62 Z"/>
-        </g>
-        <circle cx="256" cy="78" r="5.5" fill="#F2EFE5"/>
-        <circle cx="274" cy="78" r="5.5" fill="#F2EFE5"/>
-        <path d="M259 62 Q 266 67 273 62" stroke="#E9CD7A" fill="none" stroke-width="3.5" stroke-linecap="round"/>
-      </svg>
+      <g fill="#F2EFE5" transform="translate(234 83) scale(0.9373) translate(-85.950 36.000)"><path d="M20.6 0L7 0L7-72L37.4-72Q38.5-72 40.2-71.9Q42-71.9 43.4-71.6Q49.9-70.6 54-67.4Q58.1-64.1 60.1-59.2Q62-54.2 62-48.2Q62-39.2 57.5-32.7Q53-26.3 43.4-24.8L37.4-24.4L20.6-24.4L20.6 0M63 0L47.6 0L33.4-29.3L47.4-32L63 0M20.6-59.3L20.6-37.1L36.8-37.1Q37.9-37.1 39.1-37.2Q40.4-37.3 41.4-37.6Q44.2-38.4 45.7-40.1Q47.2-41.9 47.7-44.1Q48.3-46.2 48.3-48.2Q48.3-50.2 47.7-52.3Q47.2-54.5 45.7-56.3Q44.2-58.1 41.4-58.8Q40.4-59.1 39.1-59.2Q37.9-59.3 36.8-59.3"/></g>
+      <g fill="#E0BE6A" transform="translate(234 83) scale(0.9373) translate(-85.950 36.000)"><path d="M102.5 0L89.1 0L68-72L82.3-72L95.8-22.5L109.3-71.9L123.6-72L137.1-22.5L150.6-72L164.9-72L143.8 0L130.4 0L116.5-48.6"/></g>
+      <g stroke="#F2EFE5" stroke-width="8" stroke-linecap="round" fill="none">
+        <path d="M118 60 L150 60"/>
+        <path d="M126 78 L150 78"/>
+        <path d="M118 96 L150 96"/>
+      </g>
+    </svg>
       <span class="brand-text">
         <strong>RUNWISE</strong>
         <span>Your Cart. Our Run.</span>
@@ -297,7 +242,7 @@ function App() {
     favicon.type = 'image/svg+xml';
     favicon.href = scriptBase + 'runwise-mark.svg';
     document.head.appendChild(favicon);
-    const scripts = ['config.js', 'app.js', 'legal-v11.js', 'session-fix.js', 'notification-system.js', 'payments.js'];
+    const scripts = ['config.js', 'app.js', 'legal-v11.js', 'session-fix.js', 'notification-system.js', 'pata.js', 'payments.js'];
     let loaded = 0;
     scripts.forEach((src) => {
       const s = document.createElement('script');

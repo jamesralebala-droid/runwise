@@ -14,3 +14,6 @@ tsconfig.tsbuildinfo
 
 # Platform-generated workspace snapshot (recreated on each build)
 isolate/
+
+# Supabase CLI local state
+supabase/.temp/

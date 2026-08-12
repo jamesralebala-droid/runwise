@@ -166,6 +166,73 @@
       };
     }
 
+    // Pay with Pata — only rendered when Pata is configured (see app.js
+    // paymentSectionHtml). Creates the order payment as a 'pata' payment, then
+    // hands over to the Pata checkout widget. On success the Pata transaction
+    // reference is submitted automatically so the existing admin-verification
+    // pipeline (verify -> escrow funded -> ledger) runs unchanged. If the
+    // widget is unreachable (not live yet) the user is told to use the manual
+    // flow, which remains fully available.
+    const pataBtn = document.getElementById('pataPayBtn');
+    if (pataBtn && window.RunWisePata) {
+      pataBtn.onclick = async () => {
+        const accepted = document.getElementById('acceptRecipientCheck');
+        if (accepted && !accepted.checked) {
+          toast('Please accept the payment recipient notice before continuing.');
+          return;
+        }
+        const fee = parseFloat(document.getElementById('deliveryFeeInput')?.value);
+        if (!fee || fee <= 0) { toast('Enter a valid delivery fee.'); return; }
+        setBusy(pataBtn, true, 'Preparing…');
+        const { error } = await sb.rpc('create_order_payment', {
+          p_order_room_id: ctx.room.id,
+          p_delivery_fee: fee,
+          p_payment_method: 'pata',
+        });
+        if (error) { toast(friendlyError(error)); setBusy(pataBtn, false); return; }
+        clearCache('room-payment:');
+        // Re-fetch the payment so we can pass its order number as the widget
+        // reference (that is what RunWise will reconcile against).
+        const fresh = await fetchRoomPayment(ctx.room.id);
+        setBusy(pataBtn, false);
+        const orderNo = fresh?.order_no || ctx.room.id.slice(0, 8).toUpperCase();
+        window.RunWisePata.open({
+          amount: fee,
+          reference: orderNo,
+          description: `RunWise order ${orderNo}`,
+          onSuccess: async (payload) => {
+            const ref = payload && payload.reference;
+            if (!ref) {
+              toast('Payment received, but no transaction reference came back. Submit it manually below.');
+              openOrderRoom(ctx.room.id);
+              return;
+            }
+            const { error: refError } = await sb.rpc('submit_payment_reference', {
+              p_payment_id: fresh?.id,
+              p_reference_number: ref,
+              p_amount_reported: Number(payload.amount) || fee,
+              p_screenshot_url: null,
+              p_paid_at: new Date().toISOString(),
+              p_notes: 'Paid via Pata checkout',
+            });
+            if (refError) {
+              toast('Payment received. We could not submit the reference automatically: ' + friendlyError(refError));
+            } else {
+              toast('Pata payment received. Status: PAYMENT VERIFICATION REQUIRED — RunWise will verify it shortly.');
+            }
+            openOrderRoom(ctx.room.id);
+          },
+          onError: (err) => {
+            const msg = err && err.message === '__manual__'
+              ? 'Pata closed. You can complete the payment manually below.'
+              : (err && err.message) || 'Pata payment was not completed. Use the manual option below.';
+            toast(msg);
+            openOrderRoom(ctx.room.id);
+          },
+        });
+      };
+    }
+
     const refForm = document.getElementById('paymentReferenceForm');
     if (refForm) {
       refForm.onsubmit = async e => {

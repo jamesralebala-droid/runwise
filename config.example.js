@@ -5,3 +5,10 @@
 
 const SUPABASE_URL = "https://YOUR-PROJECT-REF.supabase.co";
 const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY";
+
+// Pata (Botswana) checkout widget — pay.pata.co.bw.
+// Leave PATA_MERCHANT_ID empty to keep the widget dormant (the manual
+// payment flow stays in effect). Paste your real merchant ID here once
+// Pata activates your account.
+const PATA_MERCHANT_ID = "";
+const PATA_WIDGET_URL = "https://pay.pata.co.bw/widget.js";
