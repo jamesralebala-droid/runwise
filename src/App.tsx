@@ -31,6 +31,7 @@ const APP_HTML = `<!-- TOAST -->
         <path d="M126 78 L150 78"/>
         <path d="M118 96 L150 96"/>
       </g>
+      <path d="M162 126 L306 126" stroke="#24292F" stroke-width="5" stroke-linecap="round" fill="none"/>
     </svg>
     <span class="auth-wordmark">RUN<span>WISE</span></span>
     <span class="auth-tagline">Your Cart. Our Run.</span>
@@ -115,6 +116,7 @@ const APP_HTML = `<!-- TOAST -->
         <path d="M126 78 L150 78"/>
         <path d="M118 96 L150 96"/>
       </g>
+      <path d="M162 126 L306 126" stroke="#CFCBBF" stroke-width="5" stroke-linecap="round" fill="none"/>
     </svg>
       <span class="brand-text">
         <strong>RUNWISE</strong>

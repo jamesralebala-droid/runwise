@@ -23,7 +23,8 @@ function friendlyError(error, fallback = 'Something went wrong. Please try again
   const message = String(error?.message || error || '').trim();
   if (!message) return fallback;
   if (/load failed|failed to fetch|network|timeout|fetch/i.test(message)) return 'The connection was interrupted. Please try again.';
-  if (/duplicate key|already exists/i.test(message)) return 'This has already been submitted.';
+  if (/rate limit|too many|429/i.test(message)) return 'We have received too many sign-up requests from this network recently. Please wait about an hour and try again, or try from a different network.';
+  if (/already registered|user_exists|duplicate key|already exists/i.test(message)) return 'An account with this email already exists. Try logging in instead, or reset your password.';
   return message;
 }
 
