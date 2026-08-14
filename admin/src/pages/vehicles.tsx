@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useVehicles, useApproveVehicle, useRejectVehicle } from '@/hooks/use-queries';
-import { Loader2, CheckCircle2, XCircle, ExternalLink, Car } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, ExternalLink, Car, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { 
   Dialog,
@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 
 export default function Vehicles() {
-  const { data: vehicles, isLoading } = useVehicles();
+  const { data: vehicles, isLoading, isError, error } = useVehicles();
   const approve = useApproveVehicle();
   const reject = useRejectVehicle();
   
@@ -22,6 +22,24 @@ export default function Vehicles() {
 
   if (isLoading) {
     return <div className="h-full flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin opacity-50" /></div>;
+  }
+
+  if (isError) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-mono font-bold">Vehicle Approvals</h1>
+          <p className="text-muted-foreground mt-1">Review and approve runner transportation.</p>
+        </div>
+        <div className="rounded-xl bg-destructive/10 border border-destructive/30 p-6 flex items-start gap-3">
+          <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium text-destructive">Could not load the vehicle queue.</p>
+            <p className="text-sm text-destructive/80 mt-1">{error instanceof Error ? error.message : 'Unknown error'}</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const handleApprove = (id: string) => {

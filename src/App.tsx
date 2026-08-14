@@ -31,7 +31,7 @@ const APP_HTML = `<!-- TOAST -->
         <path d="M126 78 L150 78"/>
         <path d="M118 96 L150 96"/>
       </g>
-      <path d="M162 126 L306 126" stroke="#24292F" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <path d="M162 126 L306 126" stroke="#A9802F" stroke-width="5" stroke-linecap="round" fill="none"/>
     </svg>
     <span class="auth-wordmark">RUN<span>WISE</span></span>
     <span class="auth-tagline">Your Cart. Our Run.</span>
@@ -116,7 +116,7 @@ const APP_HTML = `<!-- TOAST -->
         <path d="M126 78 L150 78"/>
         <path d="M118 96 L150 96"/>
       </g>
-      <path d="M162 126 L306 126" stroke="#CFCBBF" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <path d="M162 126 L306 126" stroke="#E0BE6A" stroke-width="5" stroke-linecap="round" fill="none"/>
     </svg>
       <span class="brand-text">
         <strong>RUNWISE</strong>
@@ -244,7 +244,7 @@ function App() {
     favicon.type = 'image/svg+xml';
     favicon.href = scriptBase + 'runwise-mark.svg';
     document.head.appendChild(favicon);
-    const scripts = ['config.js', 'app.js', 'legal-v11.js', 'session-fix.js', 'notification-system.js', 'pata.js', 'payments.js'];
+    const scripts = ['config.js', 'app.js', 'upload-fix.js', 'legal-v11.js', 'session-fix.js', 'notification-system.js', 'pata.js', 'payments.js'];
     let loaded = 0;
     scripts.forEach((src) => {
       const s = document.createElement('script');

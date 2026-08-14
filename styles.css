@@ -316,3 +316,10 @@ body.modal-open{overflow:hidden}
 .waitlist-table .notes-input:focus{background:#fff}
 .csv-btn{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid var(--line);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;color:var(--green);cursor:pointer;transition:all .15s}
 .csv-btn:hover{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* --- File upload enhancer (upload-fix.js) --- */
+.upload-fix-box{position:relative;cursor:pointer}
+.upload-fix-box > input[type="file"]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:1}
+.upload-feedback{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.upload-feedback-name{font-size:12px;font-weight:600;color:var(--green);word-break:break-all;line-height:1.4}
+.upload-feedback-preview{max-height:140px;width:auto;border-radius:10px;border:1px solid var(--line);object-fit:cover}

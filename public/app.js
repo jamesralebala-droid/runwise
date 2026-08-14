@@ -347,7 +347,16 @@ sb.auth.onAuthStateChange((event, session) => {
     }, 0);
     return;
   }
-  setTimeout(() => { if (session) boot(session); else showAuth(); }, 0);
+  // Only enter the app on an explicit sign-in in THIS page session: SIGNED_IN
+  // fires when the user submits the login form, clicks the email-confirmation
+  // link, or finishes the password-recovery callback. A restored INITIAL_SESSION
+  // from a previous visit must NOT silently auto-login — the auth screen is
+  // shown instead so every fresh load starts at the login page.
+  const explicitSignIn = event === 'SIGNED_IN' || event === 'USER_UPDATED';
+  setTimeout(() => {
+    if (session && (explicitSignIn || state.profile)) boot(session);
+    else showAuth();
+  }, 0);
 });
 
 async function showAuth() {

@@ -83,7 +83,10 @@ export function useVehicles() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('vehicles')
-        .select('*, profiles(full_name)')
+        // vehicles has two FKs to profiles (user_id, reviewed_by), so the
+        // bare `profiles(...)` embedding is ambiguous and PostgREST returns
+        // HTTP 300 PGRST201. Pin the owner relationship explicitly.
+        .select('*, profiles!vehicles_user_id_fkey(full_name)')
         .eq('review_status', 'pending')
         .order('created_at', { ascending: false });
       if (error) throw error;
