@@ -699,6 +699,9 @@ async function signedUrl(path) {
   return data.signedUrl;
 }
 async function uploadToStorage(file, folder) {
+  if (!file || typeof file.size !== 'number' || file.size === 0) {
+    throw new Error('No file was selected. Tap the upload box and choose a photo first.');
+  }
   const path = `${folder}/${state.profile.id}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
   const { error } = await sb.storage.from('runwise-uploads').upload(path, file, { upsert: true });
   if (error) throw error;
@@ -1238,6 +1241,8 @@ async function verificationView() {
   const v = await fetchMyVerification();
   const statusBadge = v ? `<span class="badge ${v.status==='approved'?'success':v.status==='rejected'?'danger':'warning'}">${escapeHtml(titleCase(v.status))}</span>` : '<span class="badge neutral">Not submitted</span>';
   return `<div class="card"><h3>Verification status ${statusBadge}</h3>
+    ${v && v.status === 'approved' ? '<p class="muted">Your identity is verified. You can announce trips and carry deliveries.</p>' : ''}
+    ${v && v.status === 'pending' ? `<div class="declaration-box"><b>Under review</b><p style="margin:4px 0 0;font-size:14px">Submitted ${new Date(v.created_at).toLocaleString()}. An administrator usually reviews documents within 24 hours — the outcome will appear here.</p></div>` : ''}
     ${v && v.status === 'rejected' ? `<div class="review-feedback"><b>Why it was rejected</b><p>${escapeHtml(v.rejection_reason || 'The documents could not be approved. Please submit clearer or corrected information.')}</p></div>` : ''}
     ${!v || v.status === 'rejected' ? `
     <form id="kycForm" class="grid2">
@@ -1245,6 +1250,7 @@ async function verificationView() {
       <label>Selfie photo<input type="file" name="selfie" accept="image/*" required></label>
       <label>Next of kin name<input name="kin_name" required></label>
       <label>Next of kin phone<input name="kin_phone" required></label>
+      <div class="full form-error" id="kycFormError"></div>
       <button class="primary full">Submit for Review</button>
     </form>` : '<p>Your documents are on file. An admin will review them shortly.</p>'}
   </div>`;
@@ -2168,11 +2174,30 @@ function bindPage() {
   if (kf) kf.onsubmit = async e => {
     e.preventDefault();
     const button = e.submitter;
-    setBusy(button, true, 'Uploading…');
+    const errBox = $('#kycFormError');
+    if (errBox) errBox.textContent = '';
     const f = new FormData(e.target);
+    const hasFile = file => file && typeof file.size === 'number' && file.size > 0;
+    if (!hasFile(f.get('id_document'))) {
+      const msg = 'Please choose your ID or passport photo first — tap the upload box to pick the file.';
+      if (errBox) errBox.textContent = msg;
+      toast(msg);
+      return;
+    }
+    if (!hasFile(f.get('selfie'))) {
+      const msg = 'Please choose your selfie photo first — tap the upload box to pick the file.';
+      if (errBox) errBox.textContent = msg;
+      toast(msg);
+      return;
+    }
+    setBusy(button, true, 'Uploading…');
     try {
-      const idPath = await uploadToStorage(f.get('id_document'), 'kyc');
-      const selfiePath = await uploadToStorage(f.get('selfie'), 'kyc');
+      let idPath;
+      try { idPath = await uploadToStorage(f.get('id_document'), 'kyc'); }
+      catch (uploadErr) { throw new Error('Your ID photo could not be uploaded. Check your connection and try again.'); }
+      let selfiePath;
+      try { selfiePath = await uploadToStorage(f.get('selfie'), 'kyc'); }
+      catch (uploadErr) { throw new Error('Your selfie could not be uploaded. Check your connection and try again.'); }
       const { error } = await idempotentWrite('runner_verifications', {
         id: newId(), user_id: state.profile.id, id_document_url: idPath, selfie_url: selfiePath,
         next_of_kin_name: f.get('kin_name'), next_of_kin_phone: f.get('kin_phone'), status: 'pending',
@@ -2181,7 +2206,12 @@ function bindPage() {
       clearCache('verification:', 'pending-verifications');
       toast('Submitted for review.');
       renderPage();
-    } catch (err) { toast(friendlyError(err)); setBusy(button, false); }
+    } catch (err) {
+      const msg = friendlyError(err);
+      if (errBox) errBox.textContent = msg;
+      toast(msg);
+      setBusy(button, false);
+    }
   };
 
   const vf = $('#vehicleForm');
