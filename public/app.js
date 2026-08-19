@@ -855,6 +855,11 @@ async function attemptSwitchRole(newRole, afterPage) {
   const { error } = await sb.from('profiles').update({ active_role: newRole }).eq('id', state.profile.id);
   if (error) { toast(friendlyError(error)); setBusy($('#modeBtn'), false); return; }
   state.profile.active_role = newRole;
+  // Clear all role-specific cached queries so the new role gets fresh data
+  clearCache('home:', 'trips:', 'requests:', 'customer-matches:', 'orders:', 'wallet:',
+    'wallet-tx:', 'runner:', 'my-trips:', 'matches:', 'earnings:',
+    'verification:', 'vehicle:', 'vehicles:', 'pending-verifications', 'pending-vehicles',
+    'open-requests', 'open-trips', 'rooms:', 'settlements:');
   state.page = afterPage;
   render();
 }
@@ -902,6 +907,10 @@ function showRunnerActivationGate(newRole, afterPage) {
     el.classList.add('hidden');
     await sb.from('profiles').update({ active_role: newRole }).eq('id', state.profile.id);
     state.profile.active_role = newRole;
+    clearCache('home:', 'trips:', 'requests:', 'customer-matches:', 'orders:', 'wallet:',
+      'wallet-tx:', 'runner:', 'my-trips:', 'matches:', 'earnings:',
+      'verification:', 'vehicle:', 'vehicles:', 'pending-verifications', 'pending-vehicles',
+      'open-requests', 'open-trips', 'rooms:', 'settlements:');
     state.page = afterPage;
     render();
   };
@@ -916,6 +925,12 @@ function render() {
 
   $('#portalName').textContent = role === 'runner' ? 'RUNNER MODE' : role === 'admin' ? 'ADMIN MODE' : 'RUNWISE MARKETPLACE';
   $('#pageTitle').textContent = titles[state.page] || 'Home';
+
+  // Guard: if state.page doesn't exist in the current role's menu, reset to default
+  const validPages = menus[role].map(([k]) => k);
+  if (!validPages.includes(state.page)) {
+    state.page = role === 'runner' ? 'runner' : role === 'admin' ? 'adminHome' : 'home';
+  }
 
   if (isAdminUser) {
     const order = ['customer', 'runner', 'admin'];
