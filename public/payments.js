@@ -453,4 +453,7 @@
     const el = e.target.closest('[data-page="earnings"]');
     if (el) { state.page = 'earnings'; render(); }
   });
+
+  // Expose cleanup for logout — app.js calls this before signOut.
+  window.__clearPaymentPolling = () => { if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; } };
 })();

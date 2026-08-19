@@ -323,7 +323,7 @@ $('#recoverySubmitBtn').onclick = async () => {
   }, 3000);
 };
 
-$('#signOutBtn').onclick = async () => { clearCache(); await sb.auth.signOut(); };
+$('#signOutBtn').onclick = async () => { clearCache(); window.__clearPaymentPolling?.(); await sb.auth.signOut(); };
 
 // ---------------------------------------------------------------------------
 // SESSION HANDLING
@@ -1026,7 +1026,7 @@ function tripCard(t) {
       <div class="pills"><span>${{
         'private_car':'🚗 Car','bus_coach':'🚌 Bus/Coach','combi_taxi':'🚐 Combi/Taxi',         'truck':'🚛 Truck','motorcycle':'🏍️ Motorcycle','bicycle':'🚲 Bicycle',
         'air_travel':'✈️ Air','other':'🚶 Other'
-      }[t.transport_mode] || '🚗 Car'}</span>${['bus_coach','combi_taxi'].includes(t.transport_mode) && t.transport_company ? `<span>${t.transport_company}</span>` : ''}${['bus_coach','combi_taxi'].includes(t.transport_mode) && t.licence_plate ? `<span>${t.licence_plate}</span>` : ''}${['bus_coach','combi_taxi'].includes(t.transport_mode) && !t.transport_id_complete ? `<span class="badge warning">⚠️ ID</span>` : ''}${t.transport_mode === 'air_travel' && t.airline ? `<span>✈️ ${t.airline}</span>` : ''}${t.transport_mode === 'air_travel' && t.flight_number ? `<span>${t.flight_number}</span>` : ''}</div>
+      }[t.transport_mode] || '🚗 Car'}</span>${['bus_coach','combi_taxi'].includes(t.transport_mode) && t.transport_company ? `<span>${escapeHtml(t.transport_company)}</span>` : ''}${['bus_coach','combi_taxi'].includes(t.transport_mode) && t.licence_plate ? `<span>${escapeHtml(t.licence_plate)}</span>` : ''}${['bus_coach','combi_taxi'].includes(t.transport_mode) && !t.transport_id_complete ? `<span class="badge warning">⚠️ ID</span>` : ''}${t.transport_mode === 'air_travel' && t.airline ? `<span>✈️ ${escapeHtml(t.airline)}</span>` : ''}${t.transport_mode === 'air_travel' && t.flight_number ? `<span>${escapeHtml(t.flight_number)}</span>` : ''}</div>
     </div>
     <div class="price"><small>Potential earnings</small><strong>${money(t.potential_earnings)}</strong>
       <button class="secondary matchTrip" data-id="${escapeHtml(t.id)}" data-from="${escapeHtml(t.from_city)}" data-to="${escapeHtml(t.to_city)}">Match a Request</button>
@@ -1882,7 +1882,7 @@ function bindOrderRoom(roomId, isCustomer) {
     if (!result.distance_meters && result.distance_meters !== 0) {
       box.innerHTML = '<p><small>Waiting for both parties to share their location.</small></p>';
     } else if (result.revealed) {
-      box.innerHTML = `<p><b>You're close (${Math.round(result.distance_meters)}m away).</b><br>Contact number: <b>${result.phone || 'not on file'}</b></p>`;
+      box.innerHTML = `<p><b>You're close (${Math.round(result.distance_meters)}m away).</b><br>Contact number: <b>${escapeHtml(result.phone) || 'not on file'}</b></p>`;
     } else {
       box.innerHTML = `<p><small>Still ${Math.round(result.distance_meters)}m apart — get closer to reveal the contact number.</small></p>`;
     }
