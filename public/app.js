@@ -213,6 +213,7 @@ $('#signupForm').onsubmit = async e => {
   const f = new FormData(e.target);
   if (!f.get('accept_terms') || !f.get('accept_privacy')) {
     $('#signupError').textContent = 'Please accept both the Terms and the Privacy Policy to continue.';
+    setBusy(button, false);
     return;
   }
   const { data, error } = await sb.auth.signUp({
