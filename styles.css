@@ -323,3 +323,148 @@ body.modal-open{overflow:hidden}
 .upload-feedback{display:flex;flex-direction:column;gap:6px;margin-top:8px}
 .upload-feedback-name{font-size:12px;font-weight:600;color:var(--green);word-break:break-all;line-height:1.4}
 .upload-feedback-preview{max-height:140px;width:auto;border-radius:10px;border:1px solid var(--line);object-fit:cover}
+
+
+/* ─── Auth screen entrance animations ─── */
+@keyframes authFadeUp {
+  from { opacity:0; transform:translateY(28px) scale(0.97); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes authLogoPop {
+  0%   { opacity:0; transform:scale(0.72) rotate(-8deg); }
+  60%  { opacity:1; transform:scale(1.06) rotate(1deg); }
+  100% { opacity:1; transform:scale(1) rotate(0deg); }
+}
+@keyframes authWordmarkFade {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes fieldSlideUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes tabPanelIn {
+  from { opacity:0; transform:translateX(12px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+@keyframes tabPanelOut {
+  from { opacity:1; transform:translateX(0); }
+  to   { opacity:0; transform:translateX(-12px); }
+}
+@keyframes errorShake {
+  0%,100% { transform:translateX(0); }
+  15%     { transform:translateX(-6px); }
+  30%     { transform:translateX(5px); }
+  45%     { transform:translateX(-4px); }
+  60%     { transform:translateX(3px); }
+  75%     { transform:translateX(-2px); }
+}
+@keyframes toastSlideUp {
+  from { opacity:0; transform:translateX(-50%) translateY(24px); }
+  to   { opacity:1; transform:translateX(-50%) translateY(0); }
+}
+@keyframes buttonPulse {
+  0%   { box-shadow:0 0 0 0 rgba(18,63,52,.35); }
+  70%  { box-shadow:0 0 0 10px rgba(18,63,52,0); }
+  100% { box-shadow:0 0 0 0 rgba(18,63,52,0); }
+}
+@keyframes goldGlow {
+  0%   { box-shadow:0 0 0 0 rgba(201,163,74,.3); }
+  70%  { box-shadow:0 0 0 8px rgba(201,163,74,0); }
+  100% { box-shadow:0 0 0 0 rgba(201,163,74,0); }
+}
+@keyframes logoFloat {
+  0%,100% { transform:translateY(0); }
+  50%     { transform:translateY(-4px); }
+}
+
+/* Auth card entrance */
+.auth-wrap {
+  animation: authFadeUp 0.55s cubic-bezier(0.22,1,0.36,1) both;
+}
+/* Logo mark */
+.auth-brand .auth-mark {
+  animation: authLogoPop 0.65s cubic-bezier(0.22,1,0.36,1) 0.12s both;
+}
+/* Wordmark text */
+.auth-brand .auth-wordmark {
+  animation: authWordmarkFade 0.5s ease 0.3s both;
+}
+/* Tagline */
+.auth-brand .auth-tagline {
+  animation: authWordmarkFade 0.5s ease 0.42s both;
+}
+
+/* Staggered field entrance (login form) */
+#loginForm .field:nth-child(1) { animation: fieldSlideUp 0.4s ease 0.35s both; }
+#loginForm .field:nth-child(2) { animation: fieldSlideUp 0.4s ease 0.42s both; }
+#loginForm .forgot-row        { animation: fieldSlideUp 0.4s ease 0.48s both; }
+#loginForm .primary           { animation: fieldSlideUp 0.4s ease 0.54s both; }
+
+/* Staggered field entrance (signup form) */
+#signupForm .field:nth-child(1) { animation: fieldSlideUp 0.4s ease 0.15s both; }
+#signupForm .field:nth-child(2) { animation: fieldSlideUp 0.4s ease 0.22s both; }
+#signupForm .field:nth-child(3) { animation: fieldSlideUp 0.4s ease 0.28s both; }
+#signupForm .field:nth-child(4) { animation: fieldSlideUp 0.4s ease 0.34s both; }
+#signupForm .field:nth-child(5) { animation: fieldSlideUp 0.4s ease 0.40s both; }
+#signupForm .field:nth-child(6) { animation: fieldSlideUp 0.4s ease 0.46s both; }
+#signupForm .primary           { animation: fieldSlideUp 0.4s ease 0.52s both; }
+
+/* Tab panel cross-fade */
+.auth-wrap .tab-fade-in {
+  animation: tabPanelIn 0.3s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+/* Error shake */
+.auth-wrap .shake {
+  animation: errorShake 0.45s ease both;
+}
+
+/* Toast slide-up */
+.toast.show {
+  animation: toastSlideUp 0.35s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+/* Primary button hover glow */
+.primary:hover:not(:disabled) {
+  animation: buttonPulse 0.6s ease;
+}
+
+/* Role-pick button click */
+.role-pick button {
+  transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.role-pick button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* Auth card subtle hover glow (desktop) */
+@media (hover:hover) {
+  .auth-wrap {
+    transition: box-shadow 0.35s ease, transform 0.35s ease;
+  }
+  .auth-wrap:hover {
+    box-shadow: 0 12px 40px rgba(18,63,52,.10), 0 2px 8px rgba(18,63,52,.06);
+    transform: translateY(-2px);
+  }
+}
+
+/* Focus ring transition */
+.field input, .field select {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.field input:focus, .field select:focus {
+  box-shadow: 0 0 0 3px rgba(201,163,74,.15);
+}
+
+/* Logo float on idle (after initial entrance) */
+.auth-brand .auth-mark {
+  animation: authLogoPop 0.65s cubic-bezier(0.22,1,0.36,1) 0.12s both,
+             logoFloat 4s ease-in-out 1.2s infinite;
+}
+
+/* Disabled button subtle pulse */
+.primary:disabled {
+  animation: none;
+}
+

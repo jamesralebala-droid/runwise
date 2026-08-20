@@ -185,8 +185,8 @@ function legalLinkHtml(type, label) {
 // ---------------------------------------------------------------------------
 // AUTH SCREEN WIRING
 // ---------------------------------------------------------------------------
-$('#tabLogin').onclick = () => { $('#tabLogin').classList.add('active'); $('#tabSignup').classList.remove('active'); $('#loginForm').classList.remove('hidden'); $('#signupForm').classList.add('hidden'); };
-$('#tabSignup').onclick = () => { $('#tabSignup').classList.add('active'); $('#tabLogin').classList.remove('active'); $('#signupForm').classList.remove('hidden'); $('#loginForm').classList.add('hidden'); };
+$('#tabLogin').onclick = () => { $('#tabLogin').classList.add('active'); $('#tabSignup').classList.remove('active'); animateTabSwitch($('#loginForm'), $('#signupForm')); };
+$('#tabSignup').onclick = () => { $('#tabSignup').classList.add('active'); $('#tabLogin').classList.remove('active'); animateTabSwitch($('#signupForm'), $('#loginForm')); };
 
 document.querySelectorAll('.role-pick button').forEach(b => b.onclick = () => {
   document.querySelectorAll('.role-pick button').forEach(x => x.classList.remove('active'));
@@ -201,7 +201,7 @@ $('#loginForm').onsubmit = async e => {
   setBusy(button, true, 'Logging in…');
   const f = new FormData(e.target);
   const { error } = await sb.auth.signInWithPassword({ email: f.get('email'), password: f.get('password') });
-  if (error) $('#loginError').textContent = friendlyError(error, 'Could not log in.');
+  if (error) { $('#loginError').textContent = friendlyError(error, 'Could not log in.'); shakeError($('#loginError')); }
   setBusy(button, false);
 };
 
@@ -228,7 +228,7 @@ $('#signupForm').onsubmit = async e => {
       emailRedirectTo: window.location.origin + window.location.pathname,
     },
   });
-  if (error) { $('#signupError').textContent = friendlyError(error, 'Could not create the account.'); setBusy(button, false); return; }
+  if (error) { $('#signupError').textContent = friendlyError(error, 'Could not create the account.'); shakeError($('#signupError')); setBusy(button, false); return; }
   if (data.session) {
     // No email confirmation required — we have a session now, record acceptance right away.
     state.profile = { id: data.user.id, active_role: f.get('role') };
@@ -281,7 +281,7 @@ $('#sendResetBtn').onclick = async () => {
   });
   setBusy($('#sendResetBtn'), false);
   if (error) {
-    $('#resetError').textContent = friendlyError(error, 'Could not send reset email. Please try again.');
+    $('#resetError').textContent = friendlyError(error, 'Could not send reset email. Please try again.'); shakeError($('#resetError'));
     return;
   }
   $('#resetSuccess').classList.remove('hidden');
@@ -295,18 +295,18 @@ $('#recoverySubmitBtn').onclick = async () => {
   const confirm = $('#recoveryConfirm').value;
   $('#recoveryError').textContent = '';
   if (!pw || pw.length < 6) {
-    $('#recoveryError').textContent = 'Password must be at least 6 characters.';
+    $('#recoveryError').textContent = 'Password must be at least 6 characters.'; shakeError($('#recoveryError'));
     return;
   }
   if (pw !== confirm) {
-    $('#recoveryError').textContent = 'Passwords do not match.';
+    $('#recoveryError').textContent = 'Passwords do not match.'; shakeError($('#recoveryError'));
     return;
   }
   setBusy($('#recoverySubmitBtn'), true, 'Updating…');
   const { error } = await sb.auth.updateUser({ password: pw });
   setBusy($('#recoverySubmitBtn'), false);
   if (error) {
-    $('#recoveryError').textContent = friendlyError(error, 'Could not update password. The link may have expired.');
+    $('#recoveryError').textContent = friendlyError(error, 'Could not update password. The link may have expired.'); shakeError($('#recoveryError'));
     return;
   }
   $('#recoveryError').textContent = '';
@@ -353,7 +353,27 @@ sb.auth.onAuthStateChange((event, session) => {
   // link, or finishes the password-recovery callback. A restored INITIAL_SESSION
   // from a previous visit must NOT silently auto-login — the auth screen is
   // shown instead so every fresh load starts at the login page.
-  const explicitSignIn = event === 'SIGNED_IN' || event === 'USER_UPDATED';
+  
+// ── Auth animation helpers ──
+function animateTabSwitch(showEl, hideEl) {
+  // Hide the outgoing panel immediately
+  hideEl.classList.add('hidden');
+  // Show the incoming panel with entrance animation
+  showEl.classList.remove('hidden');
+  showEl.classList.remove('tab-fade-in');
+  // Force reflow so the animation restarts
+  void showEl.offsetWidth;
+  showEl.classList.add('tab-fade-in');
+}
+
+function shakeError(el) {
+  if (!el) return;
+  el.classList.remove('shake');
+  void el.offsetWidth;
+  el.classList.add('shake');
+}
+
+const explicitSignIn = event === 'SIGNED_IN' || event === 'USER_UPDATED';
   setTimeout(() => {
     if (session && (explicitSignIn || state.profile)) boot(session);
     else showAuth();
