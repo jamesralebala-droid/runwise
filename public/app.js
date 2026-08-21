@@ -242,6 +242,50 @@ $('#signupForm').onsubmit = async e => {
 };
 
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// EMAIL NOTIFICATIONS via Resend (direct API call — no Edge Function needed)
+// ---------------------------------------------------------------------------
+const RESEND_KEY = 're_bFa6CRD3_NfM37ToRiwtFy192nCfJ7Vks';
+const EMAIL_FROM = 'RunWise <onboarding@resend.dev>';
+
+const EMAIL_TEMPLATES = {
+  welcome: (d) => ({
+    subject: 'Welcome to RunWise!',
+    html: `<div style="font-family:Inter,system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px"><h1 style="color:#123F34;font-size:24px">Welcome to RunWise, ${d.full_name||''}!</h1><p style="color:#374151;line-height:1.6;font-size:15px">You are now part of Botswana's smartest delivery network.</p><div style="background:#F7F2E8;border-radius:12px;padding:20px;margin:24px 0"><p style="margin:0;color:#123F34;font-weight:600">What you can do next:</p><ul style="color:#374151;font-size:14px;line-height:1.8;margin:8px 0 0 0"><li>Post a delivery request</li><li>Announce a trip (if you are a runner)</li><li>Complete your KYC verification</li></ul></div><a href="https://jamesralebala-droid.github.io/runwise/app/" style="display:inline-block;background:#123F34;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">Open RunWise</a><p style="color:#9CA3AF;font-size:12px;margin-top:32px">RunWise — Deliver Smarter. Move Faster. Earn More.</p></div>`
+  }),
+  order_confirmed: (d) => ({
+    subject: 'Your delivery is on the way!',
+    html: `<div style="font-family:Inter,system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px"><h1 style="color:#123F34;font-size:22px">Order Confirmed</h1><p style="color:#374151;line-height:1.6;font-size:15px">Hi ${d.full_name||''},</p><p style="color:#374151;line-height:1.6;font-size:15px">Your delivery from <b>${d.from_city||''}</b> to <b>${d.to_city||''}</b> has been matched with a runner.</p><a href="https://jamesralebala-droid.github.io/runwise/app/" style="display:inline-block;background:#123F34;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">Track Your Order</a><p style="color:#9CA3AF;font-size:12px;margin-top:32px">RunWise — Deliver Smarter. Move Faster. Earn More.</p></div>`
+  }),
+  delivery_complete: (d) => ({
+    subject: 'Delivery complete!',
+    html: `<div style="font-family:Inter,system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px"><h1 style="color:#123F34;font-size:22px">Delivery Complete</h1><p style="color:#374151;line-height:1.6;font-size:15px">Hi ${d.full_name||''},</p><p style="color:#374151;line-height:1.6;font-size:15px">Your delivery from <b>${d.from_city||''}</b> to <b>${d.to_city||''}</b> has been completed.</p><p style="color:#374151;line-height:1.6;font-size:15px">Rate your experience in the app!</p><a href="https://jamesralebala-droid.github.io/runwise/app/" style="display:inline-block;background:#123F34;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">Open RunWise</a><p style="color:#9CA3AF;font-size:12px;margin-top:32px">RunWise — Deliver Smarter. Move Faster. Earn More.</p></div>`
+  }),
+  kyc_approved: (d) => ({
+    subject: 'Your identity has been verified!',
+    html: `<div style="font-family:Inter,system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px"><h1 style="color:#123F34;font-size:22px">Identity Verified</h1><p style="color:#374151;line-height:1.6;font-size:15px">Hi ${d.full_name||''},</p><p style="color:#374151;line-height:1.6;font-size:15px">Your identity documents have been approved. You are now verified on RunWise.</p><a href="https://jamesralebala-droid.github.io/runwise/app/" style="display:inline-block;background:#123F34;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">Open RunWise</a><p style="color:#9CA3AF;font-size:12px;margin-top:32px">RunWise — Deliver Smarter. Move Faster. Earn More.</p></div>`
+  }),
+  kyc_rejected: (d) => ({
+    subject: 'Action needed — identity verification',
+    html: `<div style="font-family:Inter,system-ui,sans-serif;max-width:560px;margin:0 auto;padding:32px"><h1 style="color:#123F34;font-size:22px">Verification Update</h1><p style="color:#374151;line-height:1.6;font-size:15px">Hi ${d.full_name||''},</p><p style="color:#374151;line-height:1.6;font-size:15px">We could not verify your identity. ${d.reason ? 'Reason: ' + d.reason : 'Please try again with clearer documents.'}</p><a href="https://jamesralebala-droid.github.io/runwise/app/" style="display:inline-block;background:#123F34;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">Resubmit Documents</a><p style="color:#9CA3AF;font-size:12px;margin-top:32px">RunWise — Deliver Smarter. Move Faster. Earn More.</p></div>`
+  })
+};
+
+async function sendEmail(to, template, data) {
+  if (!to || !template || !EMAIL_TEMPLATES[template]) return;
+  const rendered = EMAIL_TEMPLATES[template](data || {});
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + RESEND_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: EMAIL_FROM, to: [to], subject: rendered.subject, html: rendered.html })
+    });
+  } catch (e) { console.warn('Email failed:', e); }
+}
+
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
 // FORGOT PASSWORD / PASSWORD RESET
 // ---------------------------------------------------------------------------
 
