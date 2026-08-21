@@ -193,6 +193,7 @@ create policy "legal_flags_admin_write" on public.legal_compliance_flags
   for all using (public.is_admin()) with check (public.is_admin());
 
 -- has_accepted_current RPC (used by app.js for runner activation gate)
+drop function if exists public.has_accepted_current(text);
 create or replace function public.has_accepted_current(p_document_type text)
 returns boolean
 language plpgsql
@@ -225,6 +226,7 @@ grant execute on function public.has_accepted_current(text) to authenticated;
 -- ---------------------------------------------------------------------------
 -- 7. GET RUNNER WALLET SUMMARY RPC (used by earningsView in payments.js)
 -- ---------------------------------------------------------------------------
+drop function if exists public.get_runner_wallet_summary(uuid);
 create or replace function public.get_runner_wallet_summary(p_runner_id uuid)
 returns json
 language plpgsql
@@ -261,6 +263,7 @@ grant execute on function public.get_runner_wallet_summary(uuid) to authenticate
 -- ---------------------------------------------------------------------------
 -- 8. REQUEST SETTLEMENT RPC (used by payments.js)
 -- ---------------------------------------------------------------------------
+drop function if exists public.request_settlement(numeric, text);
 create or replace function public.request_settlement(p_amount numeric, p_method text)
 returns void
 language plpgsql
