@@ -95,6 +95,20 @@ function setBusy(button, busy, busyLabel = 'Working…') {
   }
 }
 
+// Double-click protection for financial actions
+function withProtection(button, fn) {
+  return async (...args) => {
+    if (button && button.disabled) return;
+    if (button) { button.disabled = true; button.dataset.protected = '1'; }
+    try {
+      return await fn(...args);
+    } finally {
+      if (button) { button.disabled = false; delete button.dataset.protected; }
+    }
+  };
+}
+
+
 function toast(msg) {
   const t = $('#toast');
   t.textContent = msg;
@@ -245,8 +259,9 @@ $('#signupForm').onsubmit = async e => {
 // ---------------------------------------------------------------------------
 // EMAIL NOTIFICATIONS via Resend (direct API call — no Edge Function needed)
 // ---------------------------------------------------------------------------
-const RESEND_KEY = 're_bFa6CRD3_NfM37ToRiwtFy192nCfJ7Vks';
-const EMAIL_FROM = 'RunWise <onboarding@resend.dev>';
+// Email sending is routed through the Supabase Edge Function (send-email)
+// to keep the Resend API key server-side. The Edge Function holds the key as
+// a Supabase secret and is never exposed to the browser.;
 
 const EMAIL_TEMPLATES = {
   welcome: (d) => ({
@@ -272,15 +287,17 @@ const EMAIL_TEMPLATES = {
 };
 
 async function sendEmail(to, template, data) {
-  if (!to || !template || !EMAIL_TEMPLATES[template]) return;
-  const rendered = EMAIL_TEMPLATES[template](data || {});
+  if (!to || !template) return;
+  // Route through Supabase Edge Function — the Resend API key stays server-side.
+  // If the Edge Function is not deployed yet, silently skip (email is non-critical).
   try {
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + RESEND_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: EMAIL_FROM, to: [to], subject: rendered.subject, html: rendered.html })
+    await sb.functions.invoke('send-email', {
+      body: { template, to, data: data || {} },
     });
-  } catch (e) { console.warn('Email failed:', e); }
+  } catch (e) {
+    // Edge Function may not be deployed yet — log but don't break the app flow
+    console.warn('Email delivery skipped (Edge Function unavailable):', e?.message || e);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -371,6 +388,24 @@ $('#recoverySubmitBtn').onclick = async () => {
 $('#signOutBtn').onclick = async () => { clearCache(); window.__clearPaymentPolling?.(); await sb.auth.signOut(); };
 
 // ---------------------------------------------------------------------------
+// AUTH ANIMATION HELPERS (defined once, not inside callbacks)
+// ---------------------------------------------------------------------------
+function animateTabSwitch(showEl, hideEl) {
+  hideEl.classList.add('hidden');
+  showEl.classList.remove('hidden');
+  showEl.classList.remove('tab-fade-in');
+  void showEl.offsetWidth;
+  showEl.classList.add('tab-fade-in');
+}
+
+function shakeError(el) {
+  if (!el) return;
+  el.classList.remove('shake');
+  void el.offsetWidth;
+  el.classList.add('shake');
+}
+
+// ---------------------------------------------------------------------------
 // SESSION HANDLING
 // ---------------------------------------------------------------------------
 sb.auth.onAuthStateChange((event, session) => {
@@ -400,24 +435,6 @@ sb.auth.onAuthStateChange((event, session) => {
   // shown instead so every fresh load starts at the login page.
   
 // ── Auth animation helpers ──
-function animateTabSwitch(showEl, hideEl) {
-  // Hide the outgoing panel immediately
-  hideEl.classList.add('hidden');
-  // Show the incoming panel with entrance animation
-  showEl.classList.remove('hidden');
-  showEl.classList.remove('tab-fade-in');
-  // Force reflow so the animation restarts
-  void showEl.offsetWidth;
-  showEl.classList.add('tab-fade-in');
-}
-
-function shakeError(el) {
-  if (!el) return;
-  el.classList.remove('shake');
-  void el.offsetWidth;
-  el.classList.add('shake');
-}
-
 const explicitSignIn = event === 'SIGNED_IN' || event === 'USER_UPDATED';
   setTimeout(() => {
     if (session && (explicitSignIn || state.profile)) boot(session);
