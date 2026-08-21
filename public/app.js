@@ -427,6 +427,83 @@ function renderLegalIndex() {
     <div class="legal-doc-list">${LEGAL_DOCS.map(([type, label]) => `<a href="#legal/${type}">${label}</a>`).join('')}</div>`;
 }
 
+function sanitizeHtml(html) {
+  let s = html.replace(/<script[\s\S]*?<\/script>/gi, '');
+  s = s.replace(/<iframe[\s\S]*?<\/iframe>/gi, '');
+  s = s.replace(/\bon\w+\s*=\s*['"][^'"]*['"]/gi, '');
+  s = s.replace(/\bon\w+\s*=\s*\S+/gi, '');
+  return s;
+}
+
+
+// ---------------------------------------------------------------------------
+// JOURNEY PROGRESS BAR + LIVE MAP
+// ---------------------------------------------------------------------------
+const JOURNEY_STAGES = [
+  { key: 'heading_to_pickup', label: 'Heading to pickup', icon: '🚶' },
+  { key: 'collected', label: 'Item collected', icon: '📦' },
+  { key: 'journey_started', label: 'Journey started', icon: '🚗' },
+  { key: 'border_reached', label: 'Border reached', icon: '🛂' },
+  { key: 'customs_processing', label: 'Customs processing', icon: '📋' },
+  { key: 'border_cleared', label: 'Border cleared', icon: '✅' },
+  { key: 'destination_reached', label: 'Destination reached', icon: '📍' },
+  { key: 'out_for_delivery', label: 'Out for delivery', icon: '🏃' },
+  { key: 'delivered', label: 'Delivered', icon: '🎉' },
+];
+
+function buildJourneyProgress(milestones) {
+  if (!milestones.length) return '';
+  const completedKeys = new Set(milestones.map(m => m.milestone));
+  const lastMilestone = milestones[milestones.length - 1];
+  const lastIdx = JOURNEY_STAGES.findIndex(s => s.key === lastMilestone?.milestone);
+
+  let html = '<div class="journey-progress">';
+  JOURNEY_STAGES.forEach((stage, i) => {
+    const done = completedKeys.has(stage.key);
+    const isCurrent = i === lastIdx;
+    const cls = done ? (isCurrent ? 'step current' : 'step done') : 'step pending';
+    html += '<div class="' + cls + '">';
+    html += '<span class="step-icon">' + stage.icon + '</span>';
+    html += '<span class="step-label">' + stage.label + '</span>';
+    if (i < JOURNEY_STAGES.length - 1) {
+      html += '<span class="step-connector ' + (done ? 'active' : '') + '"></span>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function buildLiveMap(roomId) {
+  return '<div class="live-map-wrap"><div id="liveMap" style="height:250px;border-radius:var(--radius);z-index:0"></div>' +
+    '<p style="font-size:12px;color:#68756e;margin-top:6px">Both parties must share location for pins to appear. Distance-based contact reveal is available below.</p></div>';
+}
+
+function initLiveMap(roomId) {
+  const mapEl = document.getElementById('liveMap');
+  if (!mapEl || !window.L) return;
+  const map = L.map('liveMap').setView([-24.6282, 25.9231], 12); // Botswana center
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap',
+    maxZoom: 18,
+  }).addTo(map);
+
+  // Fetch both locations
+  sb.from('live_locations').select('*').eq('order_room_id', roomId)
+    .then(({ data }) => {
+      if (!data || !data.length) return;
+      const bounds = [];
+      data.forEach(loc => {
+        const isMe = loc.user_id === state.profile.id;
+        const marker = L.marker([loc.lat, loc.lng]).addTo(map)
+          .bindPopup(isMe ? '📍 You' : '📍 Other party');
+        bounds.push([loc.lat, loc.lng]);
+      });
+      if (bounds.length > 1) map.fitBounds(bounds, { padding: [30, 30] });
+      else if (bounds.length === 1) map.setView(bounds[0], 15);
+    });
+}
+
 async function renderLegalDoc(type) {
   $('#legalDoc').innerHTML = '<p class="loading">Loading…</p>';
   $('#legalToc').innerHTML = '';
@@ -435,7 +512,7 @@ async function renderLegalDoc(type) {
     $('#legalDoc').innerHTML = `<p class="empty">This document isn't available right now.</p><p><a href="#legal">← All legal documents</a></p>`;
     return;
   }
-  $('#legalDoc').innerHTML = doc.body_html;
+  $('#legalDoc').innerHTML = sanitizeHtml(doc.body_html);
   const headings = Array.from($('#legalDoc').querySelectorAll('h2[id]'));
   $('#legalToc').innerHTML = headings.length
     ? `<b>On this page</b>` + headings.map(h => `<a href="#legal/${type}#${h.id}">${h.textContent}</a>`).join('')
@@ -1653,6 +1730,8 @@ async function openOrderRoom(roomId) {
   if (loadError) {
     if (detailHost) detailHost.innerHTML = `<div class="load-error"><b>Order details did not load.</b><span>${escapeHtml(friendlyError(loadError))}</span><button class="primary" id="retryRoom">Try again</button></div>`;
     if ($('#retryRoom')) $('#retryRoom').onclick = () => openOrderRoom(roomId);
+    // Initialize live map after DOM update
+    setTimeout(() => initLiveMap(roomId), 100);
     return;
   }
   const room = roomResult.data;
@@ -1670,10 +1749,15 @@ async function openOrderRoom(roomId) {
     <div>
       <div class="card">
         <h3>Journey timeline</h3>
-        <div class="milestone-list">${milestones.length ? milestones.map(m => `<div class="step"><i>●</i><div><b>${MILESTONE_LABELS[m.milestone]||m.milestone}</b><small>${new Date(m.created_at).toLocaleString()}${m.note?' — '+m.note:''}</small></div></div>`).join('') : '<div class="empty">No milestones yet.</div>'}</div>
+        ${buildJourneyProgress(milestones)}
+        <div class="milestone-list" style="margin-top:12px">${milestones.length ? milestones.map(m => `<div class="step"><i>●</i><div><b>${MILESTONE_LABELS[m.milestone]||m.milestone}</b><small>${new Date(m.created_at).toLocaleString()}${m.note?' — '+m.note:''}</small></div></div>`).join('') : '<div class="empty">No milestones yet.</div>'}</div>
         ${!isCustomer && !isDisputed ? `<div class="section"><h3>Post a milestone</h3></div>
           <select id="milestoneSelect">${Object.entries(MILESTONE_LABELS).map(([v,l]) => `<option value="${v}">${l}</option>`).join('')}</select>
           <button class="secondary" id="postMilestone">Post</button>` : ''}
+      </div>
+      <div class="card">
+        <h3>Live Tracking</h3>
+        ${buildLiveMap(roomId)}
       </div>
       <div class="card">
         <h3>Order Room chat</h3>
@@ -2398,7 +2482,11 @@ function bindPage() {
     if (!data.length) return toast('No acceptance records to export.');
     const headers = Object.keys(data[0]);
     const csv = [headers.join(',')].concat(
-      data.map(row => headers.map(h => `"${String(row[h] ?? '').replace(/"/g, '""')}"`).join(','))
+      data.map(row => headers.map(h => {
+      const raw = String(row[h] ?? '').replace(/"/g, '""');
+      const safe = /^[=+\-@\t]/.test(raw) ? '\t' + raw : raw;
+      return '"' + safe + '"';
+    }).join(','))
     ).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -2407,6 +2495,20 @@ function bindPage() {
     URL.revokeObjectURL(url);
   };
 }
+
+
+// ---------------------------------------------------------------------------
+// Global error handler
+// ---------------------------------------------------------------------------
+window.onerror = function(msg, url, line, col, err) {
+  console.error('[RunWise error]', msg, url, line, col, err);
+  try { toast('Something went wrong. Please refresh the page if it persists.'); } catch(_) {}
+  return false;
+};
+window.addEventListener('unhandledrejection', function(e) {
+  console.error('[RunWise unhandled promise]', e.reason);
+  try { toast('A background task failed. Please check your connection.'); } catch(_) {}
+});
 
 // ---------------------------------------------------------------------------
 // Initial route check — runs once when the script first loads, so opening

@@ -1,5 +1,7 @@
 import { Link } from 'wouter';
 import { useDashboardStats, usePaymentDashboardStats } from '@/hooks/use-queries';
+import { useDailyMetrics } from '@/hooks/use-chart-data';
+import DashboardCharts from '@/components/dashboard-charts';
 import { 
   UserCheck, 
   CarFront, 
@@ -22,6 +24,7 @@ const fmtP = (n: number | undefined | null) =>
 export default function Dashboard() {
   const { data: stats, isLoading } = useDashboardStats();
   const { data: payStats, isLoading: payLoading } = usePaymentDashboardStats();
+  const { data: dailyMetrics, isLoading: metricsLoading } = useDailyMetrics();
 
   if (isLoading || !stats) {
     return (
@@ -161,6 +164,16 @@ export default function Dashboard() {
         })}
       </div>
       
+      {/* Analytics charts */}
+      {dailyMetrics && dailyMetrics.length > 0 && (
+        <DashboardCharts data={dailyMetrics} />
+      )}
+      {metricsLoading && (
+        <div className="rounded-xl bg-card border border-card-border p-8 text-center text-muted-foreground text-sm">
+          Loading analytics…
+        </div>
+      )}
+
       {/* Decorative dashboard background element */}
       <div className="rounded-xl bg-sidebar p-8 shadow-inner overflow-hidden relative">
         <div className="absolute inset-0 opacity-[0.03]" 
