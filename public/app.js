@@ -235,6 +235,7 @@ $('#signupForm').onsubmit = async e => {
     await recordAcceptance('terms', 'registration');
     await recordAcceptance('privacy', 'registration');
   }
+  sendEmail(f.get('email'), 'welcome', { full_name: f.get('full_name') });
   toast('Account created. Check your email to confirm your address, then log in (check spam if you don\'t see it).');
   $('#tabLogin').click();
   setBusy(button, false);
@@ -1949,7 +1950,7 @@ function bindOrderRoom(roomId, isCustomer) {
     e.preventDefault();
     const f = new FormData(e.target);
     const { error } = await sb.rpc('confirm_delivery', { p_order_room_id: roomId, p_pin: f.get('pin'), p_actual_spent: f.get('spent') ? +f.get('spent') : null });
-    if (error) toast(error.message); else { toast('Delivery confirmed. Escrow released.'); openOrderRoom(roomId); }
+    if (error) toast(error.message); else { toast('Delivery confirmed. Escrow released.'); openOrderRoom(roomId); try { const { data: room } = await sb.from('order_rooms').select('customer_id, runner_id, from_city, to_city').eq('id', roomId).single(); if (room) { const custProfile = await sb.from('profiles').select('email, full_name').eq('id', room.customer_id).single(); const runProfile = await sb.from('profiles').select('email, full_name').eq('id', room.runner_id).single(); if (custProfile.data) sendEmail(custProfile.data.email, 'delivery_complete', { full_name: custProfile.data.full_name, from_city: room.from_city, to_city: room.to_city }); if (runProfile.data) sendEmail(runProfile.data.email, 'delivery_complete', { full_name: runProfile.data.full_name, from_city: room.from_city, to_city: room.to_city }); } } catch(e) {} }
   };
   const df = $('#disputeForm');
   if (df) df.onsubmit = async e => {
@@ -2364,7 +2365,9 @@ function bindPage() {
     });
     if (error) { setBusy(b, false); return toast(friendlyError(error)); }
     clearCache('pending-verifications', 'verification:');
-    toast(b.dataset.decision === 'approved' ? 'Runner approved.' : 'Runner rejected with a reason.');
+    const runnerDecision = b.dataset.decision;
+    toast(runnerDecision === 'approved' ? 'Runner approved.' : 'Runner rejected with a reason.');
+    try { const { data: vData } = await sb.from('runner_verifications').select('user_id').eq('id', b.dataset.id).single(); if (vData) { const { data: p } = await sb.from('profiles').select('email, full_name').eq('id', vData.user_id).single(); if (p) sendEmail(p.email, runnerDecision === 'approved' ? 'kyc_approved' : 'kyc_rejected', { full_name: p.full_name, reason: runnerDecision === 'rejected' ? (document.querySelector(`.reviewReason[data-kind="runner"][data-id="${b.dataset.id}"]`)?.value || null) : undefined }); } } catch(e) {}
     renderPage();
   });
   document.querySelectorAll('.reviewVehicle').forEach(b => b.onclick = async () => {
